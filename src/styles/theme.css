@@ -1,0 +1,96 @@
+/* ============================================================
+   THEME: Dark
+   ============================================================ */
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --color-bg-dark: hsl(235 30% 10%);
+  --color-bg: hsl(235 30% 20%);
+  --color-bg-light: hsl(235 30% 30%);
+  /* Text */
+  --color-text: hsl(235 30% 95%);
+  --color-text-muted: hsl(235 30% 70%);
+  /* Highlight */
+  --color-highlight: hsl(232 16% 43%);
+  /* Borders */
+  --color-border: hsl(233 20% 32%);
+  --color-border-muted: hsl(234 28% 22%);
+
+  /* Actions */
+  --color-primary: hsl(233 73% 79%);
+  --color-secondary: hsl(50 43% 58%);
+  --color-accent: hsl(50 43% 58%);
+  --color-accent-hover: hsl(50 43% 58%);
+  /* Feedback */
+  --color-danger: hsl(9 26% 64%);
+  --color-warning: hsl(52 19% 57%);
+  --color-success: hsl(146 17% 59%);
+  --color-info: hsl(217 28% 65%);
+}
+
+/* ============================================================
+   THEME: Light
+   ============================================================ */
+[data-theme="light"] {
+  /* Backgrounds */
+  --color-bg-dark: hsl(235 30% 70%);
+  --color-bg: hsl(235 30% 80%);
+  --color-bg-light: hsl(235 30% 90%);
+  /* Text */
+  --color-text: hsl(235 30% 5%);
+  --color-text-muted: hsl(235 30% 30%);
+  /* Highlight */
+  --color-highlight: hsl(231 100% 100%);
+  /* Borders */
+  --color-border: hsl(232 16% 55%);
+  --color-border-muted: hsl(232 23% 67%);
+  /* Actions */
+  --color-primary: hsl(233 73% 79%);
+  --color-secondary: hsl(50 43% 58%);
+  --color-accent: hsl(50 43% 58%);
+  --color-accent-hover: hsl(50 43% 58%);
+  /* Feedback */
+  --color-danger: hsl(9 26% 64%);
+  --color-warning: hsl(52 19% 57%);
+  --color-success: hsl(146 17% 59%);
+  --color-info: hsl(217 28% 65%);
+}
+
+/* ============================================================
+   TAILWIND v4 THEME BRIDGE
+   Maps your custom CSS properties to Tailwind utilities.
+   ============================================================ */
+@theme inline {
+  --color-bg-dark: var(--color-bg-dark);
+  --color-bg: var(--color-bg);
+  --color-bg-light: var(--color-bg-light);
+
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+
+  --color-highlight: var(--color-highlight);
+
+  --color-border: var(--color-border);
+  --color-border-muted: var(--color-border-muted);
+
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+
+  --color-danger: var(--color-danger);
+  --color-warning: var(--color-warning);
+  --color-success: var(--color-success);
+  --color-info: var(--color-info);
+}
+
+@utility bg-glass-card {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-bg-light),
+    var(--color-bg)
+  );
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--color-border-muted);
+  box-shadow: var(--glass-shadow);
+}
