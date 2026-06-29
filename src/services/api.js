@@ -1,13 +1,24 @@
-// api.js
-// Central module for all HTTP calls to the Node.js backend.
-// All components and hooks should use functions from here
-// instead of calling fetch() directly.
+import { auth } from "../firebase/firebaseConfig";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
+/**
+ * Authenticated HTTP wrapper for all backend API calls.
+ * Attaches the current user's Firebase JWT token to every request.
+ *
+ * @param {string} path - The API endpoint path (e.g. "/api/device/weather").
+ * @param {object} [options={}] - Optional fetch options (method, body, etc.).
+ * @returns {Promise<object>} Parsed JSON response body.
+ * @throws {Error} If the response status is not OK.
+ */
 const apiFetch = async (path, options = {}) => {
+  const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const response = await fetch(`${BACKEND_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers,
     ...options,
   });
 
@@ -22,13 +33,7 @@ const apiFetch = async (path, options = {}) => {
   return data;
 };
 
-// Health check
-export const pingBackend = () => apiFetch("/api/health");
+export const getDeviceWeather = () => apiFetch("/api/device/weather");
 
-// Connection test
-export const testConnections = () => apiFetch("/api/test/all");
-
-// Feature API functions will be added here as development progresses.
-// Examples:
-// export const loginUser = (credentials) => apiFetch("/api/auth/login", { method: "POST", body: JSON.stringify(credentials) });
-// export const getDeviceStatus = (deviceId) => apiFetch(`/api/devices/${deviceId}`);
+export const generatePlan = () =>
+  apiFetch("/api/plan/generate", { method: "POST" });
