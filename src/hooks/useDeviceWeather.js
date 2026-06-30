@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getDeviceWeather } from "../services/api";
 
 /**
@@ -14,30 +14,39 @@ function useDeviceWeather() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const response = await getDeviceWeather();
-        setWeather(response.weather);
-        setLocationName(response.locationName);
+  const fetchWeather = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await getDeviceWeather();
+      setWeather(response.weather);
+      setLocationName(response.locationName);
 
-        const timePart = response.weather.timestamp.slice(11, 16);
-        const [hourStr, minuteStr] = timePart.split(":");
-        const hour = parseInt(hourStr, 10);
-        const period = hour >= 12 ? "PM" : "AM";
-        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-        setHourLabel(`${displayHour}:${minuteStr} ${period}`);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchWeather();
+      const timePart = response.weather.timestamp.slice(11, 16);
+      const [hourStr, minuteStr] = timePart.split(":");
+      const hour = parseInt(hourStr, 10);
+      const period = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      setHourLabel(`${displayHour}:${minuteStr} ${period}`);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { weather, locationName, hourLabel, isLoading, error };
+  useEffect(() => {
+    fetchWeather();
+  }, [fetchWeather]);
+
+  return {
+    weather,
+    locationName,
+    hourLabel,
+    isLoading,
+    error,
+    weatherRefetch: fetchWeather,
+  };
 }
 
 export default useDeviceWeather;

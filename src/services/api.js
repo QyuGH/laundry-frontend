@@ -35,5 +35,16 @@ const apiFetch = async (path, options = {}) => {
 
 export const getDeviceWeather = () => apiFetch("/api/device/weather");
 
+export const getPlan = () => apiFetch("/api/plan");
+
 export const generatePlan = () =>
   apiFetch("/api/plan/generate", { method: "POST" });
+
+export const searchLocation = (query) =>
+  apiFetch(`/api/device/location/search?q=${encodeURIComponent(query)}`);
+
+export const updateDeviceLocation = (locationData) =>
+  apiFetch("/api/device/location", {
+    method: "PUT",
+    body: JSON.stringify(locationData),
+  });
