@@ -1,65 +1,93 @@
 /* ============================================================
-   THEME: Dark
+   THEME CONFIGURATION: OKLCH Family-Friendly Blueprint
    ============================================================ */
-:root,
-[data-theme="dark"] {
+
+/* Default dark mode theme */
+:root {
   /* Backgrounds */
-  --color-bg-dark: hsl(235 30% 10%);
-  --color-bg: hsl(235 30% 20%);
-  --color-bg-light: hsl(235 30% 30%);
+  --color-bg-dark: oklch(0.12 0.03 250);
+  --color-bg: oklch(0.16 0.025 250);
+  --color-bg-light: oklch(0.22 0.02 250);
+
   /* Text */
-  --color-text: hsl(235 30% 95%);
-  --color-text-muted: hsl(235 30% 70%);
+  --color-text: oklch(0.94 0.015 250);
+  --color-text-muted: oklch(0.65 0.015 250);
+
   /* Highlight */
-  --color-highlight: hsl(232 16% 43%);
+  --color-highlight: oklch(0.99 0.05 250);
+
   /* Borders */
-  --color-border: hsl(233 20% 32%);
-  --color-border-muted: hsl(234 28% 22%);
+  --color-border: oklch(0.32 0.025 250);
+  --color-border-muted: oklch(0.24 0.02 250);
 
   /* Actions */
-  --color-primary: hsl(233 73% 79%);
-  --color-secondary: hsl(50 43% 58%);
-  --color-accent: hsl(50 43% 58%);
-  --color-accent-hover: hsl(50 43% 58%);
+  --color-primary: oklch(0.68 0.14 250);
+  --color-secondary: oklch(0.25 0.04 250);
+  --color-accent: oklch(0.7 0.11 210);
+  --color-accent-hover: oklch(0.74 0.13 250);
+
   /* Feedback */
-  --color-danger: hsl(9 26% 64%);
-  --color-warning: hsl(52 19% 57%);
-  --color-success: hsl(146 17% 59%);
-  --color-info: hsl(217 28% 65%);
+  --color-danger: oklch(0.66 0.15 25);
+  --color-warning: oklch(0.72 0.12 85);
+  --color-success: oklch(0.7 0.13 145);
+  --color-info: oklch(0.68 0.14 250);
 }
 
-/* ============================================================
-   THEME: Light
-   ============================================================ */
+[data-theme="dark"] {
+  --color-bg-dark: oklch(0.12 0.03 250);
+  --color-bg: oklch(0.16 0.025 250);
+  --color-bg-light: oklch(0.22 0.02 250);
+
+  --color-text: oklch(0.94 0.015 250);
+  --color-text-muted: oklch(0.65 0.015 250);
+
+  --color-highlight: oklch(0.99 0.05 250 / 0.3);
+
+  --color-border: oklch(0.32 0.025 250);
+  --color-border-muted: oklch(0.24 0.02 250);
+
+  --color-primary: oklch(0.68 0.14 250);
+  --color-secondary: oklch(0.25 0.04 250);
+  --color-accent: oklch(0.7 0.11 210);
+  --color-accent-hover: oklch(0.74 0.13 250);
+
+  --color-danger: oklch(0.66 0.15 25);
+  --color-warning: oklch(0.72 0.12 85);
+  --color-success: oklch(0.7 0.13 145);
+  --color-info: oklch(0.68 0.14 250);
+}
+
 [data-theme="light"] {
   /* Backgrounds */
-  --color-bg-dark: hsl(235 30% 70%);
-  --color-bg: hsl(235 30% 80%);
-  --color-bg-light: hsl(235 30% 90%);
+  --color-bg-dark: oklch(0.96 0.01 250);
+  --color-bg: oklch(0.99 0.005 250);
+  --color-bg-light: oklch(0.92 0.015 250);
+
   /* Text */
-  --color-text: hsl(235 30% 5%);
-  --color-text-muted: hsl(235 30% 30%);
+  --color-text: oklch(0.25 0.03 250);
+  --color-text-muted: oklch(0.5 0.02 250);
+
   /* Highlight */
-  --color-highlight: hsl(231 100% 100%);
+  --color-highlight: oklch(0.99 0.05 250);
+
   /* Borders */
-  --color-border: hsl(232 16% 55%);
-  --color-border-muted: hsl(232 23% 67%);
+  --color-border: oklch(0.82 0.025 250);
+  --color-border-muted: oklch(0.9 0.015 250);
+
   /* Actions */
-  --color-primary: hsl(233 73% 79%);
-  --color-secondary: hsl(50 43% 58%);
-  --color-accent: hsl(50 43% 58%);
-  --color-accent-hover: hsl(50 43% 58%);
+  --color-primary: oklch(0.62 0.14 250);
+  --color-secondary: oklch(0.9 0.03 250);
+  --color-accent: oklch(0.65 0.11 210);
+  --color-accent-hover: oklch(0.56 0.14 250);
+
   /* Feedback */
-  --color-danger: hsl(9 26% 64%);
-  --color-warning: hsl(52 19% 57%);
-  --color-success: hsl(146 17% 59%);
-  --color-info: hsl(217 28% 65%);
+  --color-danger: oklch(0.6 0.15 25);
+  --color-warning: oklch(0.68 0.12 85);
+  --color-success: oklch(0.65 0.13 145);
+  --color-info: oklch(0.62 0.14 250);
 }
 
-/* ============================================================
-   TAILWIND v4 THEME BRIDGE
-   Maps your custom CSS properties to Tailwind utilities.
-   ============================================================ */
+/* THEME BRIDGE */
 @theme inline {
   --color-bg-dark: var(--color-bg-dark);
   --color-bg: var(--color-bg);
@@ -86,11 +114,13 @@
 
 @utility bg-glass-card {
   background-image: linear-gradient(
-    to bottom,
-    var(--color-bg-light),
-    var(--color-bg)
+    0deg,
+    var(--color-bg) 95%,
+    var(--color-bg-light)
   );
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--color-border-muted);
-  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-highlight);
+  box-shadow:
+    0px 1px 2px oklch(0% 0 0 / 0.4),
+    0px 3px 6px -1px oklch(0% 0 0 / 0.3);
 }

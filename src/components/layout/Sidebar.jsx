@@ -35,7 +35,7 @@ function Sidebar({ isCollapsed, navItems }) {
     <>
       <aside
         className={[
-          "hidden md:flex flex-col shrink-0 bg-bg",
+          "hidden md:flex flex-col shrink-0",
           "border-r border-border-muted",
           "transition-all duration-300 ease-in-out overflow-hidden",
           isCollapsed ? "w-16" : "w-56",
