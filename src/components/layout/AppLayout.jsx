@@ -3,13 +3,20 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
+import {
+  HomeIcon,
+  ActivityLogIcon,
+  MonitoringIcon,
+  NotificationIcon,
+  AccountSettingsIcon,
+} from "../icons/NavIcons";
 
 const NAV_ITEMS = [
-  { label: "Home", path: "/" },
-  { label: "Activity Log", path: "/logs" },
-  { label: "Monitoring", path: "/monitoring" },
-  { label: "Notifications", path: "/notifications" },
-  { label: "Account", path: "/settings" },
+  { label: "Home", path: "/", icon: HomeIcon },
+  { label: "Activity Log", path: "/logs", icon: ActivityLogIcon },
+  { label: "Monitoring", path: "/monitoring", icon: MonitoringIcon },
+  { label: "Notifications", path: "/notifications", icon: NotificationIcon },
+  { label: "Account", path: "/settings", icon: AccountSettingsIcon },
 ];
 
 /**
@@ -55,10 +62,8 @@ function AppLayout() {
       <Sidebar isCollapsed={isCollapsed} navItems={NAV_ITEMS} />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        {/* Shared Desktop Header */}
         <Header onMenuToggle={handleMenuToggle} />
 
-        {/* Mobile Page Header */}
         <div className="flex md:hidden items-center justify-between px-5 pt-5 pb-2 bg-bg-dark shrink-0">
           <h2 className="text-lg font-semibold tracking-wide">
             {currentTitle}

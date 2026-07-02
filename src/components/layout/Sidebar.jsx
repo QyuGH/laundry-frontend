@@ -2,8 +2,9 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
-import PlaceholderIcon from "../icons/PlaceholderIcon";
 import Modal from "../common/Modal";
+
+import { HomeIcon, SignoutIcon } from "../icons/NavIcons";
 
 /**
  * Desktop sidebar navigation.
@@ -12,7 +13,7 @@ import Modal from "../common/Modal";
  *
  * @param {object} props
  * @param {boolean} props.isCollapsed - Whether the sidebar is in icon-only mode.
- * @param {Array<{label: string, path: string}>} props.navItems - Navigation item list.
+ * @param {Array<{label: string, path: string, icon: React.ComponentType}>} props.navItems - Navigation item list.
  * @returns {JSX.Element}
  */
 function Sidebar({ isCollapsed, navItems }) {
@@ -48,7 +49,7 @@ function Sidebar({ isCollapsed, navItems }) {
             isCollapsed ? "justify-center px-0" : "px-4",
           ].join(" ")}
         >
-          <PlaceholderIcon className="w-6 h-6 text-text shrink-0" />
+          <HomeIcon className="w-6 h-6 text-text shrink-0" />
           {!isCollapsed && (
             <span className="ml-3 text-text font-semibold text-sm tracking-wide whitespace-nowrap">
               Laun-Dry
@@ -58,28 +59,35 @@ function Sidebar({ isCollapsed, navItems }) {
 
         {/* Navigation items */}
         <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/"}
-              className={({ isActive }) =>
-                [
-                  "flex items-center rounded-md px-3 py-2 text-sm",
-                  "transition-colors duration-150",
-                  isCollapsed ? "justify-center gap-0" : "gap-3",
-                  isActive
-                    ? "bg-highlight text-text"
-                    : "text-text-muted hover:text-text hover:bg-bg-light",
-                ].join(" ")
-              }
-            >
-              <PlaceholderIcon className="w-5 h-5 shrink-0" />
-              {!isCollapsed && (
-                <span className="whitespace-nowrap">{item.label}</span>
-              )}
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            const IconComponent = item.icon;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/"}
+                className={({ isActive }) =>
+                  [
+                    "flex items-center rounded-md px-3 py-2 text-sm",
+                    "transition-colors duration-150",
+                    isCollapsed ? "justify-center gap-0" : "gap-3",
+                    isActive
+                      ? "bg-highlight text-text"
+                      : "text-text-muted hover:text-text hover:bg-bg-light",
+                  ].join(" ")
+                }
+              >
+                {IconComponent && (
+                  <IconComponent className="w-5 h-5 shrink-0" />
+                )}
+
+                {!isCollapsed && (
+                  <span className="whitespace-nowrap">{item.label}</span>
+                )}
+              </NavLink>
+            );
+          })}
         </nav>
 
         {/* Sign Out Button */}
@@ -92,7 +100,7 @@ function Sidebar({ isCollapsed, navItems }) {
             ].join(" ")}
             aria-label="Sign Out"
           >
-            <PlaceholderIcon className="w-5 h-5 shrink-0" />
+            <SignoutIcon className="w-5 h-5 shrink-0" />
             {!isCollapsed && (
               <span className="whitespace-nowrap">Sign Out</span>
             )}

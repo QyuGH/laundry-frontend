@@ -1,20 +1,33 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import useRtdbListener from "../hooks/useRtdbListener";
 import MonitoringMetricsGrid from "../components/monitoring/MonitoringMetricsGrid";
 import ControlPanel from "../components/monitoring/ControlPanel";
 import DryingEstimate from "../components/monitoring/DryingEstimate";
 import SchedulerSection from "../components/monitoring/SchedulerSection";
+import {
+  getActiveSession,
+  startSession,
+  deploySession,
+  retractSession,
+  endSession,
+  createSchedule,
+  cancelSchedule,
+} from "../services/api";
 
 /**
  * Monitoring page.
- * Subscribes to live device sensors and status telemetry from Firebase RTDB.
- * Coordinates layout for Status metrics, Control Panel, Drying Progress, and Scheduler.
+ * Orchestrates states (active session, schedules), RTDB telemetry, and API actions.
  *
  * @returns {JSX.Element}
  */
 function MonitoringPage() {
   const { claims } = useAuth();
   const deviceId = claims?.deviceId ?? null;
+
+  const [session, setSession] = useState(null);
+  const [schedule, setSchedule] = useState(null);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
 
   const { data: status, isLoading: isStatusLoading } = useRtdbListener(
     deviceId ? `devices/${deviceId}/status` : null,
@@ -24,12 +37,77 @@ function MonitoringPage() {
     deviceId ? `devices/${deviceId}/sensors` : null,
   );
 
-  const isLoading = isStatusLoading || isSensorsLoading;
+  const fetchSessionData = async () => {
+    try {
+      const response = await getActiveSession();
+      if (response && response.session) {
+        setSession(response.session);
+        setSchedule(response.session.schedule || null);
+      } else {
+        setSession(null);
+        setSchedule(null);
+      }
+    } catch (err) {
+      setSession(null);
+      setSchedule(null);
+    } finally {
+      setIsSessionLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessionData();
+  }, []);
+
+  const handleStartSession = async (sessionData) => {
+    const res = await startSession(sessionData);
+    await fetchSessionData();
+    return res;
+  };
+
+  const handleDeploy = async () => {
+    const res = await deploySession();
+    await fetchSessionData();
+    return res;
+  };
+
+  const handleRetract = async () => {
+    const res = await retractSession();
+    await fetchSessionData();
+    return res;
+  };
+
+  const handleEndSession = async () => {
+    const res = await endSession();
+    await fetchSessionData();
+    return res;
+  };
+
+  const handleSetSchedule = async (scheduleData) => {
+    if (!session) {
+      const res = await startSession(scheduleData);
+      await fetchSessionData();
+      return res;
+    } else {
+      const res = await createSchedule(scheduleData);
+      await fetchSessionData();
+      return res;
+    }
+  };
+
+  const handleCancelSchedule = async () => {
+    if (!session || !schedule) return;
+    const res = await cancelSchedule(schedule.id, session.id);
+    await fetchSessionData();
+    return res;
+  };
+
+  const isRtdbLoading = isStatusLoading || isSensorsLoading;
+  const isLoading = isSessionLoading || isRtdbLoading;
 
   return (
     <div className="p-5 md:p-6 bg-bg-dark min-h-full">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        {/* Row 1, Col 1 (desktop): Status Section (Metrics Grid) */}
         <div className="flex flex-col gap-6">
           <MonitoringMetricsGrid
             status={status}
@@ -38,19 +116,28 @@ function MonitoringPage() {
           />
         </div>
 
-        {/* Row 1, Col 2 (desktop): Controls Section */}
         <div className="flex flex-col">
-          <ControlPanel />
+          <ControlPanel
+            session={session}
+            onRefresh={fetchSessionData}
+            onStartSession={handleStartSession}
+            onDeploy={handleDeploy}
+            onRetract={handleRetract}
+            onEndSession={handleEndSession}
+          />
         </div>
 
-        {/* Row 2, Col 1 (desktop): Drying Progress Section */}
         <div className="flex flex-col">
           <DryingEstimate />
         </div>
 
-        {/* Row 2, Col 2 (desktop): Scheduler Section */}
         <div className="flex flex-col">
-          <SchedulerSection />
+          <SchedulerSection
+            session={session}
+            schedule={schedule}
+            onSetSchedule={handleSetSchedule}
+            onCancelSchedule={handleCancelSchedule}
+          />
         </div>
       </div>
     </div>

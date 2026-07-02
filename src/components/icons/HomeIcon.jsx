@@ -14,8 +14,13 @@ function HomeIcon({ className = "w-5 h-5" }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Paste the inner SVG elements here */}
-      {/* Replace any hardcoded fill="#000" or stroke="#000" with currentColor */}
+      <path
+        d="M3 13.24V21h18v-7.76M12 15.57l7.25-4.35V11H4.75v0.22L12 15.57zM12 15.57l-7.25-4.35V11H4.75v0.22L12 15.57z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

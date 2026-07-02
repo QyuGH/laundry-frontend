@@ -48,3 +48,32 @@ export const updateDeviceLocation = (locationData) =>
     method: "PUT",
     body: JSON.stringify(locationData),
   });
+
+export const getActiveSession = () => apiFetch("/api/session/active");
+
+export const startSession = (sessionData) =>
+  apiFetch("/api/session/start", {
+    method: "POST",
+    body: JSON.stringify(sessionData),
+  });
+
+export const deploySession = () =>
+  apiFetch("/api/session/deploy", { method: "POST" });
+
+export const retractSession = () =>
+  apiFetch("/api/session/retract", { method: "POST" });
+
+export const endSession = () =>
+  apiFetch("/api/session/end", { method: "POST" });
+
+export const createSchedule = (scheduleData) =>
+  apiFetch("/api/schedule", {
+    method: "POST",
+    body: JSON.stringify(scheduleData),
+  });
+
+export const cancelSchedule = (scheduleId, sessionId) =>
+  apiFetch("/api/schedule/cancel", {
+    method: "POST",
+    body: JSON.stringify({ scheduleId, sessionId }),
+  });
