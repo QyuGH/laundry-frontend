@@ -37,6 +37,10 @@ function MonitoringPage() {
     deviceId ? `devices/${deviceId}/sensors` : null,
   );
 
+  const { data: progressData, isLoading: isProgressLoading } = useRtdbListener(
+    deviceId ? `devices/${deviceId}/dryingProgress` : null,
+  );
+
   const fetchSessionData = async () => {
     try {
       const response = await getActiveSession();
@@ -102,7 +106,8 @@ function MonitoringPage() {
     return res;
   };
 
-  const isRtdbLoading = isStatusLoading || isSensorsLoading;
+  const isRtdbLoading =
+    isStatusLoading || isSensorsLoading || isProgressLoading;
   const isLoading = isSessionLoading || isRtdbLoading;
 
   return (
@@ -128,7 +133,11 @@ function MonitoringPage() {
         </div>
 
         <div className="flex flex-col">
-          <DryingEstimate />
+          <DryingEstimate
+            session={session}
+            progressData={progressData}
+            isLoading={isLoading}
+          />
         </div>
 
         <div className="flex flex-col">
