@@ -77,3 +77,6 @@ export const cancelSchedule = (scheduleId, sessionId) =>
     method: "POST",
     body: JSON.stringify({ scheduleId, sessionId }),
   });
+
+export const runHandshake = () =>
+  apiFetch("/api/device/handshake", { method: "POST" });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import useRtdbListener from "../hooks/useRtdbListener";
+import useHandshake from "../hooks/useHandshake";
 import MonitoringMetricsGrid from "../components/monitoring/MonitoringMetricsGrid";
 import ControlPanel from "../components/monitoring/ControlPanel";
 import DryingEstimate from "../components/monitoring/DryingEstimate";
@@ -41,6 +42,8 @@ function MonitoringPage() {
     deviceId ? `devices/${deviceId}/dryingProgress` : null,
   );
 
+  const { deviceStatus, runHandshakeCheck } = useHandshake(deviceId, status);
+
   const fetchSessionData = async () => {
     try {
       const response = await getActiveSession();
@@ -51,7 +54,7 @@ function MonitoringPage() {
         setSession(null);
         setSchedule(null);
       }
-    } catch (err) {
+    } catch {
       setSession(null);
       setSchedule(null);
     } finally {
@@ -124,6 +127,8 @@ function MonitoringPage() {
         <div className="flex flex-col">
           <ControlPanel
             session={session}
+            deviceStatus={deviceStatus}
+            onHandshake={runHandshakeCheck}
             onRefresh={fetchSessionData}
             onStartSession={handleStartSession}
             onDeploy={handleDeploy}
