@@ -1,22 +1,16 @@
 import { useState, useCallback } from "react";
 import Modal from "../common/Modal";
 
-const STATUS_CONFIG = {
-  idle: {
-    badge: "●",
-    label: "Initializing",
-    description: "Loading device state...",
-    color: "text-text-muted",
-  },
+const CONNECTION_CONFIG = {
   checking: {
     badge: "●",
-    label: "Verifying",
-    description: "Checking device connection. Please wait.",
+    label: "Connecting",
+    description: "Loading device state...",
     color: "text-text-muted",
   },
   offline: {
     badge: "●",
-    label: "Device Unreachable",
+    label: "Device Offline",
     description:
       "The device did not respond. Ensure it is powered on and connected.",
     color: "text-red-400",
@@ -29,7 +23,7 @@ const STATUS_CONFIG = {
   },
 };
 
-const SESSION_STATUS_CONFIG = {
+const SESSION_CONFIG = {
   active: {
     badge: "●",
     label: "Session Active",
@@ -47,7 +41,7 @@ const SESSION_STATUS_CONFIG = {
     badge: "●",
     label: "Rain Detected",
     description:
-      "Session was automatically paused due to rain. Resume when conditions improve.",
+      "Session automatically paused due to rain. Resume when conditions clear.",
     color: "text-yellow-400",
   },
   pending: {
@@ -66,24 +60,23 @@ const FABRIC_BASELINES = {
 };
 
 /**
- * Renders the device control panel with state-aware buttons and status messaging.
- * All actions are guarded by device connectivity checks and confirmation modals.
+ * ControlPanel component.
+ * Handles manually starting, pausing, resuming, and ending laundry sessions.
+ * Displays real-time device connection status badges and description messages.
  *
  * @param {object} props
- * @param {object|null} props.session - The active session document.
- * @param {string} props.deviceStatus - The handshake status: "idle"|"checking"|"online"|"offline".
- * @param {function} props.onHandshake - Callback to retry the device handshake.
- * @param {function} props.onRefresh - Callback to refresh session data.
- * @param {function} props.onStartSession - Handler to start a new session.
- * @param {function} props.onDeploy - Handler to deploy (resume) the clothesline.
- * @param {function} props.onRetract - Handler to retract (pause) the clothesline.
- * @param {function} props.onEndSession - Handler to end the session.
+ * @param {object|null} props.session - The active session document data.
+ * @param {string} props.deviceConnection - The parsed device status: "checking"|"online"|"offline".
+ * @param {function} props.onRefresh - Callback to refresh active session data.
+ * @param {function} props.onStartSession - Action handler to initialize session.
+ * @param {function} props.onDeploy - Action handler to deploy clothesline.
+ * @param {function} props.onRetract - Action handler to retract clothesline.
+ * @param {function} props.onEndSession - Action handler to terminate session.
  * @returns {JSX.Element}
  */
 function ControlPanel({
   session,
-  deviceStatus,
-  onHandshake,
+  deviceConnection,
   onStartSession,
   onDeploy,
   onRetract,
@@ -97,20 +90,9 @@ function ControlPanel({
   const [actionError, setActionError] = useState(null);
 
   const sessionStatus = session?.status ?? null;
-
-  const resolvedStatus = (() => {
-    if (deviceStatus === "idle" || deviceStatus === "checking")
-      return STATUS_CONFIG[deviceStatus];
-    if (deviceStatus === "offline") return STATUS_CONFIG.offline;
-    if (sessionStatus && SESSION_STATUS_CONFIG[sessionStatus])
-      return SESSION_STATUS_CONFIG[sessionStatus];
-    return STATUS_CONFIG.online;
-  })();
-
-  const isDeviceOnline = deviceStatus === "online";
-  const isDeviceChecking =
-    deviceStatus === "idle" || deviceStatus === "checking";
-  const isDeviceOffline = deviceStatus === "offline";
+  const isOnline = deviceConnection === "online";
+  const isChecking = deviceConnection === "checking";
+  const isOffline = deviceConnection === "offline";
 
   const isInactive = !session;
   const isPending = sessionStatus === "pending";
@@ -118,13 +100,22 @@ function ControlPanel({
   const isPausedOrInterrupted =
     sessionStatus === "paused" || sessionStatus === "rain-interrupted";
 
+  // Resolve what badge status and description message to show
+  const statusBadge = (() => {
+    if (isChecking) return CONNECTION_CONFIG.checking;
+    if (isOffline) return CONNECTION_CONFIG.offline;
+    if (sessionStatus && SESSION_CONFIG[sessionStatus])
+      return SESSION_CONFIG[sessionStatus];
+    return CONNECTION_CONFIG.online;
+  })();
+
   const withSubmit = useCallback(async (action) => {
     setIsSubmitting(true);
     setActionError(null);
     try {
       await action();
     } catch (err) {
-      setActionError(err.message || "An error occurred. Please try again.");
+      setActionError(err.message || "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }
@@ -137,24 +128,12 @@ function ControlPanel({
         fabricBaselineDuration: FABRIC_BASELINES[fabricType],
       });
       setIsStartModalOpen(false);
-      setFabricType("synthetic");
     });
 
   const handleConfirmPause = () =>
     withSubmit(async () => {
       await onRetract();
       setIsPauseModalOpen(false);
-    });
-
-  const handleConfirmResume = () =>
-    withSubmit(async () => {
-      await onHandshake();
-      if (deviceStatus !== "online") {
-        throw new Error(
-          "Device is unresponsive. Ensure it is powered on and try again.",
-        );
-      }
-      await onDeploy();
     });
 
   const handleConfirmEnd = () =>
@@ -165,54 +144,56 @@ function ControlPanel({
 
   return (
     <div className="flex flex-col gap-4 p-5 rounded-lg border border-border-muted bg-glass-card h-full min-h-[220px]">
-      {/* Header */}
+      {/* Card Header */}
       <div className="flex items-center justify-between">
         <span className="text-text-muted text-xs uppercase tracking-widest font-semibold">
           Controls
         </span>
       </div>
 
-      {/* Status Badge */}
+      {/* Connection / Status Badge */}
       <div className="flex flex-col gap-1">
-        <div className={`flex items-center gap-2 ${resolvedStatus.color}`}>
-          <span className="text-base leading-none">{resolvedStatus.badge}</span>
-          <span className="text-sm font-semibold">{resolvedStatus.label}</span>
+        <div className={`flex items-center gap-2 ${statusBadge.color}`}>
+          <span className="text-base leading-none">{statusBadge.badge}</span>
+          <span className="text-sm font-semibold">{statusBadge.label}</span>
         </div>
         <p className="text-text-muted text-xs leading-relaxed">
-          {resolvedStatus.description}
+          {statusBadge.description}
         </p>
       </div>
 
-      {/* Error Message */}
+      {/* Action Error Alert */}
       {actionError && (
-        <p className="text-red-400 text-xs border border-red-400/30 rounded px-3 py-2 bg-red-400/10">
+        <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
           {actionError}
         </p>
       )}
 
-      {/* Action Buttons */}
+      {/* Action Buttons Container */}
       <div className="flex flex-col gap-3 flex-grow justify-end">
-        {/* Checking state — no buttons, just a loading indicator */}
-        {isDeviceChecking && (
+        {/* State 1: Connecting state */}
+        {isChecking && (
           <p className="text-text-muted text-xs italic text-center">
-            Verifying connection...
+            Verifying device connection...
           </p>
         )}
 
-        {/* Offline state — retry button only */}
-        {isDeviceOffline && (
-          <button
-            id="initialize-device-btn"
-            onClick={onHandshake}
-            disabled={isSubmitting}
-            className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
-          >
-            Initialize Device
-          </button>
+        {/* State 2: Device is offline while session is inactive */}
+        {isOffline && isInactive && (
+          <p className="text-red-400 text-xs italic text-center">
+            Device must be online to initialize a drying session.
+          </p>
         )}
 
-        {/* Online, inactive session — start session button */}
-        {isDeviceOnline && isInactive && (
+        {/* State 3: Device goes offline mid-session */}
+        {isOffline && !isInactive && (
+          <p className="text-red-400 text-xs italic text-center">
+            Commands are disabled until the device reconnects.
+          </p>
+        )}
+
+        {/* State 4: Device is online, no active session */}
+        {isOnline && isInactive && (
           <button
             id="start-session-btn"
             onClick={() => {
@@ -226,8 +207,8 @@ function ControlPanel({
           </button>
         )}
 
-        {/* Online, session pending — show pending controls */}
-        {isDeviceOnline && isPending && (
+        {/* State 5: Session is pending deployment */}
+        {isOnline && isPending && (
           <div className="flex flex-col gap-2">
             <button
               id="deploy-now-btn"
@@ -248,8 +229,8 @@ function ControlPanel({
           </div>
         )}
 
-        {/* Online, session active — pause button */}
-        {isDeviceOnline && isActive && (
+        {/* State 6: Session is active (deployed) */}
+        {isOnline && isActive && (
           <button
             id="pause-retract-btn"
             onClick={() => {
@@ -263,12 +244,12 @@ function ControlPanel({
           </button>
         )}
 
-        {/* Online, session paused or rain-interrupted — resume and end buttons */}
-        {isDeviceOnline && isPausedOrInterrupted && (
+        {/* State 7: Session is paused or rain-interrupted */}
+        {isOnline && isPausedOrInterrupted && (
           <div className="grid grid-cols-2 gap-3">
             <button
               id="resume-session-btn"
-              onClick={handleConfirmResume}
+              onClick={() => withSubmit(onDeploy)}
               disabled={isSubmitting}
               className="py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
             >
@@ -284,22 +265,6 @@ function ControlPanel({
               className="py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light transition bg-bg disabled:opacity-50"
             >
               End Session
-            </button>
-          </div>
-        )}
-
-        {/* Device offline during an active session — all commands blocked */}
-        {isDeviceOffline && !isInactive && (
-          <div className="flex flex-col gap-2">
-            <p className="text-xs text-red-400 italic text-center">
-              Commands are disabled until the device reconnects.
-            </p>
-            <button
-              onClick={onHandshake}
-              disabled={isSubmitting}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
-            >
-              Retry Connection
             </button>
           </div>
         )}
@@ -321,7 +286,6 @@ function ControlPanel({
               Fabric Type
             </label>
             <select
-              id="fabric-type-select"
               value={fabricType}
               onChange={(e) => setFabricType(e.target.value)}
               className="w-full p-2 rounded border border-border bg-bg-dark text-text text-sm"
@@ -332,7 +296,6 @@ function ControlPanel({
               <option value="heavy">Heavy / Thick (Est. 6 hrs)</option>
             </select>
           </div>
-          {actionError && <p className="text-red-400 text-xs">{actionError}</p>}
           <div className="flex justify-end gap-3 mt-1">
             <button
               onClick={() => setIsStartModalOpen(false)}
@@ -344,7 +307,7 @@ function ControlPanel({
               id="confirm-deploy-btn"
               onClick={handleConfirmStart}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Deploying..." : "Confirm & Deploy"}
             </button>
@@ -364,7 +327,6 @@ function ControlPanel({
             drying session will be paused. Progress tracking will resume when
             you redeploy.
           </p>
-          {actionError && <p className="text-red-400 text-xs">{actionError}</p>}
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setIsPauseModalOpen(false)}
@@ -376,7 +338,7 @@ function ControlPanel({
               id="confirm-pause-btn"
               onClick={handleConfirmPause}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Retracting..." : "Confirm Pause"}
             </button>
@@ -396,7 +358,6 @@ function ControlPanel({
             will remain in the protected zone and progress tracking will be
             finalized.
           </p>
-          {actionError && <p className="text-red-400 text-xs">{actionError}</p>}
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setIsEndModalOpen(false)}
@@ -408,7 +369,7 @@ function ControlPanel({
               id="confirm-end-session-btn"
               onClick={handleConfirmEnd}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Ending..." : "Confirm End Session"}
             </button>

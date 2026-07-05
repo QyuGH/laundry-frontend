@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import useRtdbListener from "../hooks/useRtdbListener";
-import useHandshake from "../hooks/useHandshake";
+import useDeviceConnection from "../hooks/useDeviceConnection";
 import MonitoringMetricsGrid from "../components/monitoring/MonitoringMetricsGrid";
 import ControlPanel from "../components/monitoring/ControlPanel";
 import DryingEstimate from "../components/monitoring/DryingEstimate";
@@ -30,7 +30,7 @@ function MonitoringPage() {
   const [schedule, setSchedule] = useState(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
 
-  const { data: status, isLoading: isStatusLoading } = useRtdbListener(
+  const { data: rtdbStatus, isLoading: isStatusLoading } = useRtdbListener(
     deviceId ? `devices/${deviceId}/status` : null,
   );
 
@@ -42,7 +42,7 @@ function MonitoringPage() {
     deviceId ? `devices/${deviceId}/dryingProgress` : null,
   );
 
-  const { deviceStatus, runHandshakeCheck } = useHandshake(deviceId, status);
+  const deviceConnection = useDeviceConnection(rtdbStatus);
 
   const fetchSessionData = async () => {
     try {
@@ -118,7 +118,7 @@ function MonitoringPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         <div className="flex flex-col gap-6">
           <MonitoringMetricsGrid
-            status={status}
+            status={rtdbStatus}
             sensors={sensors}
             isLoading={isLoading}
           />
@@ -127,8 +127,7 @@ function MonitoringPage() {
         <div className="flex flex-col">
           <ControlPanel
             session={session}
-            deviceStatus={deviceStatus}
-            onHandshake={runHandshakeCheck}
+            deviceConnection={deviceConnection}
             onRefresh={fetchSessionData}
             onStartSession={handleStartSession}
             onDeploy={handleDeploy}

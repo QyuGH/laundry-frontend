@@ -9,7 +9,7 @@ import MetricCard from "./MetricCard";
  *   Row 2: Temperature   | Humidity
  *
  * @param {object} props
- * @param {boolean} props.isOnline - Whether the device is currently online.
+ * @param {string} props.deviceConnection - Passive connection state: "checking"|"online"|"offline".
  * @param {object|null} props.weather - Weather forecast object from the backend.
  * @param {string} props.hourLabel - Human-readable label for the forecast hour (e.g. "8:00 AM").
  * @param {boolean} props.isWeatherLoading - Whether the weather fetch is in progress.
@@ -17,7 +17,7 @@ import MetricCard from "./MetricCard";
  * @returns {JSX.Element}
  */
 function MetricsGrid({
-  isOnline,
+  deviceConnection,
   weather,
   locationName,
   hourLabel,
@@ -26,7 +26,12 @@ function MetricsGrid({
 }) {
   const navigate = useNavigate();
 
-  const statusValue = isOnline === null ? "—" : isOnline ? "Online" : "Offline";
+  const statusValue =
+    deviceConnection === "checking"
+      ? "—"
+      : deviceConnection === "online"
+        ? "Online"
+        : "Offline";
 
   const temperatureValue = isWeatherLoading
     ? "—"

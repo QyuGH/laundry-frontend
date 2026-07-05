@@ -6,6 +6,7 @@ import MetricsGrid from "../components/home/MetricsGrid";
 import PlannerSection from "../components/home/PlannerSection";
 import LocationModal from "../components/home/LocationModal";
 import { getPlan, generatePlan, updateDeviceLocation } from "../services/api";
+import useDeviceConnection from "../hooks/useDeviceConnection";
 
 function HomePage() {
   const { claims } = useAuth();
@@ -27,9 +28,11 @@ function HomePage() {
     weatherRefetch,
   } = useDeviceWeather();
 
-  const { data: isOnline } = useRtdbListener(
-    deviceId ? `devices/${deviceId}/status/isOnline` : null,
+  const { data: rtdbStatus } = useRtdbListener(
+    deviceId ? `devices/${deviceId}/status` : null,
   );
+
+  const deviceConnection = useDeviceConnection(rtdbStatus);
 
   // Fetch saved plan on mount
   useEffect(() => {
@@ -95,7 +98,7 @@ function HomePage() {
         {/* Left Column */}
         <div className="flex flex-col gap-6 md:col-span-2">
           <MetricsGrid
-            isOnline={isOnline}
+            deviceConnection={deviceConnection}
             weather={weather}
             locationName={locationName}
             hourLabel={hourLabel}
