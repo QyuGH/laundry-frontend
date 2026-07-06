@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Modal from "../common/Modal";
 
 /**
@@ -9,6 +9,7 @@ import Modal from "../common/Modal";
  * @param {object} props
  * @param {object|null} props.session - The active session document data.
  * @param {object|null} props.schedule - The active schedule subdocument.
+ * @param {string} props.deviceConnection - The device connection state string ("checking"|"online"|"offline").
  * @param {function} props.onSetSchedule - Callback to register a new schedule.
  * @param {function} props.onCancelSchedule - Callback to delete the active schedule.
  * @returns {JSX.Element}
@@ -16,6 +17,7 @@ import Modal from "../common/Modal";
 function SchedulerSection({
   session,
   schedule,
+  deviceConnection,
   onSetSchedule,
   onCancelSchedule,
 }) {
@@ -26,9 +28,9 @@ function SchedulerSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const isOnline = deviceConnection === "online";
   const isInactive = !session;
   const isPending = session?.status === "pending";
-  const isActive = session?.status === "active";
   const isPausedOrInterrupted =
     session?.status === "paused" || session?.status === "rain-interrupted";
   const hasActiveSchedule = schedule && schedule.status === "pending";
@@ -131,8 +133,23 @@ function SchedulerSection({
       </div>
 
       <div className="flex flex-col justify-center flex-grow">
-        {/* Case 1: Session Paused or Rain-Interrupted (Scheduling Disabled) */}
-        {isPausedOrInterrupted && (
+        {/* Case 1: Device is Offline */}
+        {!isOnline && (
+          <div className="flex flex-col gap-3 text-center">
+            <p className="text-text-muted text-xs leading-relaxed italic">
+              Scheduler is unavailable because the device is offline.
+            </p>
+            <button
+              disabled
+              className="w-full py-2.5 rounded-md text-sm font-medium border border-border-muted text-text-muted bg-bg/50 cursor-not-allowed opacity-50"
+            >
+              Device Offline
+            </button>
+          </div>
+        )}
+
+        {/* Case 2: Device is Online, but Session is Paused or Rain-Interrupted */}
+        {isOnline && isPausedOrInterrupted && (
           <div className="flex flex-col gap-3 text-center">
             <p className="text-text-muted text-xs leading-relaxed italic">
               Scheduling is unavailable while the drying session is paused or
@@ -147,8 +164,8 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 2: Schedule Active (Displays time + Modify/Cancel controls) */}
-        {!isPausedOrInterrupted && hasActiveSchedule && (
+        {/* Case 3: Device is Online, Active Schedule exists (either Pending Deployment OR Pending Retraction) */}
+        {isOnline && !isPausedOrInterrupted && hasActiveSchedule && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1 text-center">
               <p className="text-text text-sm font-medium">
@@ -174,7 +191,7 @@ function SchedulerSection({
                 disabled={isSubmitting}
                 className="py-2 rounded-md text-xs font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
               >
-                Modify
+                Edit Time
               </button>
               <button
                 id="cancel-schedule-btn"
@@ -188,24 +205,46 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 3: No Active Schedule (Deployment or Retraction can be set) */}
-        {!isPausedOrInterrupted && !hasActiveSchedule && (
-          <div className="flex flex-col gap-3 text-center">
-            <p className="text-text-muted text-xs leading-relaxed italic">
-              {isInactive
-                ? "No active schedule. Set a deployment time to automate your laundry session today."
-                : "No active schedule. Set a retraction time to automatically bring in your clothes today."}
-            </p>
-            <button
-              id="set-schedule-btn"
-              onClick={handleOpenModal}
-              disabled={isSubmitting}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
-            >
-              {isInactive ? "Set Deployment Time" : "Set Retraction Time"}
-            </button>
-          </div>
-        )}
+        {/* Case 4: Device is Online, No Active Schedule, and Deployment is pending (session exists as pending) */}
+        {isOnline &&
+          !isPausedOrInterrupted &&
+          !hasActiveSchedule &&
+          isPending && (
+            <div className="flex flex-col gap-3 text-center">
+              <p className="text-text-muted text-xs leading-relaxed italic">
+                A session is pending deployment. Retraction times cannot be
+                scheduled until the session starts.
+              </p>
+              <button
+                disabled
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border-muted text-text-muted bg-bg/50 cursor-not-allowed opacity-50"
+              >
+                Session Pending Start
+              </button>
+            </div>
+          )}
+
+        {/* Case 5: Device is Online, No Active Schedule, and Session is either Inactive (Set Deployment) or Active (Set Retraction) */}
+        {isOnline &&
+          !isPausedOrInterrupted &&
+          !hasActiveSchedule &&
+          !isPending && (
+            <div className="flex flex-col gap-3 text-center">
+              <p className="text-text-muted text-xs leading-relaxed italic">
+                {isInactive
+                  ? "No active schedule. Set a deployment time to automate your laundry session today."
+                  : "No active schedule. Set a retraction time to automatically bring in your clothes today."}
+              </p>
+              <button
+                id="set-schedule-btn"
+                onClick={handleOpenModal}
+                disabled={isSubmitting}
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              >
+                {isInactive ? "Set Deployment Time" : "Set Retraction Time"}
+              </button>
+            </div>
+          )}
       </div>
 
       {/* Dropdown Time Picker Modal */}

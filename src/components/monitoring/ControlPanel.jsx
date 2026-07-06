@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Modal from "../common/Modal";
 
 const CONNECTION_CONFIG = {
@@ -67,7 +67,6 @@ const FABRIC_BASELINES = {
  * @param {object} props
  * @param {object|null} props.session - The active session document data.
  * @param {string} props.deviceConnection - The parsed device status: "checking"|"online"|"offline".
- * @param {function} props.onRefresh - Callback to refresh active session data.
  * @param {function} props.onStartSession - Action handler to initialize session.
  * @param {function} props.onDeploy - Action handler to deploy clothesline.
  * @param {function} props.onRetract - Action handler to retract clothesline.
@@ -88,6 +87,7 @@ function ControlPanel({
   const [fabricType, setFabricType] = useState("synthetic");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionError, setActionError] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const sessionStatus = session?.status ?? null;
   const isOnline = deviceConnection === "online";
@@ -99,6 +99,17 @@ function ControlPanel({
   const isActive = sessionStatus === "active";
   const isPausedOrInterrupted =
     sessionStatus === "paused" || sessionStatus === "rain-interrupted";
+
+  // Reset initialization state if the device goes offline or session status changes
+  useEffect(() => {
+    if (!isOnline) {
+      setIsInitialized(false);
+    }
+  }, [isOnline]);
+
+  useEffect(() => {
+    setIsInitialized(false);
+  }, [sessionStatus]);
 
   // Resolve what badge status and description message to show
   const statusBadge = (() => {
@@ -121,6 +132,20 @@ function ControlPanel({
     }
   }, []);
 
+  const handleInitialize = () => {
+    setIsSubmitting(true);
+    setActionError(null);
+    // Simulate backend-device verification handshake
+    setTimeout(() => {
+      if (isOnline) {
+        setIsInitialized(true);
+      } else {
+        setActionError("Device verification failed. Ensure device is online.");
+      }
+      setIsSubmitting(false);
+    }, 800);
+  };
+
   const handleConfirmStart = () =>
     withSubmit(async () => {
       await onStartSession({
@@ -128,6 +153,7 @@ function ControlPanel({
         fabricBaselineDuration: FABRIC_BASELINES[fabricType],
       });
       setIsStartModalOpen(false);
+      setIsInitialized(false);
     });
 
   const handleConfirmPause = () =>
@@ -194,17 +220,30 @@ function ControlPanel({
 
         {/* State 4: Device is online, no active session */}
         {isOnline && isInactive && (
-          <button
-            id="start-session-btn"
-            onClick={() => {
-              setActionError(null);
-              setIsStartModalOpen(true);
-            }}
-            disabled={isSubmitting}
-            className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
-          >
-            Start Session
-          </button>
+          <>
+            {!isInitialized ? (
+              <button
+                id="initialize-device-btn"
+                onClick={handleInitialize}
+                disabled={isSubmitting}
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              >
+                {isSubmitting ? "Initializing..." : "Initialize Device"}
+              </button>
+            ) : (
+              <button
+                id="start-session-btn"
+                onClick={() => {
+                  setActionError(null);
+                  setIsStartModalOpen(true);
+                }}
+                disabled={isSubmitting}
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              >
+                Deploy
+              </button>
+            )}
+          </>
         )}
 
         {/* State 5: Session is pending deployment */}
@@ -350,13 +389,13 @@ function ControlPanel({
       <Modal
         isOpen={isEndModalOpen}
         onClose={() => setIsEndModalOpen(false)}
-        title="End Session"
+        title="Cancel or End Session"
       >
         <div className="flex flex-col gap-4">
           <p className="text-sm text-text-muted">
-            Are you sure you want to end this laundry session? The clothesline
-            will remain in the protected zone and progress tracking will be
-            finalized.
+            {isPending
+              ? "Are you sure you want to cancel this scheduled session? It will be permanently removed from the pending list."
+              : "Are you sure you want to end this laundry session? The clothesline will remain in the protected zone and progress tracking will be finalized."}
           </p>
           <div className="flex justify-end gap-3">
             <button
@@ -371,7 +410,13 @@ function ControlPanel({
               disabled={isSubmitting}
               className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
             >
-              {isSubmitting ? "Ending..." : "Confirm End Session"}
+              {isSubmitting
+                ? isPending
+                  ? "Cancelling..."
+                  : "Ending..."
+                : isPending
+                  ? "Confirm Cancel Session"
+                  : "Confirm End Session"}
             </button>
           </div>
         </div>

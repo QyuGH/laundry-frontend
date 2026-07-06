@@ -148,6 +148,7 @@ function MonitoringPage() {
           <SchedulerSection
             session={session}
             schedule={schedule}
+            deviceConnection={deviceConnection}
             onSetSchedule={handleSetSchedule}
             onCancelSchedule={handleCancelSchedule}
           />
