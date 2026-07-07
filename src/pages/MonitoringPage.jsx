@@ -66,6 +66,13 @@ function MonitoringPage() {
     fetchSessionData();
   }, []);
 
+  // Listen to the RTDB session update trigger to sync the UI state instantly
+  useEffect(() => {
+    if (rtdbStatus?.sessionUpdateTrigger) {
+      fetchSessionData();
+    }
+  }, [rtdbStatus?.sessionUpdateTrigger, rtdbStatus?.sessionStatus]);
+
   const handleStartSession = async (sessionData) => {
     const res = await startSession(sessionData);
     await fetchSessionData();
@@ -128,7 +135,6 @@ function MonitoringPage() {
           <ControlPanel
             session={session}
             deviceConnection={deviceConnection}
-            onRefresh={fetchSessionData}
             onStartSession={handleStartSession}
             onDeploy={handleDeploy}
             onRetract={handleRetract}

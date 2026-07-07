@@ -21,7 +21,8 @@ function SchedulerSection({
   onSetSchedule,
   onCancelSchedule,
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [hour, setHour] = useState("08");
   const [minute, setMinute] = useState("00");
   const [period, setPeriod] = useState("AM");
@@ -35,7 +36,7 @@ function SchedulerSection({
     session?.status === "paused" || session?.status === "rain-interrupted";
   const hasActiveSchedule = schedule && schedule.status === "pending";
 
-  const handleOpenModal = () => {
+  const handleOpenScheduleModal = () => {
     setError(null);
     let targetTime = null;
 
@@ -59,7 +60,7 @@ function SchedulerSection({
       setMinute("00");
       setPeriod("AM");
     }
-    setIsModalOpen(true);
+    setIsScheduleModalOpen(true);
   };
 
   const handleSave = async () => {
@@ -73,7 +74,6 @@ function SchedulerSection({
       if (period === "PM" && numHours !== 12) numHours += 12;
       if (period === "AM" && numHours === 12) numHours = 0;
 
-      // Construct target time on today's calendar date
       const targetDate = new Date();
       targetDate.setHours(numHours, numMinutes, 0, 0);
 
@@ -85,7 +85,6 @@ function SchedulerSection({
       const targetIsoString = targetDate.toISOString();
 
       if (isInactive) {
-        // Inactive session: schedule deployment (fabric parameters default to synthetic)
         await onSetSchedule({
           fabricType: "synthetic",
           fabricBaselineDuration: 2,
@@ -93,13 +92,12 @@ function SchedulerSection({
           retractTime: null,
         });
       } else {
-        // Active session: schedule retraction
         await onSetSchedule({
           deployTime: null,
           retractTime: targetIsoString,
         });
       }
-      setIsModalOpen(false);
+      setIsScheduleModalOpen(false);
     } catch (err) {
       setError(err.message || "Failed to set schedule.");
     } finally {
@@ -107,11 +105,12 @@ function SchedulerSection({
     }
   };
 
-  const handleCancel = async () => {
+  const handleConfirmCancel = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
       await onCancelSchedule();
+      setIsCancelModalOpen(false);
     } catch (err) {
       setError(err.message || "Failed to cancel schedule.");
     } finally {
@@ -119,7 +118,6 @@ function SchedulerSection({
     }
   };
 
-  // Pre-generate minute options (5-minute intervals for easier picking)
   const minutes = Array.from({ length: 12 }, (_, i) =>
     String(i * 5).padStart(2, "0"),
   );
@@ -183,11 +181,17 @@ function SchedulerSection({
                       minute: "2-digit",
                     })} Today`}
               </p>
+              {schedule.retractTime && (
+                <p className="text-text-muted text-[10px] italic mt-1 px-4 leading-normal">
+                  Note: At the scheduled time, the clothesline will retract and
+                  end this session.
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3 mt-1">
               <button
                 id="modify-schedule-btn"
-                onClick={handleOpenModal}
+                onClick={handleOpenScheduleModal}
                 disabled={isSubmitting}
                 className="py-2 rounded-md text-xs font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
               >
@@ -195,7 +199,10 @@ function SchedulerSection({
               </button>
               <button
                 id="cancel-schedule-btn"
-                onClick={handleCancel}
+                onClick={() => {
+                  setError(null);
+                  setIsCancelModalOpen(true);
+                }}
                 disabled={isSubmitting}
                 className="py-2 rounded-md text-xs font-medium border border-border text-text-muted hover:bg-bg-light transition bg-bg disabled:opacity-50"
               >
@@ -237,7 +244,7 @@ function SchedulerSection({
               </p>
               <button
                 id="set-schedule-btn"
-                onClick={handleOpenModal}
+                onClick={handleOpenScheduleModal}
                 disabled={isSubmitting}
                 className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
               >
@@ -249,8 +256,8 @@ function SchedulerSection({
 
       {/* Dropdown Time Picker Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
         title={isInactive ? "Set Deployment Time" : "Set Retraction Time"}
       >
         <div className="flex flex-col gap-4">
@@ -313,7 +320,7 @@ function SchedulerSection({
 
           <div className="flex justify-end gap-3 mt-1">
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => setIsScheduleModalOpen(false)}
               className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
             >
               Cancel
@@ -325,6 +332,43 @@ function SchedulerSection({
               className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Saving..." : "Save Schedule"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Cancel Schedule Confirmation Modal */}
+      <Modal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        title="Cancel Schedule"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-text-muted">
+            Are you sure you want to cancel this schedule? This action cannot be
+            undone.
+          </p>
+
+          {error && (
+            <p className="text-red-400 text-xs text-center font-medium border border-red-400/20 rounded p-2 bg-red-400/10">
+              {error}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setIsCancelModalOpen(false)}
+              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
+            >
+              Go Back
+            </button>
+            <button
+              id="confirm-cancel-schedule-btn"
+              onClick={handleConfirmCancel}
+              disabled={isSubmitting}
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
+            >
+              {isSubmitting ? "Cancelling..." : "Confirm Cancel"}
             </button>
           </div>
         </div>
