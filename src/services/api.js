@@ -77,3 +77,14 @@ export const cancelSchedule = (scheduleId, sessionId) =>
     method: "POST",
     body: JSON.stringify({ scheduleId, sessionId }),
   });
+
+export const getSessionHistory = (limit = 10, lastSessionId = null) => {
+  const query = `?limit=${limit}${lastSessionId ? `&lastSessionId=${lastSessionId}` : ""}`;
+  return apiFetch(`/api/session/history${query}`);
+};
+
+export const getSessionLogs = (sessionId) =>
+  apiFetch(`/api/activity-logs/session/${sessionId}`);
+
+export const getDeviceLogs = (limit = 10) =>
+  apiFetch(`/api/activity-logs?limit=${limit}`);

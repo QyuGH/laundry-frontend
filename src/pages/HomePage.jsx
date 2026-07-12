@@ -5,7 +5,12 @@ import useDeviceWeather from "../hooks/useDeviceWeather";
 import MetricsGrid from "../components/home/MetricsGrid";
 import PlannerSection from "../components/home/PlannerSection";
 import LocationModal from "../components/home/LocationModal";
-import { getPlan, generatePlan, updateDeviceLocation } from "../services/api";
+import {
+  getPlan,
+  generatePlan,
+  updateDeviceLocation,
+  getDeviceLogs,
+} from "../services/api";
 import useDeviceConnection from "../hooks/useDeviceConnection";
 
 function HomePage() {
@@ -17,6 +22,8 @@ function HomePage() {
   const [isExpired, setIsExpired] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [recentLogs, setRecentLogs] = useState([]);
+  const [isLogsLoading, setIsLogsLoading] = useState(true);
 
   const {
     weather,
@@ -24,7 +31,6 @@ function HomePage() {
     hourLabel,
     isLoading: isWeatherLoading,
     error: weatherError,
-    // Add custom trigger to refetch weather on location change
     weatherRefetch,
   } = useDeviceWeather();
 
@@ -42,7 +48,6 @@ function HomePage() {
         if (savedPlan) {
           setPlan(savedPlan);
 
-          // Check expiration
           if (savedPlan.expiresAt) {
             const expiryTime = new Date(savedPlan.expiresAt).getTime();
             const nowTime = new Date().getTime();
@@ -56,6 +61,25 @@ function HomePage() {
 
     fetchSavedPlan();
   }, []);
+
+  // Fetch recent device logs on mount
+  useEffect(() => {
+    const fetchLogs = async () => {
+      if (!deviceId) return;
+      try {
+        const response = await getDeviceLogs(15);
+        if (response && response.logs) {
+          setRecentLogs(response.logs);
+        }
+      } catch (err) {
+        // Quietly fail
+      } finally {
+        setIsLogsLoading(false);
+      }
+    };
+
+    fetchLogs();
+  }, [deviceId]);
 
   const handleGeneratePlan = async () => {
     setIsGenerating(true);
@@ -71,15 +95,12 @@ function HomePage() {
   };
 
   const handleSaveLocation = async (locationData) => {
-    // 1. Write new coordinates to device document
     await updateDeviceLocation(locationData);
 
-    // 2. Refetch overview weather cards
     if (weatherRefetch) {
       await weatherRefetch();
     }
 
-    // 3. Auto-regenerate plan to reflect the new location
     setIsGenerating(true);
     try {
       const response = await generatePlan();
@@ -90,6 +111,50 @@ function HomePage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const getFriendlyEventName = (eventType) => {
+    const maps = {
+      session_started: "Session initialized",
+      deploy_triggered: "Pulley deployed manually",
+      retract_triggered: "Pulley retracted manually",
+      rain_detected: "Rain sensor triggered retraction",
+      area_cleared: "Rain cleared, countdown started",
+      auto_redeployment_triggered: "Weather cleared: auto-redeploy executed",
+      auto_close_triggered: "Dry target met: session auto-closed",
+      schedule_created: "Deployment/retraction schedule registered",
+      schedule_cancelled: "Scheduled timer cancelled",
+      schedule_executed: "Scheduled action executed automatically",
+      session_ended: "Session terminated successfully",
+    };
+    return maps[eventType] || eventType;
+  };
+
+  const formatPhtTime = (timeData) => {
+    if (!timeData) return "";
+    let dateObj;
+    if (
+      timeData &&
+      typeof timeData === "object" &&
+      timeData._seconds !== undefined
+    ) {
+      dateObj = new Date(timeData._seconds * 1000);
+    } else {
+      dateObj = new Date(timeData);
+    }
+    if (isNaN(dateObj.getTime())) {
+      return "Invalid Date";
+    }
+    return (
+      dateObj.toLocaleString("en-US", {
+        timeZone: "Asia/Manila",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }) + " PHT"
+    );
   };
 
   return (
@@ -116,16 +181,39 @@ function HomePage() {
           />
         </div>
 
-        {/* Right Column */}
+        {/* Right Column (Consistent layout and scrollable viewport height) */}
         <div className="flex flex-col">
-          <section className="flex flex-col flex-1">
+          <section className="flex flex-col flex-1 h-full">
             <h2 className="text-text text-sm font-medium mb-3">
               Recent Activity
             </h2>
-            <div className="flex-1 rounded-lg border border-border-muted bg-bg p-5 min-h-[200px] md:min-h-0">
-              <p className="text-text-muted text-sm">
-                Recent activity content pending.
-              </p>
+            <div className="flex-1 rounded-lg border border-border-muted bg-glass-card p-5 h-[350px] max-h-[400px] overflow-y-auto">
+              {isLogsLoading ? (
+                <p className="text-text-muted text-xs italic text-center py-4">
+                  Loading activities...
+                </p>
+              ) : recentLogs.length === 0 ? (
+                <p className="text-text-muted text-xs italic text-center py-4">
+                  No recent activities.
+                </p>
+              ) : (
+                <div className="relative pl-5 border-l border-border-muted flex flex-col gap-5">
+                  {recentLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="relative flex flex-col gap-0.5 text-xs"
+                    >
+                      <span className="absolute -left-[25px] top-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 border border-bg-dark" />
+                      <p className="text-text font-medium leading-normal">
+                        {getFriendlyEventName(log.eventType)}
+                      </p>
+                      <p className="text-text-muted text-[10px] tracking-wide">
+                        {formatPhtTime(log.timestamp)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </div>
