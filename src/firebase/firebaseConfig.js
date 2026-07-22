@@ -1,12 +1,7 @@
-// firebaseConfig.js
-// Initializes the Firebase Client SDK for use in the browser.
-// The frontend uses the Realtime Database directly (for live listeners)
-// and Firebase Authentication directly (for login/session handling).
-// All Firestore access goes through the backend API.
-
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
+import { getMessaging, isSupported } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -22,3 +17,6 @@ const app = initializeApp(firebaseConfig);
 
 export const rtdb = getDatabase(app);
 export const auth = getAuth(app);
+export const messagingPromise = isSupported().then((supported) =>
+  supported ? getMessaging(app) : null,
+);

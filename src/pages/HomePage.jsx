@@ -158,10 +158,13 @@ function HomePage() {
   };
 
   return (
-    <div className="p-5 md:p-6 bg-bg-dark min-h-full">
-      <div className="flex flex-col md:grid md:grid-cols-3 gap-6 items-stretch">
+    <div className="w-full bg-bg-dark border border-indigo-600">
+      {/* 1. Changed back to items-stretch: Left and Right columns will always match in height.
+        2. Added h-full on the columns to pass that matching height down to the children.
+      */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {/* Left Column */}
-        <div className="flex flex-col gap-6 md:col-span-2">
+        <div className="md:col-span-2 flex flex-col gap-6 h-full">
           <MetricsGrid
             deviceConnection={deviceConnection}
             weather={weather}
@@ -181,13 +184,18 @@ function HomePage() {
           />
         </div>
 
-        {/* Right Column (Consistent layout and scrollable viewport height) */}
-        <div className="flex flex-col">
-          <section className="flex flex-col flex-1 h-full">
-            <h2 className="text-text text-sm font-medium mb-3">
-              Recent Activity
-            </h2>
-            <div className="flex-1 rounded-lg border border-border-muted bg-glass-card p-5 h-[350px] max-h-[400px] overflow-y-auto">
+        {/* Right Column */}
+        <section className="flex flex-col h-full">
+          <h2 className="text-text text-sm font-medium mb-3 compress-shrink-0">
+            Recent Activity
+          </h2>
+
+          {/* 1. Removed strict pixel height (h-[450px])
+            2. Added flex-1 and min-h-[350px] so it fills available space but doesn't crush on small windows
+          */}
+          <div className="flex-1 flex flex-col rounded-lg border border-border-muted bg-glass-card p-5 min-h-[350px]">
+            {/* Scroll container wraps only the log contents now */}
+            <div className="flex-1 overflow-y-auto">
               {isLogsLoading ? (
                 <p className="text-text-muted text-xs italic text-center py-4">
                   Loading activities...
@@ -215,8 +223,8 @@ function HomePage() {
                 </div>
               )}
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </div>
 
       <LocationModal

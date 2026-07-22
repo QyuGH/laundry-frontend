@@ -1,22 +1,22 @@
 import { NavLink } from "react-router-dom";
-import PlaceholderIcon from "../icons/PlaceholderIcon";
 
 /**
  * Mobile floating bottom navigation bar.
- * Visible only on screens below the md breakpoint.
- * Pill-shaped, floating above the bottom edge with horizontal margins.
- * Displays icon-only navigation items.
+ * Renders icon navigation links with red unread dot overlay for notifications.
  *
  * @param {object} props
- * @param {Array<{label: string, path: string}>} props.navItems - Navigation item list.
+ * @param {Array<object>} props.navItems - Navigation item list.
+ * @param {number} [props.unreadCount=0] - Unread notification count.
  * @returns {JSX.Element}
  */
-function BottomNav({ navItems }) {
+function BottomNav({ navItems, unreadCount = 0 }) {
   return (
     <nav className="md:hidden fixed bottom-5 left-5 right-5 z-50">
-      <div className="bg-black border border-white/20 rounded-full px-6 py-3 flex items-center justify-around">
+      <div className="mx-auto mb-4 w-fit rounded-full backdrop-blur-xl bg-background/70 dark:bg-background/60 border border-white/20 shadow-lg shadow-black/10 flex items-center px-2 py-1">
         {navItems.map((item) => {
           const IconComponent = item.icon;
+          const isNotification = item.path === "/notifications";
+          const showBadge = isNotification && unreadCount > 0;
 
           return (
             <NavLink
@@ -26,13 +26,17 @@ function BottomNav({ navItems }) {
               aria-label={item.label}
               className={({ isActive }) =>
                 [
-                  "flex items-center justify-center w-9 h-9",
+                  "flex items-center justify-center w-9 h-9 relative",
                   "transition-colors duration-150",
                   isActive ? "text-white" : "text-white/30 hover:text-white/60",
                 ].join(" ")
               }
             >
               {IconComponent && <IconComponent className="w-5 h-5" />}
+
+              {showBadge && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-bg-dark" />
+              )}
             </NavLink>
           );
         })}
