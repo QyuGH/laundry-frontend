@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
@@ -16,34 +16,19 @@ import {
 
 const NAV_ITEMS = [
   { label: "Home", path: "/", icon: HomeIcon },
+  { label: "Monitoring", path: "/monitoring", icon: MonitoringIcon },
+  { label: "Activity Log", path: "/logs", icon: ActivityLogIcon },
+  { label: "Notifications", path: "/notifications", icon: NotificationIcon },
+  { label: "Account", path: "/settings", icon: AccountSettingsIcon },
+];
+
+const BOTTOM_NAV_ITEMS = [
+  { label: "Home", path: "/", icon: HomeIcon },
   { label: "Activity Log", path: "/logs", icon: ActivityLogIcon },
   { label: "Monitoring", path: "/monitoring", icon: MonitoringIcon },
   { label: "Notifications", path: "/notifications", icon: NotificationIcon },
   { label: "Account", path: "/settings", icon: AccountSettingsIcon },
 ];
-
-/**
- * Maps relative paths to display page names for mobile layout headers.
- *
- * @param {string} pathname
- * @returns {string}
- */
-const getPageTitle = (pathname) => {
-  switch (pathname) {
-    case "/":
-      return "Home";
-    case "/logs":
-      return "Activity Log";
-    case "/monitoring":
-      return "Monitoring";
-    case "/notifications":
-      return "Notifications";
-    case "/settings":
-      return "Account Settings";
-    default:
-      return "Laun-Dry";
-  }
-};
 
 /**
  * Sends Firebase client configuration to the active service worker via postMessage.
@@ -83,10 +68,8 @@ function AppLayout() {
   const deviceId = claims?.deviceId ?? null;
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   const handleMenuToggle = () => setIsCollapsed((prev) => !prev);
-  const currentTitle = getPageTitle(location.pathname);
 
   const { data: triggerStamp } = useRtdbListener(
     deviceId ? `devices/${deviceId}/status/notificationTrigger` : null,
@@ -129,7 +112,7 @@ function AppLayout() {
   }, [fetchUnreadNotifications, triggerStamp, location.pathname]);
 
   return (
-    <div className="flex h-screen bg-bg-dark text-text overflow-hidden transition-colors duration-150">
+    <div className="flex h-screen h-[100dvh] bg-bg-dark text-text overflow-hidden transition-colors duration-150">
       <Sidebar
         isCollapsed={isCollapsed}
         navItems={NAV_ITEMS}
@@ -139,28 +122,15 @@ function AppLayout() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuToggle={handleMenuToggle} />
 
-        <div className="flex md:hidden items-center justify-between px-5 pt-5 pb-2 bg-bg-dark shrink-0">
-          <h2 className="text-lg font-semibold tracking-wide">
-            {currentTitle}
-          </h2>
-
-          {location.pathname === "/" && (
-            <button
-              onClick={() => navigate("/monitoring")}
-              className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-bg"
-            >
-              Start Session &gt;
-            </button>
-          )}
-        </div>
-
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-0 border border-white-600 content-shell">
-          <Outlet
-            context={{ onNotificationsUpdated: fetchUnreadNotifications }}
-          />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="page-shell py-4">
+            <Outlet
+              context={{ onNotificationsUpdated: fetchUnreadNotifications }}
+            />
+          </div>
         </main>
 
-        <BottomNav navItems={NAV_ITEMS} unreadCount={unreadCount} />
+        <BottomNav navItems={BOTTOM_NAV_ITEMS} unreadCount={unreadCount} />
       </div>
     </div>
   );

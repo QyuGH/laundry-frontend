@@ -11,14 +11,14 @@ import PlaceholderIcon from "../icons/PlaceholderIcon";
  */
 function MetricCard({ title, value }) {
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-lg border border-border-muted bg-glass-card">
+    <div className="card-shell flex flex-col gap-[var(--gap-stack)]">
       <div className="flex items-center justify-between">
-        <span className="text-text-muted text-xs uppercase tracking-widest">
+        <span className="text-xs text-text-muted uppercase tracking-widest">
           {title}
         </span>
         <PlaceholderIcon className="w-4 h-4 text-text-muted" />
       </div>
-      <span className="text-text text-2xl font-semibold tracking-tight">
+      <span className="text-xl font-semibold tracking-tight text-text">
         {value}
       </span>
     </div>

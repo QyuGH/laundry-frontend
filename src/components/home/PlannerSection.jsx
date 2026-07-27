@@ -1,7 +1,13 @@
 import { useState } from "react";
 import HourlyForecast from "./HourlyForecast";
-import PlaceholderIcon from "../icons/PlaceholderIcon";
+import ForecastDayCard from "./ForecastDayCard";
 
+/**
+ * Formats an ISO date string as a long weekday/month/day label.
+ *
+ * @param {string} dateStr
+ * @returns {string}
+ */
 const formatDayLabel = (dateStr) => {
   if (!dateStr) return "";
   const dateObj = new Date(dateStr);
@@ -12,6 +18,12 @@ const formatDayLabel = (dateStr) => {
   });
 };
 
+/**
+ * Formats an ISO date string as a short month/day label.
+ *
+ * @param {string} dateStr
+ * @returns {string}
+ */
 const formatExpiryLabel = (dateStr) => {
   if (!dateStr) return "";
   const dateObj = new Date(dateStr);
@@ -29,6 +41,9 @@ const formatExpiryLabel = (dateStr) => {
  * @param {object|null} props.plan - Plan document object.
  * @param {boolean} props.isGenerating - Action generating state.
  * @param {function} props.onGenerate - Trigger function to request a new plan.
+ * @param {boolean} props.isExpired
+ * @param {boolean} props.showLocationButton
+ * @param {function} props.onChangeLocationClick
  * @returns {JSX.Element}
  */
 function PlannerSection({
@@ -41,26 +56,28 @@ function PlannerSection({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHourlyOpen, setIsHourlyOpen] = useState(false);
+
   // Layout for No Plan OR Expired Plan
   if (!plan || isExpired) {
     return (
-      <section>
-        <h2 className="text-text text-sm font-medium mb-3">Laundry Planner</h2>
-        <div className="rounded-lg border border-border-muted bg-bg p-5 flex flex-col items-center gap-4 text-center">
+      <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+        <div className="section-header pb-2 border-b border-border-muted">
+          <h2 className="text-sm font-medium text-text">Laundry Planner</h2>
+        </div>
+        <div className="flex flex-col items-center text-center gap-[var(--gap-block)] py-4">
           {isExpired ? (
-            <p className="text-text-muted text-sm max-w-xs">
+            <p className="text-sm text-text-muted max-w-xs">
               Your last generated plan expired at{" "}
-              {formatExpiryLabel(plan.expiresAt)}. Generate a new plan to get a
+              {formatExpiryLabel(plan?.expiresAt)}. Generate a new plan to get a
               newer personalized plan!
             </p>
           ) : (
-            <p className="text-text-muted text-sm max-w-xs">
+            <p className="text-sm text-text-muted max-w-xs">
               Generate an automated laundry day plan using real-time Open-Meteo
               forecasts rephrased by AI.
             </p>
           )}
-          <div className="flex gap-2">
-            {/* Show Change Location when there's an expired plan and user has permission */}
+          <div className="flex gap-[var(--gap-inline)]">
             {plan && showLocationButton && (
               <button
                 onClick={onChangeLocationClick}
@@ -78,15 +95,18 @@ function PlannerSection({
             </button>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
+
   const bestDay = plan.days[plan.bestDayIndex];
+
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-text text-sm font-medium">Laundry Planner</h2>
-        <div className="flex gap-2">
+    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      {/* Integrated Header Row */}
+      <div className="section-header pb-2 border-b border-border-muted">
+        <h2 className="text-sm font-medium text-text">Laundry Planner</h2>
+        <div className="flex gap-[var(--gap-inline)]">
           {showLocationButton && (
             <button
               onClick={onChangeLocationClick}
@@ -103,77 +123,28 @@ function PlannerSection({
           </button>
         </div>
       </div>
-      {/* Recommended Day Card */}
-      <div className="rounded-lg border border-border p-6 bg-glass-card flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <span className="text-text font-semibold text-base tracking-wide">
-            RECOMMENDATION ({formatDayLabel(bestDay.date)})
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-              Rain Probability
-            </span>
-            <div className="flex items-center gap-1.5 text-text text-sm font-semibold">
-              <PlaceholderIcon className="w-4 h-4 text-text-muted" />
-              <span>{bestDay.rainProbability}%</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-              Drying Duration
-            </span>
-            <div className="flex items-center gap-1.5 text-text text-sm font-semibold">
-              <PlaceholderIcon className="w-4 h-4 text-text-muted" />
-              <span>{bestDay.estimatedDryingDuration} Hrs</span>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-border-muted" />
-        <p className="text-text-muted text-sm leading-relaxed">
-          {plan.recommendationText}
-        </p>
-      </div>
-      {/* Expandable 4-Day Breakdown List */}
+
+      {/* Main Plan Card Content */}
+      <ForecastDayCard
+        label={`RECOMMENDATION (${formatDayLabel(bestDay.date)})`}
+        rainProbability={bestDay.rainProbability}
+        estimatedDryingDuration={bestDay.estimatedDryingDuration}
+        bodyText={plan.recommendationText}
+        emphasized
+      />
+
       {isExpanded && (
-        <div className="flex flex-col gap-3 mt-1">
+        <div className="flex flex-col gap-[var(--gap-block)]">
           {plan.days.map((day, index) => {
             const isDayOne = index === 0;
             return (
-              <div
+              <ForecastDayCard
                 key={index}
-                className="rounded-lg border border-border-muted p-6 bg-bg flex flex-col gap-4"
+                label={`DAY ${index + 1} (${formatDayLabel(day.date)})`}
+                rainProbability={day.rainProbability}
+                estimatedDryingDuration={day.estimatedDryingDuration}
+                bodyText={day.verdict}
               >
-                <div className="flex justify-between items-center">
-                  <span className="text-text font-semibold text-base tracking-wide">
-                    DAY {index + 1} ({formatDayLabel(day.date)})
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-                      Rain Probability
-                    </span>
-                    <div className="flex items-center gap-1.5 text-text text-sm font-semibold">
-                      <PlaceholderIcon className="w-4 h-4 text-text-muted" />
-                      <span>{day.rainProbability}%</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-                      Drying Duration
-                    </span>
-                    <div className="flex items-center gap-1.5 text-text text-sm font-semibold">
-                      <PlaceholderIcon className="w-4 h-4 text-text-muted" />
-                      <span>{day.estimatedDryingDuration} Hrs</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-border-muted" />
-                <p className="text-text-muted text-sm leading-relaxed">
-                  {day.verdict}
-                </p>
                 {isDayOne && day.hourlyBreakdown && (
                   <>
                     <div className="border-t border-border-muted" />
@@ -192,12 +163,12 @@ function PlannerSection({
                 {isDayOne && isHourlyOpen && (
                   <HourlyForecast hours={day.hourlyBreakdown} />
                 )}
-              </div>
+              </ForecastDayCard>
             );
           })}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
