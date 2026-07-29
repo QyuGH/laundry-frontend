@@ -123,11 +123,10 @@ function SchedulerSection({
   );
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-lg border border-border-muted bg-glass-card h-full min-h-[220px]">
-      <div className="flex items-center justify-between">
-        <span className="text-text-muted text-xs uppercase tracking-widest font-semibold">
-          Scheduler
-        </span>
+    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      {/* Integrated Section Header */}
+      <div className="section-header pb-2 border-b border-border-muted">
+        <h2 className="text-sm font-medium text-text">Scheduler</h2>
       </div>
 
       <div className="flex flex-col justify-center flex-grow">
@@ -162,7 +161,7 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 3: Device is Online, Active Schedule exists (either Pending Deployment OR Pending Retraction) */}
+        {/* Case 3: Device is Online, Active Schedule exists */}
         {isOnline && !isPausedOrInterrupted && hasActiveSchedule && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1 text-center">
@@ -212,7 +211,7 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 4: Device is Online, No Active Schedule, and Deployment is pending (session exists as pending) */}
+        {/* Case 4: Device is Online, No Active Schedule, Session Pending */}
         {isOnline &&
           !isPausedOrInterrupted &&
           !hasActiveSchedule &&
@@ -231,7 +230,7 @@ function SchedulerSection({
             </div>
           )}
 
-        {/* Case 5: Device is Online, No Active Schedule, and Session is either Inactive (Set Deployment) or Active (Set Retraction) */}
+        {/* Case 5: Device is Online, No Active Schedule, Session Inactive or Active */}
         {isOnline &&
           !isPausedOrInterrupted &&
           !hasActiveSchedule &&

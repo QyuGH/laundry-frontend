@@ -19,6 +19,7 @@ import {
 /**
  * Monitoring page.
  * Orchestrates states (active session, schedules), RTDB telemetry, and API actions.
+ * Structured as a single-column 4-row stack matching the Home page layout.
  *
  * @returns {JSX.Element}
  */
@@ -66,7 +67,6 @@ function MonitoringPage() {
     fetchSessionData();
   }, []);
 
-  // Listen to the RTDB session update trigger to sync the UI state instantly
   useEffect(() => {
     if (rtdbStatus?.sessionUpdateTrigger) {
       fetchSessionData();
@@ -121,45 +121,35 @@ function MonitoringPage() {
   const isLoading = isSessionLoading || isRtdbLoading;
 
   return (
-    <div className="p-5 md:p-6 bg-bg-dark min-h-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        <div className="flex flex-col gap-6">
-          <MonitoringMetricsGrid
-            status={rtdbStatus}
-            sensors={sensors}
-            isLoading={isLoading}
-          />
-        </div>
+    <div className="section-stack">
+      <MonitoringMetricsGrid
+        status={rtdbStatus}
+        sensors={sensors}
+        isLoading={isLoading}
+      />
 
-        <div className="flex flex-col">
-          <ControlPanel
-            session={session}
-            deviceConnection={deviceConnection}
-            onStartSession={handleStartSession}
-            onDeploy={handleDeploy}
-            onRetract={handleRetract}
-            onEndSession={handleEndSession}
-          />
-        </div>
+      <ControlPanel
+        session={session}
+        deviceConnection={deviceConnection}
+        onStartSession={handleStartSession}
+        onDeploy={handleDeploy}
+        onRetract={handleRetract}
+        onEndSession={handleEndSession}
+      />
 
-        <div className="flex flex-col">
-          <DryingEstimate
-            session={session}
-            progressData={progressData}
-            isLoading={isLoading}
-          />
-        </div>
+      <DryingEstimate
+        session={session}
+        progressData={progressData}
+        isLoading={isLoading}
+      />
 
-        <div className="flex flex-col">
-          <SchedulerSection
-            session={session}
-            schedule={schedule}
-            deviceConnection={deviceConnection}
-            onSetSchedule={handleSetSchedule}
-            onCancelSchedule={handleCancelSchedule}
-          />
-        </div>
-      </div>
+      <SchedulerSection
+        session={session}
+        schedule={schedule}
+        deviceConnection={deviceConnection}
+        onSetSchedule={handleSetSchedule}
+        onCancelSchedule={handleCancelSchedule}
+      />
     </div>
   );
 }

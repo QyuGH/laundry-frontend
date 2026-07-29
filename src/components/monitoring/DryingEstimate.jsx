@@ -23,27 +23,26 @@ function DryingEstimate({ session, progressData, isLoading }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-lg border border-border-muted bg-glass-card h-full min-h-[220px]">
-      <div className="flex items-center justify-between">
-        <span className="text-text-muted text-xs uppercase tracking-widest font-semibold">
-          Drying Progress
-        </span>
+    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      {/* Integrated Section Header */}
+      <div className="section-header pb-2 border-b border-border-muted">
+        <h2 className="text-sm font-medium text-text">Drying Progress</h2>
         {!isInactive && (
-          <span className="text-text-muted text-xs font-medium">
+          <span className="text-xs font-medium text-text-muted">
             Fabric: {fabricLabel}
           </span>
         )}
       </div>
 
-      <div className="flex flex-col justify-center flex-grow gap-4">
+      <div className="flex flex-col justify-center flex-grow gap-[var(--gap-stack)]">
         {isInactive ? (
-          <div className="flex flex-col justify-center items-center flex-grow">
+          <div className="flex flex-col justify-center items-center py-2">
             <p className="text-text-muted text-sm italic">
               No active drying session.
             </p>
           </div>
         ) : isPending ? (
-          <div className="flex flex-col justify-center items-center flex-grow">
+          <div className="flex flex-col justify-center items-center py-2">
             <p className="text-text-muted text-sm italic">
               Session queued. Progress will track once deployed.
             </p>
@@ -58,7 +57,7 @@ function DryingEstimate({ session, progressData, isLoading }) {
 
             {/* Progress Bar Container */}
             <div className="w-full bg-bg-light border border-border rounded-full h-3.5 overflow-hidden">
-              {/* Progress Fill (using approved bg-highlight variable) */}
+              {/* Progress Fill */}
               <div
                 className="bg-highlight h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${percentage}%` }}

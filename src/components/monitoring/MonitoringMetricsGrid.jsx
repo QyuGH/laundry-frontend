@@ -1,13 +1,8 @@
 import MonitoringMetricCard from "./MonitoringMetricCard";
 
 /**
- * Organizes and formats the live device status and sensor telemetry into a 2x2 grid.
- *
- * @param {object} props
- * @param {object|null} props.status - The live device status from RTDB.
- * @param {object|null} props.sensors - The live device sensor data from RTDB.
- * @param {boolean} props.isLoading - Loading state for the RTDB subscription.
- * @returns {JSX.Element}
+ * Organizes live device status and sensor telemetry into a 4-card metric grid.
+ * Grid columns: 1 (mobile) / 2 (sm) / 4 (xl) via `stat-grid`.
  */
 function MonitoringMetricsGrid({ status, sensors, isLoading }) {
   const isOnline = status?.isOnline;
@@ -57,11 +52,14 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
     isLoading || sensors?.humidity === undefined ? "—" : `${sensors.humidity}%`;
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-text font-medium text-sm tracking-wide">
-        Live Telemetry
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <section className="flex flex-col gap-[var(--gap-block)]">
+      <div className="section-header">
+        <h1 className="text-lg sm:text-xl font-semibold text-text">
+          Live Telemetry
+        </h1>
+      </div>
+
+      <div className="stat-grid">
         <MonitoringMetricCard
           title="Pulley Status"
           value={pulleyDisplay}

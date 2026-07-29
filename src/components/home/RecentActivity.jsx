@@ -170,7 +170,7 @@ function RecentActivity({ logs, isLoading }) {
 
       {/* Tablet/Desktop Scrollable Activity List */}
       <div className="hidden sm:flex flex-col h-[380px]">
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pr-4">
           {isLoading || !hasLogs ? (
             <EmptyState isLoading={isLoading} />
           ) : (

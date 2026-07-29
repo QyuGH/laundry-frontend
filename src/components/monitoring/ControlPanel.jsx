@@ -169,12 +169,10 @@ function ControlPanel({
     });
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-lg border border-border-muted bg-glass-card h-full min-h-[220px]">
-      {/* Card Header */}
-      <div className="flex items-center justify-between">
-        <span className="text-text-muted text-xs uppercase tracking-widest font-semibold">
-          Controls
-        </span>
+    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      {/* Integrated Section Header */}
+      <div className="section-header pb-2 border-b border-border-muted">
+        <h2 className="text-sm font-medium text-text">Controls</h2>
       </div>
 
       {/* Connection / Status Badge */}
@@ -196,7 +194,7 @@ function ControlPanel({
       )}
 
       {/* Action Buttons Container */}
-      <div className="flex flex-col gap-3 flex-grow justify-end">
+      <div className="flex flex-col gap-[var(--gap-stack)]">
         {/* State 1: Connecting state */}
         {isChecking && (
           <p className="text-text-muted text-xs italic text-center">
