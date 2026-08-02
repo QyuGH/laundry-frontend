@@ -48,15 +48,36 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
       ? "—"
       : `${sensors.temperature}°C`;
 
+  let tempSub = "";
+  if (!isLoading && sensors?.temperature !== undefined) {
+    const t = sensors.temperature;
+    if (t <= 5) tempSub = "Very cold — drying will be slow";
+    else if (t <= 15) tempSub = "Cool — slower drying";
+    else if (t <= 25) tempSub = "Comfortable — good drying conditions";
+    else if (t <= 32) tempSub = "Warm — faster drying";
+    else tempSub = "High — avoid overheating delicate fabrics";
+  }
+
   const humidityDisplay =
     isLoading || sensors?.humidity === undefined ? "—" : `${sensors.humidity}%`;
 
+  let humiditySub = "";
+  if (!isLoading && sensors?.humidity !== undefined) {
+    const h = sensors.humidity;
+    if (h <= 30) humiditySub = "Low humidity — fast drying";
+    else if (h <= 60) humiditySub = "Optimal humidity for drying";
+    else humiditySub = "High humidity — drying slowed";
+  }
+
   return (
     <section className="flex flex-col gap-[var(--gap-block)]">
-      <div className="section-header">
+      <div className="flex flex-col gap-1">
         <h1 className="text-lg sm:text-xl font-semibold text-text">
           Live Telemetry
         </h1>
+        <span className="text-sm text-text-muted">
+          Device sensor data and control panel
+        </span>
       </div>
 
       <div className="stat-grid">
@@ -70,8 +91,8 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
           value={rainDisplay}
           subValue={rainSub}
         />
-        <MonitoringMetricCard title="Temperature" value={tempDisplay} />
-        <MonitoringMetricCard title="Humidity" value={humidityDisplay} />
+        <MonitoringMetricCard title="Temperature" value={tempDisplay} subValue={tempSub} />
+        <MonitoringMetricCard title="Humidity" value={humidityDisplay} subValue={humiditySub} />
       </div>
     </section>
   );

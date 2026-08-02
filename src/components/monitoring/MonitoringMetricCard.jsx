@@ -1,4 +1,9 @@
-import PlaceholderIcon from "../icons/PlaceholderIcon";
+import {
+  RainIcon,
+  TemperatureIcon,
+  HumidityIcon,
+  MotorIcon,
+} from "../icons/MetricIcons";
 
 /**
  * Renders a single telemetry metric card using standard card-shell styling.
@@ -10,7 +15,18 @@ function MonitoringMetricCard({ title, value, subValue }) {
         <span className="text-xs text-text-muted uppercase tracking-widest">
           {title}
         </span>
-        <PlaceholderIcon className="w-4 h-4 text-text-muted" />
+        {title === "Rain Sensor" && (
+          <RainIcon className="w-4 h-4 text-text-muted" />
+        )}
+        {title === "Temperature" && (
+          <TemperatureIcon className="w-4 h-4 text-text-muted" />
+        )}
+        {title === "Humidity" && (
+          <HumidityIcon className="w-4 h-4 text-text-muted" />
+        )}
+        {title === "Pulley Status" && (
+          <MotorIcon className="w-4 h-4 text-text-muted" />
+        )}
       </div>
       <div className="flex flex-col">
         <span className="text-xl font-semibold tracking-tight text-text">

@@ -32,11 +32,27 @@ function MetricsGrid({
         ? "Online"
         : "Offline";
 
+  let statusSub = "";
+  if (deviceConnection === "checking") statusSub = "Checking device connection…";
+  else if (deviceConnection === "online") statusSub = "Connected — live updates";
+  else statusSub = "Offline — last-known status";
+
   const temperatureValue = isWeatherLoading
     ? "—"
     : weatherError || !weather
       ? "N/A"
       : `${weather.temperature}°C`;
+
+  let tempSub = "";
+  if (!isWeatherLoading && weather && !weatherError && weather.temperature !== undefined) {
+    const t = weather.temperature;
+    if (t <= 5) tempSub = "Very cold — drying will be slow";
+    else if (t <= 15) tempSub = "Cool — slower drying";
+    else if (t <= 25) tempSub = "Comfortable — good drying conditions";
+    else if (t <= 32) tempSub = "Warm — faster drying";
+    else tempSub = "High — avoid overheating delicate fabrics";
+  } else if (isWeatherLoading) tempSub = "";
+  else tempSub = weatherError || !weather ? "Forecast unavailable" : "";
 
   const humidityValue = isWeatherLoading
     ? "—"
@@ -44,11 +60,39 @@ function MetricsGrid({
       ? "N/A"
       : `${weather.humidity}%`;
 
+  let humiditySub = "";
+  if (!isWeatherLoading && weather && !weatherError && weather.humidity !== undefined) {
+    const h = weather.humidity;
+    if (h <= 30) humiditySub = "Low humidity — fast drying";
+    else if (h <= 60) humiditySub = "Optimal humidity for drying";
+    else humiditySub = "High humidity — drying slowed";
+  } else if (isWeatherLoading) humiditySub = "";
+  else humiditySub = weatherError || !weather ? "Forecast unavailable" : "";
+
   const rainValue = isWeatherLoading
     ? "—"
     : weatherError || !weather
       ? "N/A"
       : `${weather.precipitationProbability}%`;
+
+  let rainSub = "";
+  if (!isWeatherLoading && weather && !weatherError && weather.precipitationProbability !== undefined) {
+    const prob = weather.precipitationProbability;
+    
+    if (prob >= 70) {
+      rainSub = "High chance of rain — indoor drying recommended";
+    } else if (prob >= 50) {
+      rainSub = "Rain might develop — consider indoor drying";
+    } else if (prob >= 30) {
+      rainSub = "Low chances of rain — monitor conditions";
+    } else {
+      rainSub = "Clear skies ahead — good for outdoor drying";
+    }
+  } else if (isWeatherLoading) {
+    rainSub = "";
+  } else {
+    rainSub = weatherError || !weather ? "Forecast unavailable" : "";
+  }
 
   return (
     <section className="flex flex-col gap-[var(--gap-block)] ">
@@ -75,10 +119,10 @@ function MetricsGrid({
       </div>
 
       <div className="stat-grid">
-        <MetricCard title="Device Status" value={statusValue} />
-        <MetricCard title="Rain Probability" value={rainValue} />
-        <MetricCard title="Temperature" value={temperatureValue} />
-        <MetricCard title="Humidity" value={humidityValue} />
+        <MetricCard title="Device Status" value={statusValue} subValue={statusSub} />
+        <MetricCard title="Rain Probability" value={rainValue} subValue={rainSub} />
+        <MetricCard title="Temperature" value={temperatureValue} subValue={tempSub} />
+        <MetricCard title="Humidity" value={humidityValue} subValue={humiditySub} />
       </div>
     </section>
   );
