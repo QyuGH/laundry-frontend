@@ -123,14 +123,12 @@ function SchedulerSection({
   );
 
   return (
-    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
-      {/* Integrated Section Header */}
+    <div className="card-shell flex flex-col flex-1 gap-[var(--gap-block)]">
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Scheduler</h2>
       </div>
 
       <div className="flex flex-col justify-center flex-grow">
-        {/* Case 1: Device is Offline */}
         {!isOnline && (
           <div className="flex flex-col gap-3 text-center">
             <p className="text-text-muted text-xs leading-relaxed italic">
@@ -145,7 +143,6 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 2: Device is Online, but Session is Paused or Rain-Interrupted */}
         {isOnline && isPausedOrInterrupted && (
           <div className="flex flex-col gap-3 text-center">
             <p className="text-text-muted text-xs leading-relaxed italic">
@@ -161,7 +158,6 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 3: Device is Online, Active Schedule exists */}
         {isOnline && !isPausedOrInterrupted && hasActiveSchedule && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1 text-center">
@@ -211,7 +207,6 @@ function SchedulerSection({
           </div>
         )}
 
-        {/* Case 4: Device is Online, No Active Schedule, Session Pending */}
         {isOnline &&
           !isPausedOrInterrupted &&
           !hasActiveSchedule &&
@@ -230,7 +225,6 @@ function SchedulerSection({
             </div>
           )}
 
-        {/* Case 5: Device is Online, No Active Schedule, Session Inactive or Active */}
         {isOnline &&
           !isPausedOrInterrupted &&
           !hasActiveSchedule &&
@@ -253,7 +247,6 @@ function SchedulerSection({
           )}
       </div>
 
-      {/* Dropdown Time Picker Modal */}
       <Modal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
@@ -267,7 +260,6 @@ function SchedulerSection({
           </p>
 
           <div className="flex justify-center items-center gap-2 py-4">
-            {/* Hour select */}
             <select
               id="picker-hour"
               value={hour}
@@ -285,7 +277,6 @@ function SchedulerSection({
 
             <span className="text-xl font-bold text-text">:</span>
 
-            {/* Minute select */}
             <select
               id="picker-minute"
               value={minute}
@@ -299,7 +290,6 @@ function SchedulerSection({
               ))}
             </select>
 
-            {/* AM/PM select */}
             <select
               id="picker-period"
               value={period}
@@ -336,7 +326,6 @@ function SchedulerSection({
         </div>
       </Modal>
 
-      {/* Cancel Schedule Confirmation Modal */}
       <Modal
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}

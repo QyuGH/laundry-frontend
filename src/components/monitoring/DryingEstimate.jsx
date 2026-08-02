@@ -23,8 +23,7 @@ function DryingEstimate({ session, progressData, isLoading }) {
   }
 
   return (
-    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
-      {/* Integrated Section Header */}
+    <div className="card-shell flex flex-col flex-1 gap-[var(--gap-block)]">
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Drying Progress</h2>
         {!isInactive && (
@@ -55,9 +54,7 @@ function DryingEstimate({ session, progressData, isLoading }) {
               </span>
             </div>
 
-            {/* Progress Bar Container */}
             <div className="w-full bg-bg-light border border-border rounded-full h-3.5 overflow-hidden">
-              {/* Progress Fill */}
               <div
                 className="bg-highlight h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${percentage}%` }}

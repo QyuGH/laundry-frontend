@@ -100,7 +100,6 @@ function ControlPanel({
   const isPausedOrInterrupted =
     sessionStatus === "paused" || sessionStatus === "rain-interrupted";
 
-  // Reset initialization state if the device goes offline or session status changes
   useEffect(() => {
     if (!isOnline) {
       setIsInitialized(false);
@@ -111,7 +110,6 @@ function ControlPanel({
     setIsInitialized(false);
   }, [sessionStatus]);
 
-  // Resolve what badge status and description message to show
   const statusBadge = (() => {
     if (isChecking) return CONNECTION_CONFIG.checking;
     if (isOffline) return CONNECTION_CONFIG.offline;
@@ -135,7 +133,6 @@ function ControlPanel({
   const handleInitialize = () => {
     setIsSubmitting(true);
     setActionError(null);
-    // Simulate backend-device verification handshake
     setTimeout(() => {
       if (isOnline) {
         setIsInitialized(true);
@@ -169,13 +166,11 @@ function ControlPanel({
     });
 
   return (
-    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
-      {/* Integrated Section Header */}
+    <div className="card-shell flex flex-col flex-1 gap-[var(--gap-block)]">
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Controls</h2>
       </div>
 
-      {/* Connection / Status Badge */}
       <div className="flex flex-col gap-1">
         <div className={`flex items-center gap-2 ${statusBadge.color}`}>
           <span className="text-base leading-none">{statusBadge.badge}</span>
@@ -186,37 +181,31 @@ function ControlPanel({
         </p>
       </div>
 
-      {/* Action Error Alert */}
       {actionError && (
         <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
           {actionError}
         </p>
       )}
 
-      {/* Action Buttons Container */}
       <div className="flex flex-col gap-[var(--gap-stack)]">
-        {/* State 1: Connecting state */}
         {isChecking && (
           <p className="text-text-muted text-xs italic text-center">
             Verifying device connection...
           </p>
         )}
 
-        {/* State 2: Device is offline while session is inactive */}
         {isOffline && isInactive && (
           <p className="text-red-400 text-xs italic text-center">
             Device must be online to initialize a drying session.
           </p>
         )}
 
-        {/* State 3: Device goes offline mid-session */}
         {isOffline && !isInactive && (
           <p className="text-red-400 text-xs italic text-center">
             Commands are disabled until the device reconnects.
           </p>
         )}
 
-        {/* State 4: Device is online, no active session */}
         {isOnline && isInactive && (
           <>
             {!isInitialized ? (
@@ -244,7 +233,6 @@ function ControlPanel({
           </>
         )}
 
-        {/* State 5: Session is pending deployment */}
         {isOnline && isPending && (
           <div className="flex flex-col gap-2">
             <button
@@ -266,7 +254,6 @@ function ControlPanel({
           </div>
         )}
 
-        {/* State 6: Session is active (deployed) */}
         {isOnline && isActive && (
           <button
             id="pause-retract-btn"
@@ -281,7 +268,6 @@ function ControlPanel({
           </button>
         )}
 
-        {/* State 7: Session is paused or rain-interrupted */}
         {isOnline && isPausedOrInterrupted && (
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -307,7 +293,6 @@ function ControlPanel({
         )}
       </div>
 
-      {/* Start Session Modal */}
       <Modal
         isOpen={isStartModalOpen}
         onClose={() => setIsStartModalOpen(false)}
@@ -352,7 +337,6 @@ function ControlPanel({
         </div>
       </Modal>
 
-      {/* Pause & Retract Modal */}
       <Modal
         isOpen={isPauseModalOpen}
         onClose={() => setIsPauseModalOpen(false)}
@@ -383,7 +367,6 @@ function ControlPanel({
         </div>
       </Modal>
 
-      {/* End Session Modal */}
       <Modal
         isOpen={isEndModalOpen}
         onClose={() => setIsEndModalOpen(false)}

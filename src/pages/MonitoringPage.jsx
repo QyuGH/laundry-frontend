@@ -19,7 +19,9 @@ import {
 /**
  * Monitoring page.
  * Orchestrates states (active session, schedules), RTDB telemetry, and API actions.
- * Structured as a single-column 4-row stack matching the Home page layout.
+ * Below the metrics grid, a two-column layout places Drying Progress on the left
+ * and Controls + Scheduler stacked on the right. CSS order is used to resequence
+ * the mobile single-column stack independently of the desktop grid placement.
  *
  * @returns {JSX.Element}
  */
@@ -128,28 +130,36 @@ function MonitoringPage() {
         isLoading={isLoading}
       />
 
-      <ControlPanel
-        session={session}
-        deviceConnection={deviceConnection}
-        onStartSession={handleStartSession}
-        onDeploy={handleDeploy}
-        onRetract={handleRetract}
-        onEndSession={handleEndSession}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="order-2 lg:order-1 lg:row-span-2 flex flex-col">
+          <DryingEstimate
+            session={session}
+            progressData={progressData}
+            isLoading={isLoading}
+          />
+        </div>
 
-      <DryingEstimate
-        session={session}
-        progressData={progressData}
-        isLoading={isLoading}
-      />
+        <div className="order-1 lg:order-2 flex flex-col">
+          <ControlPanel
+            session={session}
+            deviceConnection={deviceConnection}
+            onStartSession={handleStartSession}
+            onDeploy={handleDeploy}
+            onRetract={handleRetract}
+            onEndSession={handleEndSession}
+          />
+        </div>
 
-      <SchedulerSection
-        session={session}
-        schedule={schedule}
-        deviceConnection={deviceConnection}
-        onSetSchedule={handleSetSchedule}
-        onCancelSchedule={handleCancelSchedule}
-      />
+        <div className="order-3 flex flex-col">
+          <SchedulerSection
+            session={session}
+            schedule={schedule}
+            deviceConnection={deviceConnection}
+            onSetSchedule={handleSetSchedule}
+            onCancelSchedule={handleCancelSchedule}
+          />
+        </div>
+      </div>
     </div>
   );
 }
