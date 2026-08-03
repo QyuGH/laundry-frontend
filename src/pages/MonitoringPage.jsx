@@ -130,7 +130,7 @@ function MonitoringPage() {
         isLoading={isLoading}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-6 gap-4">
         <div className="order-2 lg:order-1 lg:row-span-2 flex flex-col">
           <DryingEstimate
             session={session}
