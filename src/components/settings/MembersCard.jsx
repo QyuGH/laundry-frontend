@@ -101,11 +101,11 @@ function MembersCard({ members, role, onMemberListChanged }) {
   };
 
   return (
-    <section className="card-shell flex flex-col gap-[var(--gap-block)]">
-      <div className="section-header pb-[var(--gap-block)] border-b border-border-muted">
+    <section className="card-shell flex flex-col gap-block">
+      <div className="section-header pb-block border-b border-border-muted">
         <div>
-          <h2 className="text-sm font-semibold text-text">Device Members</h2>
-          <p className="text-[var(--text-micro)] text-text-muted mt-0.5">
+          <h2 className="text-base font-semibold text-text">Device Members</h2>
+          <p className="text-xs text-text-muted mt-0.5">
             {role === "owner"
               ? "Manage members who have access to this device."
               : "View members who share access to this device."}
@@ -121,33 +121,31 @@ function MembersCard({ members, role, onMemberListChanged }) {
         )}
       </div>
 
-      <div className="flex flex-col gap-[var(--gap-stack)]">
+      <div className="flex flex-col gap-stack">
         {members.map((member) => (
           <div
             key={member.userId}
             className="flex items-center justify-between p-3 border border-border-muted/40 rounded-lg bg-bg-dark/30"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-highlight/20 border border-highlight/30 flex items-center justify-center text-highlight font-semibold text-xs shrink-0">
+              <div className="w-8 h-8 rounded-full bg-highlight/20 border border-highlight/30 flex items-center justify-center text-highlight font-semibold text-sm shrink-0">
                 {getInitials(member.name)}
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-text">
+                <span className="text-sm font-semibold text-text">
                   {member.name}
                 </span>
-                <span className="text-[var(--text-micro)] text-text-muted">
-                  {member.email}
-                </span>
+                <span className="text-xs text-text-muted">{member.email}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               {member.role === "owner" ? (
-                <span className="border border-yellow-500/30 bg-yellow-500/5 text-yellow-400 text-[var(--text-micro)] px-2.5 py-0.5 rounded-full font-medium">
+                <span className="border border-yellow-500/30 bg-yellow-500/5 text-yellow-400 text-xs px-2.5 py-0.5 rounded-full font-medium">
                   Owner
                 </span>
               ) : (
-                <span className="border border-border-muted bg-white/5 text-text-muted text-[var(--text-micro)] px-2.5 py-0.5 rounded-full font-medium">
+                <span className="border border-border-muted bg-white/5 text-text-muted text-xs px-2.5 py-0.5 rounded-full font-medium">
                   Member
                 </span>
               )}
@@ -171,12 +169,9 @@ function MembersCard({ members, role, onMemberListChanged }) {
         onClose={() => !isSaving && setIsMemberModalOpen(false)}
         title="Add Device Member"
       >
-        <form
-          onSubmit={handleAddMember}
-          className="flex flex-col gap-[var(--gap-block)]"
-        >
-          <div className="flex flex-col gap-[var(--gap-stack)]">
-            <label className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted">
+        <form onSubmit={handleAddMember} className="flex flex-col gap-block">
+          <div className="flex flex-col gap-stack">
+            <label className="text-micro uppercase tracking-wider text-text-muted">
               Member Name
             </label>
             <input
@@ -189,8 +184,8 @@ function MembersCard({ members, role, onMemberListChanged }) {
             />
           </div>
 
-          <div className="flex flex-col gap-[var(--gap-stack)]">
-            <label className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted">
+          <div className="flex flex-col gap-stack">
+            <label className="text-micro uppercase tracking-wider text-text-muted">
               Email Address
             </label>
             <input
@@ -227,7 +222,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-[var(--gap-block)] border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
             <button
               type="button"
               onClick={() => setIsMemberModalOpen(false)}
@@ -259,7 +254,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
         onClose={() => !isSaving && setMemberToRemove(null)}
         title="Remove Member"
       >
-        <div className="flex flex-col gap-[var(--gap-block)]">
+        <div className="flex flex-col gap-block">
           <p className="text-text-muted text-xs leading-normal">
             Are you sure you want to remove{" "}
             <span className="text-text font-semibold">
@@ -275,7 +270,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-[var(--gap-block)] border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
             <button
               onClick={() => setMemberToRemove(null)}
               disabled={isSaving}

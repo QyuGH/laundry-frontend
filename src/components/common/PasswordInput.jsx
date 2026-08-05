@@ -24,10 +24,10 @@ function PasswordInput({
   const [show, setShow] = useState(false);
 
   return (
-    <div className="flex flex-col gap-[var(--gap-stack)]">
+    <div className="flex flex-col gap-stack">
       <label
         htmlFor={id}
-        className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted"
+        className="text-micro uppercase tracking-wider text-text-muted"
       >
         {label}
       </label>

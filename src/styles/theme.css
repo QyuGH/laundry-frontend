@@ -1,38 +1,32 @@
 /* ============================================================
-   THEME CONFIGURATION: OKLCH Family-Friendly Blueprint
+   Laun-Dry Design System & Theme Variables
    ============================================================ */
 
-/* Default dark mode theme */
 :root {
-  /* Backgrounds */
+  /* Default Colors (Dark Mode) */
   --color-bg-dark: oklch(0.12 0.03 250);
   --color-bg: oklch(0.16 0.025 250);
   --color-bg-light: oklch(0.22 0.02 250);
 
-  /* Text */
   --color-text: oklch(0.94 0.015 250);
   --color-text-muted: oklch(0.65 0.015 250);
 
-  /* Highlight */
   --color-highlight: oklch(0.99 0.05 250);
 
-  /* Borders */
   --color-border: oklch(0.32 0.025 250);
   --color-border-muted: oklch(0.24 0.02 250);
 
-  /* Actions */
   --color-primary: oklch(0.68 0.14 250);
   --color-secondary: oklch(0.25 0.04 250);
   --color-accent: oklch(0.7 0.11 210);
   --color-accent-hover: oklch(0.74 0.13 250);
 
-  /* Feedback */
   --color-danger: oklch(0.66 0.15 25);
   --color-warning: oklch(0.72 0.12 85);
   --color-success: oklch(0.7 0.13 145);
   --color-info: oklch(0.68 0.14 250);
 
-  /* Shared layout spacing */
+  /* Layout Spacing (Responsive) */
   --content-max-width: 85rem;
   --page-shell-padding-mobile: 1rem;
   --page-shell-padding-sm: 1.5rem;
@@ -49,6 +43,29 @@
   --list-gap: 0.75rem;
   --bottom-nav-max-width: 30rem;
   --bottom-nav-padding-inline: 0.75rem;
+
+  /* Typography Scale */
+  --text-micro: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+
+  --gap-inline: 0.5rem;
+  --gap-stack: 0.75rem;
+  --gap-block: 1rem;
+
+  --font-size-micro: var(--text-micro);
+  --font-size-xs: var(--text-xs);
+  --font-size-sm: var(--text-sm);
+  --font-size-base: var(--text-base);
+  --font-size-lg: var(--text-lg);
+  --font-size-xl: var(--text-xl);
+
+  --spacing-inline: var(--gap-inline);
+  --spacing-stack: var(--gap-stack);
+  --spacing-block: var(--gap-block);
 }
 
 [data-theme="dark"] {
@@ -76,37 +93,35 @@
 }
 
 [data-theme="light"] {
-  /* Backgrounds */
   --color-bg-dark: oklch(0.96 0.01 250);
   --color-bg: oklch(0.99 0.005 250);
   --color-bg-light: oklch(0.92 0.015 250);
 
-  /* Text */
   --color-text: oklch(0.25 0.03 250);
   --color-text-muted: oklch(0.5 0.02 250);
 
-  /* Highlight */
   --color-highlight: oklch(0.99 0.05 250);
 
-  /* Borders */
   --color-border: oklch(0.82 0.025 250);
   --color-border-muted: oklch(0.9 0.015 250);
 
-  /* Actions */
   --color-primary: oklch(0.62 0.14 250);
   --color-secondary: oklch(0.9 0.03 250);
   --color-accent: oklch(0.65 0.11 210);
   --color-accent-hover: oklch(0.56 0.14 250);
 
-  /* Feedback */
   --color-danger: oklch(0.6 0.15 25);
   --color-warning: oklch(0.68 0.12 85);
   --color-success: oklch(0.65 0.13 145);
   --color-info: oklch(0.62 0.14 250);
 }
 
-/* THEME BRIDGE */
-@theme inline {
+/* ============================================================
+   Tailwind CSS v4 Theme Bridge
+   ============================================================ */
+
+@theme {
+  /* Colors */
   --color-bg-dark: var(--color-bg-dark);
   --color-bg: var(--color-bg);
   --color-bg-light: var(--color-bg-light);
@@ -128,6 +143,42 @@
   --color-warning: var(--color-warning);
   --color-success: var(--color-success);
   --color-info: var(--color-info);
+
+  /* Typography Mappings (Must be in @theme) */
+  --font-size-micro: var(--text-micro);
+  --font-size-xs: var(--text-xs);
+  --font-size-sm: var(--text-sm);
+  --font-size-base: var(--text-base);
+  --font-size-lg: var(--text-lg);
+  --font-size-xl: var(--text-xl);
+
+  /* Spacing Mappings (Must be in @theme) */
+  --spacing-inline: var(--gap-inline);
+  --spacing-stack: var(--gap-stack);
+  --spacing-block: var(--gap-block);
+}
+
+/* ============================================================
+   Core Layout Spacing Utilities
+   ============================================================ */
+
+@utility page-shell {
+  width: 100%;
+  margin-inline: auto;
+  max-width: var(--content-max-width);
+  padding-inline: var(--page-shell-padding-mobile);
+}
+
+@media (min-width: 640px) {
+  .page-shell {
+    padding-inline: var(--page-shell-padding-sm);
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-shell {
+    padding-inline: var(--page-shell-padding-lg);
+  }
 }
 
 @utility content-shell {
@@ -207,4 +258,37 @@
   box-shadow:
     0px 1px 2px oklch(0% 0 0 / 0.4),
     0px 3px 6px -1px oklch(0% 0 0 / 0.3);
+}
+
+@utility stat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--section-gap-mobile);
+}
+
+@media (min-width: 640px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--section-gap-sm);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stat-grid {
+    gap: var(--section-gap-lg);
+  }
+}
+
+@media (min-width: 1280px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@utility section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-block);
+  flex-wrap: wrap;
 }

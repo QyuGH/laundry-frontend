@@ -76,12 +76,12 @@ function DeviceCard({ device, role, onDeviceSaved }) {
 
   return (
     <section className="card-shell flex flex-col">
-      <div className="section-header pb-[var(--gap-block)] border-b border-border-muted">
+      <div className="section-header pb-block border-b border-border-muted">
         <div>
-          <h2 className="text-sm font-semibold text-text">
+          <h2 className="text-base font-semibold text-text">
             Device Configuration
           </h2>
-          <p className="text-[var(--text-micro)] text-text-muted mt-0.5">
+          <p className="text-xs text-text-muted mt-0.5">
             Settings for your connected motorized clothesline.
           </p>
         </div>
@@ -94,10 +94,10 @@ function DeviceCard({ device, role, onDeviceSaved }) {
       </div>
 
       <div className="flex flex-col">
-        <div className="flex items-start justify-between gap-[var(--gap-block)] py-[var(--gap-block)]">
+        <div className="flex items-start justify-between gap-block py-block">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-text">Device Name</span>
-            <span className="text-[var(--text-micro)] text-text-muted">
+            <span className="text-sm font-medium text-text">Device Name</span>
+            <span className="text-xs text-text-muted">
               Label shown in the app.
             </span>
           </div>
@@ -106,10 +106,10 @@ function DeviceCard({ device, role, onDeviceSaved }) {
           </span>
         </div>
 
-        <div className="flex items-start justify-between gap-[var(--gap-block)] py-[var(--gap-block)] border-t border-border-muted/30">
+        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted/30">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-text">Location</span>
-            <span className="text-[var(--text-micro)] text-text-muted">
+            <span className="text-sm font-medium text-text">Location</span>
+            <span className="text-xs text-text-muted">
               Used for local weather forecasts.
             </span>
           </div>
@@ -124,13 +124,10 @@ function DeviceCard({ device, role, onDeviceSaved }) {
         onClose={() => !isSaving && setIsDeviceModalOpen(false)}
         title="Edit Device Configuration"
       >
-        <form
-          onSubmit={handleSaveDevice}
-          className="flex flex-col gap-[var(--gap-block)]"
-        >
+        <form onSubmit={handleSaveDevice} className="flex flex-col gap-block">
           {role === "owner" ? (
-            <div className="flex flex-col gap-[var(--gap-stack)]">
-              <label className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted">
+            <div className="flex flex-col gap-stack">
+              <label className="text-micro uppercase tracking-wider text-text-muted">
                 Device Name
               </label>
               <input
@@ -143,7 +140,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
             </div>
           ) : (
             <div className="flex flex-col gap-0.5">
-              <span className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted">
+              <span className="text-micro uppercase tracking-wider text-text-muted">
                 Device Name
               </span>
               <span className="text-xs font-medium text-text">
@@ -152,8 +149,8 @@ function DeviceCard({ device, role, onDeviceSaved }) {
             </div>
           )}
 
-          <div className="flex flex-col gap-[var(--gap-stack)] pt-[var(--gap-block)] border-t border-border-muted/30">
-            <label className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted">
+          <div className="flex flex-col gap-stack pt-block border-t border-border-muted/30">
+            <label className="text-micro uppercase tracking-wider text-text-muted">
               Location
             </label>
             <div className="flex gap-2">
@@ -188,7 +185,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
                     setLocQuery(item.displayName);
                     setSuggestions([]);
                   }}
-                  className="px-2.5 py-1.5 text-[var(--text-micro)] text-text-muted hover:text-text hover:bg-bg-light/40 cursor-pointer transition-colors"
+                  className="px-2.5 py-1.5 text-micro text-text-muted hover:text-text hover:bg-bg-light/40 cursor-pointer transition-colors"
                 >
                   {item.displayName}
                 </li>
@@ -197,7 +194,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
           )}
 
           {selectedLocation && (
-            <div className="p-2.5 border border-border-muted rounded-md bg-bg-dark text-[var(--text-micro)] text-text-muted">
+            <div className="p-2.5 border border-border-muted rounded-md bg-bg-dark text-micro text-text-muted">
               Selected: {selectedLocation.displayName}
             </div>
           )}
@@ -208,7 +205,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-[var(--gap-block)] border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
             <button
               type="button"
               onClick={() => setIsDeviceModalOpen(false)}

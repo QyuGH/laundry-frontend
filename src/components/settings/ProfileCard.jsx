@@ -104,10 +104,12 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
 
   return (
     <section className="card-shell flex flex-col">
-      <div className="section-header pb-[var(--gap-block)] border-b border-border-muted">
+      <div className="section-header pb-block border-b border-border-muted">
         <div>
-          <h2 className="text-sm font-semibold text-text">Personal Profile</h2>
-          <p className="text-[var(--text-micro)] text-text-muted mt-0.5">
+          <h2 className="text-base font-semibold text-text">
+            Personal Profile
+          </h2>
+          <p className="text-xs text-text-muted mt-0.5">
             Manage your personal settings details.
           </p>
         </div>
@@ -120,10 +122,10 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
       </div>
 
       <div className="flex flex-col">
-        <div className="flex items-start justify-between gap-[var(--gap-block)] py-[var(--gap-block)]">
+        <div className="flex items-start justify-between gap-block py-block">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-text">Name</span>
-            <span className="text-[var(--text-micro)] text-text-muted">
+            <span className="text-sm font-medium text-text">Name</span>
+            <span className="text-xs text-text-muted">
               Used across notifications.
             </span>
           </div>
@@ -132,10 +134,10 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
           </span>
         </div>
 
-        <div className="flex items-start justify-between gap-[var(--gap-block)] py-[var(--gap-block)] border-t border-border-muted/30">
+        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted/30">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-text">Email Address</span>
-            <span className="text-[var(--text-micro)] text-text-muted">
+            <span className="text-sm font-medium text-text">Email Address</span>
+            <span className="text-xs text-text-muted">
               Primary login credential.
             </span>
           </div>
@@ -144,10 +146,10 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
           </span>
         </div>
 
-        <div className="flex items-start justify-between gap-[var(--gap-block)] py-[var(--gap-block)] border-t border-border-muted/30">
+        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted/30">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-text">Password</span>
-            <span className="text-[var(--text-micro)] text-text-muted">
+            <span className="text-sm font-medium text-text">Password</span>
+            <span className="text-xs text-text-muted">
               Manage your account credentials.
             </span>
           </div>
@@ -165,12 +167,9 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
         onClose={() => !isSaving && setIsProfileModalOpen(false)}
         title="Edit Profile"
       >
-        <form
-          onSubmit={handleSaveProfile}
-          className="flex flex-col gap-[var(--gap-block)]"
-        >
-          <div className="flex flex-col gap-[var(--gap-stack)]">
-            <label className="text-[var(--text-micro)] uppercase tracking-wider text-text-muted">
+        <form onSubmit={handleSaveProfile} className="flex flex-col gap-block">
+          <div className="flex flex-col gap-stack">
+            <label className="text-micro uppercase tracking-wider text-text-muted">
               Display Name
             </label>
             <input
@@ -182,7 +181,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
             />
           </div>
 
-          <p className="text-[var(--text-micro)] text-text-muted italic">
+          <p className="text-micro text-text-muted italic">
             Email address cannot be changed from this profile editor.
           </p>
 
@@ -192,7 +191,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-[var(--gap-block)] border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
             <button
               type="button"
               onClick={() => setIsProfileModalOpen(false)}
@@ -223,7 +222,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
       >
         <form
           onSubmit={handleChangePassword}
-          className="flex flex-col gap-[var(--gap-block)]"
+          className="flex flex-col gap-block"
         >
           <PasswordInput
             id="cur-password"
@@ -233,7 +232,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
             required
           />
 
-          <div className="flex flex-col gap-[var(--gap-block)] pt-[var(--gap-block)] border-t border-border-muted/30">
+          <div className="flex flex-col gap-block pt-block border-t border-border-muted/30">
             <PasswordInput
               id="new-password"
               label="New Password"
@@ -256,7 +255,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-[var(--gap-block)] border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
             <button
               type="button"
               onClick={() => setIsPasswordModalOpen(false)}
