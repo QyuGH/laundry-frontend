@@ -31,32 +31,9 @@ const BOTTOM_NAV_ITEMS = [
 ];
 
 /**
- * Sends Firebase client configuration to the active service worker via postMessage.
- * Required because service workers in public/ cannot access import.meta.env directly.
- *
- * @param {ServiceWorkerRegistration} registration - The registered service worker instance.
- */
-function sendFirebaseConfigToServiceWorker(registration) {
-  const config = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  };
-
-  const sw =
-    registration.installing ?? registration.waiting ?? registration.active;
-
-  sw?.postMessage({ type: "INIT_FIREBASE", config });
-}
-
-/**
  * Root layout wrapper for all authenticated pages.
- * Registers the Firebase Messaging service worker, injects environment config via postMessage,
- * synchronizes notification count via RTDB trigger signals, and passes unreadCount down.
+ * Registers the Firebase Messaging service worker, synchronizes notification
+ * count via RTDB trigger signals, and passes unreadCount down to navigation.
  *
  * @returns {JSX.Element}
  */
@@ -80,17 +57,6 @@ function AppLayout() {
 
     navigator.serviceWorker
       .register("/firebase-messaging-sw.js")
-      .then((registration) => {
-        sendFirebaseConfigToServiceWorker(registration);
-
-        if (registration.installing) {
-          registration.installing.addEventListener("statechange", (event) => {
-            if (event.target.state === "activated") {
-              sendFirebaseConfigToServiceWorker(registration);
-            }
-          });
-        }
-      })
       .catch(() => {});
   }, []);
 
@@ -123,7 +89,7 @@ function AppLayout() {
         <Header onMenuToggle={handleMenuToggle} />
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="page-shell py-4">
+          <div className="page-shell pt-4 pb-22 md:py-4">
             <Outlet
               context={{ onNotificationsUpdated: fetchUnreadNotifications }}
             />

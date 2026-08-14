@@ -8,12 +8,8 @@ import {
 import WebPushBanner from "../components/notifications/WebPushBanner";
 import NotificationList from "../components/notifications/NotificationList";
 
-/**
- * Main Notifications Page component.
- * Displays user notification cards, mark-as-read options, and Web Push enablement toggle.
- *
- * @returns {JSX.Element}
- */
+const PUSH_REGISTERED_KEY = "fcm_push_registered";
+
 function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,10 +35,24 @@ function NotificationsPage() {
 
   useEffect(() => {
     fetchNotifications();
-    if (Notification.permission === "granted") {
+
+    const isRegisteredLocally =
+      localStorage.getItem(PUSH_REGISTERED_KEY) === "true";
+    const isPermissionGranted =
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted";
+
+    if (isRegisteredLocally && isPermissionGranted) {
       setIsPushEnabled(true);
+    } else {
+      setIsPushEnabled(false);
     }
   }, [fetchNotifications]);
+
+  const handlePushRegistered = () => {
+    localStorage.setItem(PUSH_REGISTERED_KEY, "true");
+    setIsPushEnabled(true);
+  };
 
   const handleMarkAsRead = async (notificationId) => {
     try {
@@ -55,8 +65,8 @@ function NotificationsPage() {
       if (outletContext?.onNotificationsUpdated) {
         outletContext.onNotificationsUpdated();
       }
-    } catch {
-      // Quietly ignore mark as read failures
+    } catch (err) {
+      setError(err.message || "Failed to mark notification as read.");
     }
   };
 
@@ -69,8 +79,8 @@ function NotificationsPage() {
       if (outletContext?.onNotificationsUpdated) {
         outletContext.onNotificationsUpdated();
       }
-    } catch {
-      setError("Failed to mark all notifications as read.");
+    } catch (err) {
+      setError(err.message || "Failed to mark all notifications as read.");
     }
   };
 
@@ -101,7 +111,7 @@ function NotificationsPage() {
 
       {!isPushEnabled && (
         <WebPushBanner
-          onRegistered={() => setIsPushEnabled(true)}
+          onRegistered={handlePushRegistered}
           onError={(msg) => setError(msg)}
         />
       )}

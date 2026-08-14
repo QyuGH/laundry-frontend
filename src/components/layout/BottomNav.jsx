@@ -12,7 +12,7 @@ import { NavLink } from "react-router-dom";
 function BottomNav({ navItems, unreadCount = 0 }) {
   return (
     <nav className="md:hidden fixed bottom-5 left-5 right-5 z-50">
-      <div className="mx-auto mb-4 w-fit rounded-full backdrop-blur-xl bg-background/70 dark:bg-background/60 border border-white/20 shadow-lg shadow-black/10 flex items-center px-2 py-1">
+      <div className="mx-auto w-fit rounded-full backdrop-blur-xl bg-background/70 dark:bg-background/60 border border-white/20 shadow-lg shadow-black/10 flex items-center px-2 py-1">
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isNotification = item.path === "/notifications";

@@ -19,28 +19,9 @@ function WebPushBanner({ onRegistered, onError }) {
         throw new Error("Firebase Messaging is not supported in this browser.");
       }
 
-      if (!("serviceWorker" in navigator)) {
-        throw new Error("Service workers are not supported in this browser.");
-      }
-
       const registration = await navigator.serviceWorker.ready;
-
-      const firebaseConfig = {
-        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-        databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-        storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-        appId: import.meta.env.VITE_FIREBASE_APP_ID,
-      };
-
-      registration.active?.postMessage({
-        type: "INIT_FIREBASE",
-        config: firebaseConfig,
-      });
-
       const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+
       const token = await getToken(messaging, {
         vapidKey,
         serviceWorkerRegistration: registration,
