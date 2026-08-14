@@ -5,35 +5,32 @@ importScripts(
   "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js",
 );
 
-/**
- * Attaches Firebase background message handler after Firebase has been initialized.
- * Called once the INIT_FIREBASE postMessage is received from the main app thread.
- */
-function attachBackgroundMessageHandler() {
-  const messaging = firebase.messaging();
+firebase.initializeApp({
+  apiKey: "AIzaSyB7wdVXuFgrtXB6Q66pEyzJIr_QDv39aew",
+  authDomain: "laundry-smart-sampayan.firebaseapp.com",
+  projectId: "laundry-smart-sampayan",
+  databaseURL:
+    "https://laundry-smart-sampayan-default-rtdb.asia-southeast1.firebasedatabase.app",
+  storageBucket: "laundry-smart-sampayan.firebasestorage.app",
+  messagingSenderId: "780204813421",
+  appId: "1:780204813421:web:68f1270b3aa66b4a38a364",
+});
 
-  messaging.onBackgroundMessage((payload) => {
-    const notificationTitle = payload.notification?.title || "Laun-Dry Alert";
-    const notificationOptions = {
-      body:
-        payload.notification?.body ||
-        payload.data?.message ||
-        "Automated system update.",
-      icon: "/favicon.ico",
-      badge: "/favicon.ico",
-      data: payload.data,
-    };
+const messaging = firebase.messaging();
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
-  });
-}
+messaging.onBackgroundMessage((payload) => {
+  const notificationTitle = payload.notification?.title || "Laun-Dry Alert";
+  const notificationOptions = {
+    body:
+      payload.notification?.body ||
+      payload.data?.message ||
+      "Automated system update.",
+    icon: "/favicon.ico",
+    badge: "/favicon.ico",
+    data: payload.data,
+  };
 
-self.addEventListener("message", (event) => {
-  if (event.data?.type !== "INIT_FIREBASE") return;
-  if (firebase.apps.length > 0) return;
-
-  firebase.initializeApp(event.data.config);
-  attachBackgroundMessageHandler();
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 self.addEventListener("notificationclick", (event) => {
