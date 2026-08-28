@@ -91,13 +91,13 @@ const formatRelativeTime = (timeData) => {
  */
 function ActivityList({ logs }) {
   return (
-    <div className="divide-y divide-border-muted">
+    <div className="divide-y divide-border-muted ">
       {logs.map((log) => (
         <div
           key={log.id}
-          className="flex items-start justify-between gap-[var(--gap-block)] py-[var(--gap-stack)]"
+          className="flex items-start justify-between gap-block py-stack"
         >
-          <div className="flex items-start gap-[var(--gap-inline)]">
+          <div className="flex items-start gap-inline">
             <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-text">
@@ -147,7 +147,7 @@ function RecentActivity({ logs, isLoading }) {
   const mobileLogs = logs.slice(0, 5);
 
   return (
-    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+    <div className="card-shell flex flex-col gap-block">
       {/* Integrated Section Header */}
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Recent Activity</h2>
@@ -160,7 +160,7 @@ function RecentActivity({ logs, isLoading }) {
       </div>
 
       {/* Mobile Activity List */}
-      <div className="sm:hidden flex flex-col gap-[var(--gap-block)]">
+      <div className="sm:hidden flex flex-col gap-block">
         {isLoading || !hasLogs ? (
           <EmptyState isLoading={isLoading} />
         ) : (

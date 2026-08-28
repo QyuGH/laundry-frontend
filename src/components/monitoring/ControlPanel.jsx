@@ -166,7 +166,7 @@ function ControlPanel({
     });
 
   return (
-    <div className="card-shell flex flex-col flex-1 gap-[var(--gap-block)]">
+    <div className="card-shell flex flex-col flex-1 gap-block">
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Controls</h2>
       </div>
@@ -187,7 +187,7 @@ function ControlPanel({
         </p>
       )}
 
-      <div className="flex flex-col gap-[var(--gap-stack)]">
+      <div className="flex flex-col gap-stack">
         {isChecking && (
           <p className="text-text-muted text-xs italic text-center">
             Verifying device connection...

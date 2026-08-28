@@ -78,7 +78,7 @@ function AppLayout() {
   }, [fetchUnreadNotifications, triggerStamp, location.pathname]);
 
   return (
-    <div className="flex h-screen h-[100dvh] bg-bg-dark text-text overflow-hidden transition-colors duration-150">
+    <div className="flex h-screen h-[100dvh] bg-canvas-bg text-text overflow-hidden transition-colors duration-150">
       <Sidebar
         isCollapsed={isCollapsed}
         navItems={NAV_ITEMS}
@@ -89,7 +89,7 @@ function AppLayout() {
         <Header onMenuToggle={handleMenuToggle} />
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="page-shell pt-4 pb-22 md:py-4">
+          <div className="page-shell pt-4 pb-26 md:py-4">
             <Outlet
               context={{ onNotificationsUpdated: fetchUnreadNotifications }}
             />

@@ -23,7 +23,7 @@ function DryingEstimate({ session, progressData, isLoading }) {
   }
 
   return (
-    <div className="card-shell flex flex-col flex-1 gap-[var(--gap-block)]">
+    <div className="card-shell flex flex-col flex-1 gap-block">
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Drying Progress</h2>
         {!isInactive && (
@@ -33,7 +33,7 @@ function DryingEstimate({ session, progressData, isLoading }) {
         )}
       </div>
 
-      <div className="flex flex-col justify-center flex-grow gap-[var(--gap-stack)]">
+      <div className="flex flex-col justify-center flex-grow gap-stack">
         {isInactive ? (
           <div className="flex flex-col justify-center items-center py-2">
             <p className="text-text-muted text-sm italic">

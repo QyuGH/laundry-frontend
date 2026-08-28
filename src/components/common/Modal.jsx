@@ -32,11 +32,11 @@ function Modal({ isOpen, onClose, title, children }) {
       {/* Backdrop overlay */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-bg-dark/80 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 bg-canvas-bg/80 backdrop-blur-xs transition-opacity"
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative bg-bg border border-border rounded-lg max-w-sm w-full p-6 shadow-lg z-10 flex flex-col gap-4">
+      <div className="relative bg-surface-bg border border-border rounded-lg max-w-sm w-full p-6 z-10 flex flex-col gap-4">
         {title && (
           <h3 className="text-text text-base font-semibold tracking-wide border-b border-border-muted pb-2">
             {title}

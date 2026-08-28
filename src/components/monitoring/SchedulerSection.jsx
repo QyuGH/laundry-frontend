@@ -123,7 +123,7 @@ function SchedulerSection({
   );
 
   return (
-    <div className="card-shell flex flex-col flex-1 gap-[var(--gap-block)]">
+    <div className="card-shell flex flex-col flex-1 gap-block">
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Scheduler</h2>
       </div>

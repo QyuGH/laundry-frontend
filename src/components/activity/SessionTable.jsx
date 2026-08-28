@@ -11,7 +11,7 @@ function SessionTable({
   onSelectSession,
 }) {
   return (
-    <section className="flex flex-col gap-[var(--gap-block)]">
+    <section className="flex flex-col gap-block">
       {/* Section Header */}
       <div className="section-header">
         <div className="flex flex-col gap-1">
@@ -25,7 +25,7 @@ function SessionTable({
       </div>
 
       {/* Card Shell Table Container */}
-      <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      <div className="card-shell flex flex-col gap-block">
         {/* Table Header Row (Visible on sm screens and up) */}
         <div className="hidden sm:grid grid-cols-12 gap-4 pb-3 border-b border-border-muted text-xs uppercase tracking-widest text-text-muted font-medium px-3">
           <div className="col-span-3">Timestamp</div>

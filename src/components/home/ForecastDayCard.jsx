@@ -30,22 +30,22 @@ function ForecastDayCard({
 }) {
   return (
     <div
-      className={`rounded-lg flex flex-col gap-[var(--gap-block)] p-[var(--card-padding-mobile)] sm:p-[var(--card-padding-sm)] lg:p-[var(--card-padding-lg)] ${
+      className={`card-shell flex flex-col gap-block ${
         emphasized
-          ? "border border-border bg-glass-card"
-          : "border border-border-muted bg-bg"
+          ? "border-border bg-surface-card"
+          : "border-border-muted bg-surface-bg"
       }`}
     >
       <span className="text-base font-semibold tracking-wide text-text">
         {label}
       </span>
 
-      <div className="grid grid-cols-2 gap-[var(--gap-block)]">
+      <div className="grid grid-cols-2 gap-block">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
             Rain Probability
           </span>
-          <div className="flex items-center gap-[var(--gap-inline)] text-sm font-semibold text-text">
+          <div className="flex items-center gap-inline text-sm font-semibold text-text">
             <PlaceholderIcon className="w-4 h-4 text-text-muted" />
             <span>{rainProbability}%</span>
           </div>
@@ -54,7 +54,7 @@ function ForecastDayCard({
           <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
             Drying Duration
           </span>
-          <div className="flex items-center gap-[var(--gap-inline)] text-sm font-semibold text-text">
+          <div className="flex items-center gap-inline text-sm font-semibold text-text">
             <PlaceholderIcon className="w-4 h-4 text-text-muted" />
             <span>{estimatedDryingDuration} Hrs</span>
           </div>

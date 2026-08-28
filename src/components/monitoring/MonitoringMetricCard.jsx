@@ -10,7 +10,7 @@ import {
  */
 function MonitoringMetricCard({ title, value, subValue }) {
   return (
-    <div className="card-shell flex flex-col gap-[var(--gap-stack)]">
+    <div className="card-shell flex flex-col gap-stack">
       <div className="flex items-center justify-between">
         <span className="text-xs text-text-muted uppercase tracking-widest">
           {title}

@@ -37,14 +37,15 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
       <aside
         className={[
           "hidden md:flex flex-col shrink-0",
-          "border-r border-border-muted",
+          "bg-surface-bg",
+          "border-r border-border",
           "transition-all duration-300 ease-in-out overflow-hidden",
           isCollapsed ? "w-16" : "w-56",
         ].join(" ")}
       >
         <div
           className={[
-            "h-14 flex items-center border-b border-border-muted shrink-0",
+            "h-14 flex items-center border-b border-border shrink-0",
             isCollapsed ? "justify-center px-0" : "px-4",
           ].join(" ")}
         >
@@ -101,7 +102,7 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
           })}
         </nav>
 
-        <div className="p-2 border-t border-border-muted shrink-0">
+        <div className="p-2 border-t border-border shrink-0">
           <button
             onClick={() => setIsConfirmOpen(true)}
             className={[

@@ -70,7 +70,7 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
   }
 
   return (
-    <section className="flex flex-col gap-[var(--gap-block)]">
+    <section className="flex flex-col gap-block">
       <div className="flex flex-col gap-1">
         <h1 className="text-lg sm:text-xl font-semibold text-text">
           Live Telemetry
@@ -91,8 +91,16 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
           value={rainDisplay}
           subValue={rainSub}
         />
-        <MonitoringMetricCard title="Temperature" value={tempDisplay} subValue={tempSub} />
-        <MonitoringMetricCard title="Humidity" value={humidityDisplay} subValue={humiditySub} />
+        <MonitoringMetricCard
+          title="Temperature"
+          value={tempDisplay}
+          subValue={tempSub}
+        />
+        <MonitoringMetricCard
+          title="Humidity"
+          value={humidityDisplay}
+          subValue={humiditySub}
+        />
       </div>
     </section>
   );

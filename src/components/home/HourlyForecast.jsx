@@ -26,7 +26,7 @@ function HourlyForecast({ hours }) {
           return (
             <div
               key={index}
-              className="flex flex-col gap-[var(--gap-inline)] p-4 rounded-lg border border-border-muted bg-bg-dark shrink-0"
+              className="flex flex-col gap-inline p-4 rounded-lg border border-border-muted bg-bg-dark shrink-0"
             >
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-text">
@@ -39,7 +39,7 @@ function HourlyForecast({ hours }) {
 
               <div className="border-t border-border-muted/40" />
 
-              <div className="grid grid-cols-2 gap-[var(--gap-block)]">
+              <div className="grid grid-cols-2 gap-block">
                 <div className="flex flex-col">
                   <span className="text-[10px] text-text-muted uppercase tracking-wider">
                     Temp

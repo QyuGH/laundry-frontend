@@ -6,7 +6,7 @@ import { formatPhtTime } from "./SessionRow";
  */
 function SessionDetailView({ session, logs, isLoading, onBack }) {
   return (
-    <div className="flex flex-col gap-[var(--gap-block)]">
+    <div className="flex flex-col gap-block">
       {/* Back Button Action */}
       <div>
         <button
@@ -18,7 +18,7 @@ function SessionDetailView({ session, logs, isLoading, onBack }) {
       </div>
 
       {/* Session Overview Card */}
-      <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      <div className="card-shell flex flex-col gap-block">
         <div className="section-header pb-2 border-b border-border-muted">
           <h2 className="text-sm font-medium text-text">Session Details</h2>
         </div>
@@ -65,7 +65,7 @@ function SessionDetailView({ session, logs, isLoading, onBack }) {
       </div>
 
       {/* Activity Timeline Card */}
-      <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      <div className="card-shell flex flex-col gap-block">
         <div className="section-header pb-2 border-b border-border-muted">
           <h2 className="text-sm font-medium text-text">Activity History</h2>
         </div>

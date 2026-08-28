@@ -60,11 +60,11 @@ function PlannerSection({
   // Layout for No Plan OR Expired Plan
   if (!plan || isExpired) {
     return (
-      <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+      <div className="card-shell flex flex-col gap-block">
         <div className="section-header pb-2 border-b border-border-muted">
           <h2 className="text-sm font-medium text-text">Laundry Planner</h2>
         </div>
-        <div className="flex flex-col items-center text-center gap-[var(--gap-block)] py-4">
+        <div className="flex flex-col items-center text-center gap-block py-4">
           {isExpired ? (
             <p className="text-sm text-text-muted max-w-xs">
               Your last generated plan expired at{" "}
@@ -77,11 +77,11 @@ function PlannerSection({
               forecasts rephrased by AI.
             </p>
           )}
-          <div className="flex gap-[var(--gap-inline)]">
+          <div className="flex gap-inline">
             {plan && showLocationButton && (
               <button
                 onClick={onChangeLocationClick}
-                className="px-4 py-2 border border-border rounded-md text-xs font-medium text-text hover:bg-bg-light transition-colors duration-150"
+                className="px-4 py-2 border border-border rounded-md text-xs font-medium text-text hover:bg-surface-bg transition-colors duration-150"
               >
                 Change Location
               </button>
@@ -89,7 +89,7 @@ function PlannerSection({
             <button
               onClick={onGenerate}
               disabled={isGenerating}
-              className="px-4 py-2 bg-bg-light border border-border rounded-md text-xs font-medium text-text hover:bg-highlight transition-colors duration-150 disabled:opacity-50"
+              className="px-4 py-2 bg-surface-bg border border-border rounded-md text-xs font-medium text-text hover:bg-canvas-bg transition-colors duration-150 disabled:opacity-50"
             >
               {isGenerating ? "Generating..." : "Generate Plan"}
             </button>
@@ -102,22 +102,22 @@ function PlannerSection({
   const bestDay = plan.days[plan.bestDayIndex];
 
   return (
-    <div className="card-shell flex flex-col gap-[var(--gap-block)]">
+    <div className="card-shell flex flex-col gap-block">
       {/* Integrated Header Row */}
       <div className="section-header pb-2 border-b border-border-muted">
         <h2 className="text-sm font-medium text-text">Laundry Planner</h2>
-        <div className="flex gap-[var(--gap-inline)]">
+        <div className="flex gap-inline">
           {showLocationButton && (
             <button
               onClick={onChangeLocationClick}
-              className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-bg"
+              className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-surface-bg"
             >
               Change Location
             </button>
           )}
           <button
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-bg"
+            className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-surface-bg"
           >
             {isExpanded ? "Collapse" : "Expand Plan"}
           </button>
@@ -134,7 +134,7 @@ function PlannerSection({
       />
 
       {isExpanded && (
-        <div className="flex flex-col gap-[var(--gap-block)]">
+        <div className="flex flex-col gap-block">
           {plan.days.map((day, index) => {
             const isDayOne = index === 0;
             return (
@@ -151,7 +151,7 @@ function PlannerSection({
                     <div className="flex justify-center">
                       <button
                         onClick={() => setIsHourlyOpen((prev) => !prev)}
-                        className="text-xs border border-border-muted px-4 py-2 rounded-md text-text-muted hover:text-text transition-colors bg-bg-light"
+                        className="text-xs border border-border-muted px-4 py-2 rounded-md text-text-muted hover:text-text transition-colors bg-surface-bg"
                       >
                         {isHourlyOpen
                           ? "Hide Hourly Breakdown"
