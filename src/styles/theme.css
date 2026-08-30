@@ -26,6 +26,12 @@
   --color-success: oklch(0.7 0.13 145);
   --color-info: oklch(0.68 0.14 250);
 
+  /* NEW COLORS */
+  --color-canvas-bg: oklch(0.1 0.025 247);
+  --color-surface-bg: oklch(0.15 0.03 248);
+  --color-primary-bg: oklch(0.7 0.14 220);
+  --color-accent-bg: oklch(0.82 0.12 205);
+
   /* Layout Spacing (Responsive) */
   --content-max-width: 85rem;
   --page-shell-padding-mobile: 1rem;
@@ -69,9 +75,8 @@
 }
 
 [data-theme="dark"] {
-  --color-bg-dark: oklch(0.12 0.03 250);
-  --color-bg: oklch(0.16 0.025 250);
-  --color-bg-light: oklch(0.22 0.02 250);
+  --color-canvas-bg: oklch(0.1 0.025 247);
+  --color-surface-bg: oklch(0.15 0.03 248);
 
   --color-text: oklch(0.94 0.015 250);
   --color-text-muted: oklch(0.65 0.015 250);
@@ -93,9 +98,12 @@
 }
 
 [data-theme="light"] {
-  --color-bg-dark: oklch(0.96 0.01 250);
-  --color-bg: oklch(0.99 0.005 250);
-  --color-bg-light: oklch(0.92 0.015 250);
+  --color-canvas-bg: oklch(0.98 0.01 240);
+  --color-surface-bg: oklch(1 0 0);
+
+  --color-bg-dark: oklch(0.88 0.015 250);
+  --color-bg: oklch(0.94 0.01 250);
+  --color-bg-light: oklch(0.97 0.008 250);
 
   --color-text: oklch(0.25 0.03 250);
   --color-text-muted: oklch(0.5 0.02 250);
@@ -121,6 +129,11 @@
    ============================================================ */
 
 @theme {
+  --color-canvas-bg: var(--color-canvas-bg);
+  --color-surface-bg: var(--color-surface-bg);
+  --color-primary-bg: var(--color-primary-bg);
+  --color-accent-bg: var(--color-accent-bg);
+
   /* Colors */
   --color-bg-dark: var(--color-bg-dark);
   --color-bg: var(--color-bg);
@@ -156,6 +169,9 @@
   --spacing-inline: var(--gap-inline);
   --spacing-stack: var(--gap-stack);
   --spacing-block: var(--gap-block);
+  --spacing-card-mobile: var(--card-padding-mobile);
+  --spacing-card-sm: var(--card-padding-sm);
+  --spacing-card-lg: var(--card-padding-lg);
 }
 
 /* ============================================================
@@ -218,7 +234,7 @@
 }
 
 @utility card-shell {
-  @apply rounded-lg border border-border-muted bg-glass-card;
+  @apply rounded-lg border border-border bg-surface-card;
   padding: var(--card-padding-mobile);
 }
 
@@ -258,6 +274,10 @@
   box-shadow:
     0px 1px 2px oklch(0% 0 0 / 0.4),
     0px 3px 6px -1px oklch(0% 0 0 / 0.3);
+}
+
+@utility bg-surface-card {
+  background-color: var(--color-surface-bg);
 }
 
 @utility stat-grid {

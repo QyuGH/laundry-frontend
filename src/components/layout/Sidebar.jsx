@@ -3,12 +3,11 @@ import { NavLink } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 import Modal from "../common/Modal";
-
-import { HomeIcon, SignoutIcon } from "../icons/NavIcons";
+import { Waves, SignOut } from "@phosphor-icons/react";
 
 /**
  * Desktop sidebar navigation.
- * Renders logo, navigation items, unread badges, and Sign Out button.
+ * Renders brand icon, navigation items, unread badges, and Sign Out button.
  *
  * @param {object} props
  * @param {boolean} props.isCollapsed - Whether sidebar is collapsed.
@@ -43,13 +42,14 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
           isCollapsed ? "w-16" : "w-56",
         ].join(" ")}
       >
+        {/* Brand Header */}
         <div
           className={[
             "h-14 flex items-center border-b border-border shrink-0",
             isCollapsed ? "justify-center px-0" : "px-4",
           ].join(" ")}
         >
-          <HomeIcon className="w-6 h-6 text-text shrink-0" />
+          <Waves className="w-6 h-6 text-primary shrink-0" weight="bold" />
           {!isCollapsed && (
             <span className="ml-3 text-text font-semibold text-sm tracking-wide whitespace-nowrap">
               Laun-Dry
@@ -57,6 +57,7 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
           )}
         </div>
 
+        {/* Nav Items List */}
         <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2">
           {navItems.map((item) => {
             const IconComponent = item.icon;
@@ -74,8 +75,8 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
                     "transition-colors duration-150",
                     isCollapsed ? "justify-center gap-0" : "gap-3",
                     isActive
-                      ? "bg-highlight text-text"
-                      : "text-text-muted hover:text-text hover:bg-bg-light",
+                      ? "bg-canvas-bg text-text font-medium"
+                      : "text-text-muted hover:text-text hover:bg-canvas-bg/60",
                   ].join(" ")
                 }
               >
@@ -84,7 +85,7 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
                     <IconComponent className="w-5 h-5 shrink-0" />
                   )}
                   {showBadge && isCollapsed && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-bg-dark" />
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-danger rounded-full ring-2 ring-surface-bg" />
                   )}
                 </div>
 
@@ -93,7 +94,7 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
                 )}
 
                 {!isCollapsed && showBadge && (
-                  <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30 shrink-0">
+                  <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-danger/15 text-danger border border-danger/30 shrink-0">
                     {unreadCount}
                   </span>
                 )}
@@ -102,16 +103,17 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
           })}
         </nav>
 
+        {/* Sidebar Footer Sign Out */}
         <div className="p-2 border-t border-border shrink-0">
           <button
             onClick={() => setIsConfirmOpen(true)}
             className={[
-              "flex items-center rounded-md px-3 py-2 text-sm w-full text-text-muted hover:text-text hover:bg-bg-light transition-colors duration-150",
+              "flex items-center rounded-md px-3 py-2 text-sm w-full text-text-muted hover:text-danger hover:bg-danger/10 hover:cursor-pointer transition-colors duration-150",
               isCollapsed ? "justify-center gap-0" : "gap-3",
             ].join(" ")}
             aria-label="Sign Out"
           >
-            <SignoutIcon className="w-5 h-5 shrink-0" />
+            <SignOut className="w-5 h-5 shrink-0" />
             {!isCollapsed && (
               <span className="whitespace-nowrap">Sign Out</span>
             )}
@@ -119,29 +121,29 @@ function Sidebar({ isCollapsed, navItems, unreadCount = 0 }) {
         </div>
       </aside>
 
+      {/* Confirmation Modal */}
       <Modal
         isOpen={isConfirmOpen}
         onClose={() => !isLoggingOut && setIsConfirmOpen(false)}
-        title="Sign Out"
+        title="Confirm Sign Out"
       >
-        <div className="flex flex-col gap-4">
-          <p className="text-text-muted text-sm">
-            Are you sure you want to sign out of your Laun-Dry session? You will
-            need to enter your email and password to log in again.
+        <div className="flex flex-col gap-block">
+          <p className="text-text-muted text-xs leading-relaxed">
+            Are you sure you want to sign out of Laun-Dry?
           </p>
 
-          <div className="flex justify-end gap-2.5 mt-2">
+          <div className="flex justify-end gap-2 pt-2 border-t border-border-muted">
             <button
               onClick={() => setIsConfirmOpen(false)}
               disabled={isLoggingOut}
-              className="px-4 py-2 border border-border-muted rounded-md text-xs font-medium text-text hover:bg-bg-light transition-colors duration-150 disabled:opacity-50"
+              className="px-3 py-1.5 border border-border-muted rounded-md text-xs font-semibold text-text hover:bg-canvas-bg transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSignOutConfirm}
               disabled={isLoggingOut}
-              className="px-4 py-2 bg-bg-light border border-border rounded-md text-xs font-medium text-text hover:bg-highlight transition-colors duration-150 disabled:opacity-50"
+              className="px-3 py-1.5 border border-danger/30 rounded-md text-xs font-semibold text-danger bg-danger/10 hover:bg-danger/20 transition-colors disabled:opacity-50"
             >
               {isLoggingOut ? "Signing out..." : "Sign Out"}
             </button>

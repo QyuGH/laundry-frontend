@@ -7,27 +7,27 @@ import { useAuth } from "../../context/AuthContext";
 import useRtdbListener from "../../hooks/useRtdbListener";
 import { getUserNotifications } from "../../services/api";
 import {
-  HomeIcon,
-  ActivityLogIcon,
-  MonitoringIcon,
-  NotificationIcon,
-  AccountSettingsIcon,
-} from "../icons/NavIcons";
+  House,
+  Broadcast,
+  ClockCounterClockwise,
+  Bell,
+  Gear,
+} from "@phosphor-icons/react";
 
 const NAV_ITEMS = [
-  { label: "Home", path: "/", icon: HomeIcon },
-  { label: "Monitoring", path: "/monitoring", icon: MonitoringIcon },
-  { label: "Activity Log", path: "/logs", icon: ActivityLogIcon },
-  { label: "Notifications", path: "/notifications", icon: NotificationIcon },
-  { label: "Account", path: "/settings", icon: AccountSettingsIcon },
+  { label: "Home", path: "/", icon: House },
+  { label: "Monitoring", path: "/monitoring", icon: Broadcast },
+  { label: "Activity Log", path: "/logs", icon: ClockCounterClockwise },
+  { label: "Notifications", path: "/notifications", icon: Bell },
+  { label: "Account", path: "/settings", icon: Gear },
 ];
 
 const BOTTOM_NAV_ITEMS = [
-  { label: "Home", path: "/", icon: HomeIcon },
-  { label: "Activity Log", path: "/logs", icon: ActivityLogIcon },
-  { label: "Monitoring", path: "/monitoring", icon: MonitoringIcon },
-  { label: "Notifications", path: "/notifications", icon: NotificationIcon },
-  { label: "Account", path: "/settings", icon: AccountSettingsIcon },
+  { label: "Home", path: "/", icon: House },
+  { label: "Activity Log", path: "/logs", icon: ClockCounterClockwise },
+  { label: "Monitoring", path: "/monitoring", icon: Broadcast },
+  { label: "Notifications", path: "/notifications", icon: Bell },
+  { label: "Account", path: "/settings", icon: Gear },
 ];
 
 /**

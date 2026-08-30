@@ -11,8 +11,8 @@ import { NavLink } from "react-router-dom";
  */
 function BottomNav({ navItems, unreadCount = 0 }) {
   return (
-    <nav className="md:hidden fixed bottom-5 left-5 right-5 z-50">
-      <div className="mx-auto w-fit rounded-full backdrop-blur-xl bg-background/70 dark:bg-background/60 border border-white/20 shadow-lg shadow-black/10 flex items-center px-3 py-2">
+    <nav className="md:hidden fixed bottom-5 left-5 right-5 z-10">
+      <div className="mx-auto w-fit rounded-full bg-surface-bg border border-border shadow-lg shadow-black/10 flex items-center px-4 py-2.5 gap-2">
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isNotification = item.path === "/notifications";
@@ -26,15 +26,17 @@ function BottomNav({ navItems, unreadCount = 0 }) {
               aria-label={item.label}
               className={({ isActive }) =>
                 [
-                  "flex items-center justify-center w-11 h-11 relative",
+                  "flex items-center justify-center w-11 h-11 relative rounded-full",
                   "transition-colors duration-150",
-                  isActive ? "text-text" : "text-text-muted hover:text-text",
+                  isActive
+                    ? "text-primary bg-canvas-bg"
+                    : "text-text-muted hover:text-text",
                 ].join(" ")
               }
             >
               {IconComponent && <IconComponent className="w-6 h-6" />}
               {showBadge && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full ring-2 ring-canvas-bg" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full ring-2 ring-surface-bg" />
               )}
             </NavLink>
           );

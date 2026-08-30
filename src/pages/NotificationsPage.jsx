@@ -90,9 +90,6 @@ function NotificationsPage() {
     <div className="section-stack">
       <div className="section-header pb-stack border-b border-border-muted">
         <div>
-          <h1 className="text-text text-base font-semibold tracking-wide">
-            Notifications
-          </h1>
           <p className="text-text-muted text-xs mt-0.5">
             {unreadCount > 0
               ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}.`

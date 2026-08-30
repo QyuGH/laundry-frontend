@@ -1,44 +1,30 @@
-import {
-  DeviceStatusIcon,
-  RainIcon,
-  TemperatureIcon,
-  HumidityIcon,
-  PulleyStatusIcon,
-  ClockIcon,
-} from "../icons/MetricIcons";
-
 /**
- * Displays a single metric with a label, placeholder icon, and formatted value.
- * Used in the metrics grid on the Home page.
+ * Displays a single metric card with dynamic icon, color, title, value, and subtitle.
  *
  * @param {object} props
- * @param {string} props.title - The metric label (e.g. "Temperature").
- * @param {string} props.value - The formatted value string to display (e.g. "32°C").
+ * @param {string} props.title - Metric title (e.g. "Temperature").
+ * @param {string} props.value - Formatted value string.
+ * @param {string} [props.subValue] - Additional status / context string.
+ * @param {React.ComponentType} [props.icon] - Icon component.
+ * @param {string} [props.iconColor] - Tailwind color class for the icon.
  * @returns {JSX.Element}
  */
-function MetricCard({ title, value, subValue }) {
+function MetricCard({
+  title,
+  value,
+  subValue,
+  icon: IconComponent,
+  iconColor = "text-text-muted",
+}) {
   return (
     <div className="card-shell flex flex-col gap-stack">
       <div className="flex items-center justify-between">
         <span className="text-xs text-text-muted uppercase tracking-widest">
           {title}
         </span>
-        {title === "Device Status" && (
-          <DeviceStatusIcon className="w-4 h-4 text-text-muted" />
+        {IconComponent && (
+          <IconComponent className={`w-5 h-5 shrink-0 ${iconColor}`} />
         )}
-        {title === "Rain Probability" && (
-          <RainIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Temperature" && (
-          <TemperatureIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Humidity" && (
-          <HumidityIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Pulley Status" && (
-          <PulleyStatusIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Clock" && <ClockIcon className="w-4 h-4 text-text-muted" />}
       </div>
       <div className="flex flex-col">
         <span className="text-xl font-semibold tracking-tight text-text">

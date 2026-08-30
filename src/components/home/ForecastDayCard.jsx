@@ -1,4 +1,4 @@
-import PlaceholderIcon from "../icons/PlaceholderIcon";
+import { CloudRain, WindIcon } from "@phosphor-icons/react";
 
 /**
  * Shared layout for the Planner's Recommendation and Day breakdown cards:
@@ -46,7 +46,7 @@ function ForecastDayCard({
             Rain Probability
           </span>
           <div className="flex items-center gap-inline text-sm font-semibold text-text">
-            <PlaceholderIcon className="w-4 h-4 text-text-muted" />
+            <CloudRain className="w-4 h-4 text-text-muted" />
             <span>{rainProbability}%</span>
           </div>
         </div>
@@ -55,7 +55,7 @@ function ForecastDayCard({
             Drying Duration
           </span>
           <div className="flex items-center gap-inline text-sm font-semibold text-text">
-            <PlaceholderIcon className="w-4 h-4 text-text-muted" />
+            <WindIcon className="w-4 h-4 text-text-muted" />
             <span>{estimatedDryingDuration} Hrs</span>
           </div>
         </div>

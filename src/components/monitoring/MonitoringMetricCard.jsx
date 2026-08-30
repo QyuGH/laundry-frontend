@@ -1,31 +1,29 @@
-import {
-  RainIcon,
-  TemperatureIcon,
-  HumidityIcon,
-  MotorIcon,
-} from "../icons/MetricIcons";
-
 /**
- * Renders a single telemetry metric card using standard card-shell styling.
+ * Displays a single telemetry metric card in the Monitoring view.
+ *
+ * @param {object} props
+ * @param {string} props.title - Metric title.
+ * @param {string} props.value - Value string.
+ * @param {string} [props.subValue] - Status explanation.
+ * @param {React.ComponentType} [props.icon] - Icon component.
+ * @param {string} [props.iconColor] - Tailwind color class for the icon.
+ * @returns {JSX.Element}
  */
-function MonitoringMetricCard({ title, value, subValue }) {
+function MonitoringMetricCard({
+  title,
+  value,
+  subValue,
+  icon: IconComponent,
+  iconColor = "text-text-muted",
+}) {
   return (
     <div className="card-shell flex flex-col gap-stack">
       <div className="flex items-center justify-between">
         <span className="text-xs text-text-muted uppercase tracking-widest">
           {title}
         </span>
-        {title === "Rain Sensor" && (
-          <RainIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Temperature" && (
-          <TemperatureIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Humidity" && (
-          <HumidityIcon className="w-4 h-4 text-text-muted" />
-        )}
-        {title === "Pulley Status" && (
-          <MotorIcon className="w-4 h-4 text-text-muted" />
+        {IconComponent && (
+          <IconComponent className={`w-5 h-5 shrink-0 ${iconColor}`} />
         )}
       </div>
       <div className="flex flex-col">
