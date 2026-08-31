@@ -36,6 +36,8 @@ const formatExpiryLabel = (dateStr) => {
 /**
  * Laundry Planner section.
  * Renders the recommendation card and the 4-day breakdowns.
+ * Only one day's hourly breakdown can be expanded at a time — opening a
+ * new day's breakdown automatically collapses the previously open one.
  *
  * @param {object} props
  * @param {object|null} props.plan - Plan document object.
@@ -55,7 +57,17 @@ function PlannerSection({
   onChangeLocationClick,
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isHourlyOpen, setIsHourlyOpen] = useState(false);
+  // Tracks which day index (0-3) has its hourly breakdown open. null = all closed.
+  const [activeHourlyIndex, setActiveHourlyIndex] = useState(null);
+
+  /**
+   * Toggles the hourly breakdown for a given day index.
+   * Opening a day automatically closes any currently open day.
+   * @param {number} index
+   */
+  const handleHourlyToggle = (index) => {
+    setActiveHourlyIndex((prev) => (prev === index ? null : index));
+  };
 
   // Layout for No Plan OR Expired Plan
   if (!plan || isExpired) {
@@ -116,7 +128,11 @@ function PlannerSection({
             </button>
           )}
           <button
-            onClick={() => setIsExpanded((prev) => !prev)}
+            onClick={() => {
+              setIsExpanded((prev) => !prev);
+              // Collapse any open hourly breakdown when collapsing the plan.
+              if (isExpanded) setActiveHourlyIndex(null);
+            }}
             className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-surface-bg"
           >
             {isExpanded ? "Collapse" : "Expand Plan"}
@@ -127,7 +143,6 @@ function PlannerSection({
       {/* Main Plan Card Content */}
       <ForecastDayCard
         label={`RECOMMENDATION (${formatDayLabel(bestDay.date)})`}
-        rainProbability={bestDay.rainProbability}
         estimatedDryingDuration={bestDay.estimatedDryingDuration}
         bodyText={plan.recommendationText}
         emphasized
@@ -136,21 +151,24 @@ function PlannerSection({
       {isExpanded && (
         <div className="flex flex-col gap-block">
           {plan.days.map((day, index) => {
-            const isDayOne = index === 0;
+            const isHourlyOpen = activeHourlyIndex === index;
+            const hasHourlyData =
+              Array.isArray(day.hourlyBreakdown) &&
+              day.hourlyBreakdown.length > 0;
+
             return (
               <ForecastDayCard
                 key={index}
                 label={`DAY ${index + 1} (${formatDayLabel(day.date)})`}
-                rainProbability={day.rainProbability}
                 estimatedDryingDuration={day.estimatedDryingDuration}
                 bodyText={day.verdict}
               >
-                {isDayOne && day.hourlyBreakdown && (
+                {hasHourlyData && (
                   <>
                     <div className="border-t border-border-muted" />
                     <div className="flex justify-center">
                       <button
-                        onClick={() => setIsHourlyOpen((prev) => !prev)}
+                        onClick={() => handleHourlyToggle(index)}
                         className="text-xs border border-border-muted px-4 py-2 rounded-md text-text-muted hover:text-text transition-colors bg-surface-bg"
                       >
                         {isHourlyOpen
@@ -160,9 +178,7 @@ function PlannerSection({
                     </div>
                   </>
                 )}
-                {isDayOne && isHourlyOpen && (
-                  <HourlyForecast hours={day.hourlyBreakdown} />
-                )}
+                {isHourlyOpen && <HourlyForecast hours={day.hourlyBreakdown} />}
               </ForecastDayCard>
             );
           })}

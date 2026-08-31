@@ -1,10 +1,10 @@
-import { CloudRain, WindIcon } from "@phosphor-icons/react";
+import { WindIcon } from "@phosphor-icons/react";
 
 /**
  * Shared layout for the Planner's Recommendation and Day breakdown cards:
- * a header label, a rain probability / drying duration pair, a divider,
- * and a body paragraph. Optional children render below the paragraph
- * (used for Day 1's hourly forecast toggle and breakdown).
+ * a header label, the estimated drying duration, a divider, and a body
+ * paragraph. Optional children render below the paragraph (used for the
+ * hourly forecast toggle and breakdown).
  *
  * Border and background intentionally differ by `emphasized` to preserve
  * the existing visual distinction between the primary Recommendation card
@@ -12,8 +12,7 @@ import { CloudRain, WindIcon } from "@phosphor-icons/react";
  * structural one.
  *
  * @param {object} props
- * @param {string} props.label - Header label .
- * @param {number} props.rainProbability
+ * @param {string} props.label - Header label.
  * @param {number} props.estimatedDryingDuration
  * @param {string} props.bodyText - Recommendation text or day verdict.
  * @param {boolean} [props.emphasized=false] - True for the Recommendation card.
@@ -22,7 +21,6 @@ import { CloudRain, WindIcon } from "@phosphor-icons/react";
  */
 function ForecastDayCard({
   label,
-  rainProbability,
   estimatedDryingDuration,
   bodyText,
   emphasized = false,
@@ -40,24 +38,13 @@ function ForecastDayCard({
         {label}
       </span>
 
-      <div className="grid grid-cols-2 gap-block">
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-            Rain Probability
-          </span>
-          <div className="flex items-center gap-inline text-sm font-semibold text-text">
-            <CloudRain className="w-4 h-4 text-text-muted" />
-            <span>{rainProbability}%</span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-            Expected Drying Duration
-          </span>
-          <div className="flex items-center gap-inline text-sm font-semibold text-text">
-            <WindIcon className="w-4 h-4 text-text-muted" />
-            <span>{estimatedDryingDuration} Hrs</span>
-          </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
+          Expected Drying Duration
+        </span>
+        <div className="flex items-center gap-inline text-sm font-semibold text-text">
+          <WindIcon className="w-4 h-4 text-text-muted" />
+          <span>{estimatedDryingDuration} Hrs</span>
         </div>
       </div>
 
