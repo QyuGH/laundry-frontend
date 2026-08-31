@@ -213,7 +213,7 @@ function ControlPanel({
                 id="initialize-device-btn"
                 onClick={handleInitialize}
                 disabled={isSubmitting}
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 {isSubmitting ? "Initializing..." : "Initialize Device"}
               </button>
@@ -225,7 +225,7 @@ function ControlPanel({
                   setIsStartModalOpen(true);
                 }}
                 disabled={isSubmitting}
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 Deploy
               </button>
@@ -239,7 +239,7 @@ function ControlPanel({
               id="deploy-now-btn"
               onClick={() => withSubmit(onDeploy)}
               disabled={isSubmitting}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
               Deploy Now
             </button>
@@ -247,7 +247,7 @@ function ControlPanel({
               id="cancel-pending-btn"
               onClick={() => setIsEndModalOpen(true)}
               disabled={isSubmitting}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
               Cancel Session
             </button>
@@ -262,7 +262,7 @@ function ControlPanel({
               setIsPauseModalOpen(true);
             }}
             disabled={isSubmitting}
-            className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+            className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
           >
             Pause & Retract
           </button>
@@ -274,7 +274,7 @@ function ControlPanel({
               id="resume-session-btn"
               onClick={() => withSubmit(onDeploy)}
               disabled={isSubmitting}
-              className="py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              className="py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
               Resume
             </button>
@@ -285,7 +285,7 @@ function ControlPanel({
                 setIsEndModalOpen(true);
               }}
               disabled={isSubmitting}
-              className="py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light transition bg-bg disabled:opacity-50"
+              className="py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
               End Session
             </button>
@@ -321,7 +321,7 @@ function ControlPanel({
           <div className="flex justify-end gap-3 mt-1">
             <button
               onClick={() => setIsStartModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
+              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
             >
               Cancel
             </button>
@@ -329,7 +329,7 @@ function ControlPanel({
               id="confirm-deploy-btn"
               onClick={handleConfirmStart}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Deploying..." : "Confirm & Deploy"}
             </button>
@@ -351,7 +351,7 @@ function ControlPanel({
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setIsPauseModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
+              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
             >
               Cancel
             </button>
@@ -359,7 +359,7 @@ function ControlPanel({
               id="confirm-pause-btn"
               onClick={handleConfirmPause}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Retracting..." : "Confirm Pause"}
             </button>
@@ -381,7 +381,7 @@ function ControlPanel({
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setIsEndModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
+              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
             >
               Cancel
             </button>
@@ -389,7 +389,7 @@ function ControlPanel({
               id="confirm-end-session-btn"
               onClick={handleConfirmEnd}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting
                 ? isPending

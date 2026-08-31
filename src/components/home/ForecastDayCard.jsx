@@ -52,7 +52,7 @@ function ForecastDayCard({
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-            Drying Duration
+            Expected Drying Duration
           </span>
           <div className="flex items-center gap-inline text-sm font-semibold text-text">
             <WindIcon className="w-4 h-4 text-text-muted" />

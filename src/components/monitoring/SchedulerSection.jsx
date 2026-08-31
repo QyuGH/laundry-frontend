@@ -188,7 +188,7 @@ function SchedulerSection({
                 id="modify-schedule-btn"
                 onClick={handleOpenScheduleModal}
                 disabled={isSubmitting}
-                className="py-2 rounded-md text-xs font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+                className="py-2 rounded-md text-xs font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 Edit Time
               </button>
@@ -199,7 +199,7 @@ function SchedulerSection({
                   setIsCancelModalOpen(true);
                 }}
                 disabled={isSubmitting}
-                className="py-2 rounded-md text-xs font-medium border border-border text-text-muted hover:bg-bg-light transition bg-bg disabled:opacity-50"
+                className="py-2 rounded-md text-xs font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -239,7 +239,7 @@ function SchedulerSection({
                 id="set-schedule-btn"
                 onClick={handleOpenScheduleModal}
                 disabled={isSubmitting}
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 {isInactive ? "Set Deployment Time" : "Set Retraction Time"}
               </button>
@@ -310,7 +310,7 @@ function SchedulerSection({
           <div className="flex justify-end gap-3 mt-1">
             <button
               onClick={() => setIsScheduleModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
+              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
             >
               Cancel
             </button>
@@ -318,7 +318,7 @@ function SchedulerSection({
               id="confirm-schedule-btn"
               onClick={handleSave}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
             >
               {isSubmitting ? "Saving..." : "Save Schedule"}
             </button>

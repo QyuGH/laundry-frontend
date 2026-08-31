@@ -11,7 +11,7 @@ function SessionDetailView({ session, logs, isLoading, onBack }) {
       <div>
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-text-muted hover:text-text transition text-sm font-semibold"
+          className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text hover:cursor-pointer transition-colors duration-150 bg-surface-bg shrink-0"
         >
           ← Back to Activity Log
         </button>

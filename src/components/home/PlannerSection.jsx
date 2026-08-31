@@ -74,14 +74,14 @@ function PlannerSection({
           ) : (
             <p className="text-sm text-text-muted max-w-xs">
               Generate an automated laundry day plan using real-time Open-Meteo
-              forecasts rephrased by AI.
+              forecasts.
             </p>
           )}
           <div className="flex gap-inline">
             {plan && showLocationButton && (
               <button
                 onClick={onChangeLocationClick}
-                className="px-4 py-2 border border-border rounded-md text-xs font-medium text-text hover:bg-surface-bg transition-colors duration-150"
+                className="px-4 py-2 border border-border rounded-md text-xs font-medium text-text hover:bg-surface-bg hover:cursor-pointer transition-colors duration-150"
               >
                 Change Location
               </button>
@@ -89,7 +89,7 @@ function PlannerSection({
             <button
               onClick={onGenerate}
               disabled={isGenerating}
-              className="px-4 py-2 bg-surface-bg border border-border rounded-md text-xs font-medium text-text hover:bg-canvas-bg transition-colors duration-150 disabled:opacity-50"
+              className="px-4 py-2 bg-surface-bg border border-border rounded-md text-xs font-medium text-text hover:bg-canvas-bg hover:cursor-pointer transition-colors duration-150 disabled:opacity-50"
             >
               {isGenerating ? "Generating..." : "Generate Plan"}
             </button>
