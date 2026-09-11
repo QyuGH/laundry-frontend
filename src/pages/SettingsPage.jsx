@@ -5,48 +5,77 @@ import ProfileCard from "../components/settings/ProfileCard";
 import DeviceCard from "../components/settings/DeviceCard";
 import MembersCard from "../components/settings/MembersCard";
 
-/**
- * Account Settings page.
- * Orchestrates settings data fetch and success toast state.
- * Delegates all display and modal logic to ProfileCard, DeviceCard, and MembersCard.
- *
- * @returns {JSX.Element}
- */
+let settingsCache = {
+  data: null,
+  userId: null,
+};
+
+export const clearSettingsCache = () => {
+  settingsCache = {
+    data: null,
+    userId: null,
+  };
+};
+
 function SettingsPage() {
   const { user } = useAuth();
+  const cached =
+    user?.uid && settingsCache.userId === user.uid ? settingsCache.data : null;
 
   const [profileName, setProfileName] = useState(user?.displayName || "");
-  const [device, setDevice] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [role, setRole] = useState("member");
-  const [isLoading, setIsLoading] = useState(true);
+  const [device, setDevice] = useState(cached?.device || null);
+  const [members, setMembers] = useState(cached?.members || []);
+  const [role, setRole] = useState(cached?.role || "member");
+  const [isLoading, setIsLoading] = useState(!cached);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState("");
 
-  const fetchSettingsData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const devRes = await getDevice();
-      if (devRes && devRes.device) {
-        setDevice(devRes.device);
-        setRole(devRes.device.ownerId === user?.uid ? "owner" : "member");
+  const fetchSettingsData = useCallback(
+    async (showLoading = true) => {
+      if (showLoading) {
+        setIsLoading(true);
       }
+      setError(null);
+      try {
+        const devRes = await getDevice();
+        let newDevice = null;
+        let newRole = "member";
+        if (devRes && devRes.device) {
+          newDevice = devRes.device;
+          newRole = devRes.device.ownerId === user?.uid ? "owner" : "member";
+          setDevice(newDevice);
+          setRole(newRole);
+        }
 
-      const memRes = await getDeviceMembers();
-      if (memRes && memRes.members) {
-        setMembers(memRes.members);
+        const memRes = await getDeviceMembers();
+        let newMembers = [];
+        if (memRes && memRes.members) {
+          newMembers = memRes.members;
+          setMembers(newMembers);
+        }
+
+        settingsCache = {
+          userId: user?.uid,
+          data: {
+            device: newDevice,
+            members: newMembers,
+            role: newRole,
+          },
+        };
+      } catch (err) {
+        setError(err.message || "Failed to load account settings.");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      setError(err.message || "Failed to load account settings.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
+    },
+    [user],
+  );
 
   useEffect(() => {
-    fetchSettingsData();
-  }, [fetchSettingsData]);
+    if (!cached) {
+      fetchSettingsData(true);
+    }
+  }, [cached, fetchSettingsData]);
 
   const triggerSuccessToast = (msg) => {
     setSuccessMsg(msg);
@@ -80,7 +109,15 @@ function SettingsPage() {
       <ProfileCard
         user={user}
         profileName={profileName}
-        onProfileNameChange={setProfileName}
+        onProfileNameChange={(newName) => {
+          setProfileName(newName);
+          if (settingsCache.data) {
+            settingsCache.data.members = settingsCache.data.members.map((m) =>
+              m.userId === user?.uid ? { ...m, name: newName } : m,
+            );
+            setMembers(settingsCache.data.members);
+          }
+        }}
         onSuccess={triggerSuccessToast}
       />
 
@@ -88,7 +125,7 @@ function SettingsPage() {
         device={device}
         role={role}
         onDeviceSaved={async (msg) => {
-          await fetchSettingsData();
+          await fetchSettingsData(false);
           triggerSuccessToast(msg);
         }}
       />
@@ -97,7 +134,7 @@ function SettingsPage() {
         members={members}
         role={role}
         onMemberListChanged={async (msg) => {
-          await fetchSettingsData();
+          await fetchSettingsData(false);
           triggerSuccessToast(msg);
         }}
       />

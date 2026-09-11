@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getDeviceWeather } from "../services/api";
 
 /**
- * Fetches the current hour's weather forecast from the backend.
- * Parses a display-ready hour label from the ISO timestamp.
- *
- * @returns {{ weather: object|null, hourLabel: string, isLoading: boolean, error: string|null }}
+ * Fetches the current hour's weather forecast from the backend and keeps it
+ * up to date by refetching at the start of each new UTC hour.
+ * @returns {{ weather: object|null, locationName: string, hourLabel: string, isLoading: boolean, error: string|null, weatherRefetch: function }}
  */
 function useDeviceWeather() {
   const [weather, setWeather] = useState(null);
@@ -13,6 +12,9 @@ function useDeviceWeather() {
   const [hourLabel, setHourLabel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const timeoutRef = useRef(null);
+  const intervalRef = useRef(null);
 
   const fetchWeather = useCallback(async () => {
     setIsLoading(true);
@@ -37,6 +39,22 @@ function useDeviceWeather() {
 
   useEffect(() => {
     fetchWeather();
+
+    const now = new Date();
+    const msUntilNextHour =
+      (60 - now.getUTCMinutes()) * 60 * 1000 -
+      now.getUTCSeconds() * 1000 -
+      now.getUTCMilliseconds();
+
+    timeoutRef.current = setTimeout(() => {
+      fetchWeather();
+      intervalRef.current = setInterval(fetchWeather, 60 * 60 * 1000);
+    }, msUntilNextHour);
+
+    return () => {
+      clearTimeout(timeoutRef.current);
+      clearInterval(intervalRef.current);
+    };
   }, [fetchWeather]);
 
   return {
