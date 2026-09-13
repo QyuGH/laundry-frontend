@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { getSessionHistory, getSessionLogs } from "../services/api";
+import {
+  getSessionHistory,
+  getSessionLogs,
+  getSessionSnapshots,
+} from "../services/api";
 import SessionTable from "../components/activity/SessionTable";
 import SessionDetailView from "../components/activity/SessionDetailView";
 
-/**
- * ActivityLogPage.
- * Orchestrates session history state and toggles between the session table
- * and detailed session view.
- */
 function ActivityLogPage() {
   const [sessions, setSessions] = useState([]);
   const [lastSessionId, setLastSessionId] = useState(null);
@@ -15,6 +14,8 @@ function ActivityLogPage() {
   const [hasMore, setHasMore] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedSessionLogs, setSelectedSessionLogs] = useState([]);
+  const [selectedSessionSnapshots, setSelectedSessionSnapshots] =
+    useState(null);
   const [isLogsLoading, setIsLogsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -52,12 +53,21 @@ function ActivityLogPage() {
     setIsLogsLoading(true);
     setError(null);
     try {
-      const response = await getSessionLogs(session.id);
-      if (response && response.logs) {
-        setSelectedSessionLogs(response.logs);
+      const [logsRes, snapRes] = await Promise.all([
+        getSessionLogs(session.id),
+        getSessionSnapshots(session.id),
+      ]);
+
+      if (logsRes && logsRes.logs) {
+        setSelectedSessionLogs(logsRes.logs);
+      }
+      if (snapRes && snapRes.summary) {
+        setSelectedSessionSnapshots(snapRes.summary);
+      } else {
+        setSelectedSessionSnapshots(null);
       }
     } catch (err) {
-      setError(err.message || "Failed to load session logs.");
+      setError(err.message || "Failed to load session details.");
     } finally {
       setIsLogsLoading(false);
     }
@@ -66,6 +76,7 @@ function ActivityLogPage() {
   const handleBackToList = () => {
     setSelectedSession(null);
     setSelectedSessionLogs([]);
+    setSelectedSessionSnapshots(null);
   };
 
   return (
@@ -80,6 +91,7 @@ function ActivityLogPage() {
         <SessionDetailView
           session={selectedSession}
           logs={selectedSessionLogs}
+          snapshots={selectedSessionSnapshots}
           isLoading={isLogsLoading}
           onBack={handleBackToList}
         />

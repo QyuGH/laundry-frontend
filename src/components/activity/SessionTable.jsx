@@ -15,9 +15,7 @@ function SessionTable({
       {/* Section Header */}
       <div className="section-header">
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-text-muted">
-            Past laundry sessions and automated actions taken by the device.
-          </p>
+          <p className="text-sm text-text-muted">Past laundry sessions</p>
         </div>
       </div>
 

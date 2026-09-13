@@ -77,6 +77,8 @@ export const getSessionHistory = (limit = 10, lastSessionId = null) => {
 };
 export const getSessionLogs = (sessionId) =>
   apiFetch(`/api/activity-logs/session/${sessionId}`);
+export const getSessionSnapshots = (sessionId) =>
+  apiFetch(`/api/session/${sessionId}/snapshots`);
 export const getDeviceLogs = (limit = 10) =>
   apiFetch(`/api/activity-logs?limit=${limit}`);
 
