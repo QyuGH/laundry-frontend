@@ -1,57 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import Modal from "../common/Modal";
 
-const CONNECTION_CONFIG = {
-  checking: {
-    badge: "●",
-    label: "Connecting",
-    description: "Loading device state...",
-    color: "text-text-muted",
-  },
-  offline: {
-    badge: "●",
-    label: "Device Offline",
-    description:
-      "The device did not respond. Ensure it is powered on and connected.",
-    color: "text-red-400",
-  },
-  online: {
-    badge: "●",
-    label: "Device Ready",
-    description: "Device is online and ready to receive commands.",
-    color: "text-green-400",
-  },
-};
-
-const SESSION_CONFIG = {
-  active: {
-    badge: "●",
-    label: "Session Active",
-    description: "Clothesline is deployed. Drying session is in progress.",
-    color: "text-blue-400",
-  },
-  paused: {
-    badge: "●",
-    label: "Session Paused",
-    description:
-      "Session is paused. Clothesline is retracted to the protected zone.",
-    color: "text-yellow-400",
-  },
-  "rain-interrupted": {
-    badge: "●",
-    label: "Rain Detected",
-    description:
-      "Session automatically paused due to rain. Resume when conditions clear.",
-    color: "text-yellow-400",
-  },
-  pending: {
-    badge: "●",
-    label: "Session Queued",
-    description: "A scheduled session is pending. Waiting for deployment time.",
-    color: "text-text-muted",
-  },
-};
-
 const FABRIC_BASELINES = {
   synthetic: 2,
   blended: 3,
@@ -59,23 +8,13 @@ const FABRIC_BASELINES = {
   heavy: 6,
 };
 
-/**
- * ControlPanel component.
- * Handles manually starting, pausing, resuming, and ending laundry sessions.
- * Displays real-time device connection status badges and description messages.
- *
- * @param {object} props
- * @param {object|null} props.session - The active session document data.
- * @param {string} props.deviceConnection - The parsed device status: "checking"|"online"|"offline".
- * @param {function} props.onStartSession - Action handler to initialize session.
- * @param {function} props.onDeploy - Action handler to deploy clothesline.
- * @param {function} props.onRetract - Action handler to retract clothesline.
- * @param {function} props.onEndSession - Action handler to terminate session.
- * @returns {JSX.Element}
- */
 function ControlPanel({
   session,
   deviceConnection,
+  motorStatus,
+  fault,
+  rainDetected,
+  pulleyPosition,
   onStartSession,
   onDeploy,
   onRetract,
@@ -97,8 +36,13 @@ function ControlPanel({
   const isInactive = !session;
   const isPending = sessionStatus === "pending";
   const isActive = sessionStatus === "active";
-  const isPausedOrInterrupted =
-    sessionStatus === "paused" || sessionStatus === "rain-interrupted";
+  const isPaused = sessionStatus === "paused";
+  const isRainInterrupted = sessionStatus === "rain-interrupted";
+  const isPausedOrInterrupted = isPaused || isRainInterrupted;
+
+  const isMoving = isOnline && motorStatus === "moving";
+  const hasFault = isOnline && fault && fault !== "NONE";
+  const isRaining = rainDetected === true;
 
   useEffect(() => {
     if (!isOnline) {
@@ -111,11 +55,102 @@ function ControlPanel({
   }, [sessionStatus]);
 
   const statusBadge = (() => {
-    if (isChecking) return CONNECTION_CONFIG.checking;
-    if (isOffline) return CONNECTION_CONFIG.offline;
-    if (sessionStatus && SESSION_CONFIG[sessionStatus])
-      return SESSION_CONFIG[sessionStatus];
-    return CONNECTION_CONFIG.online;
+    if (isChecking) {
+      return {
+        badge: "●",
+        label: "Connecting",
+        description: "Loading device state...",
+        color: "text-text-muted",
+      };
+    }
+
+    if (isOffline) {
+      return {
+        badge: "●",
+        label: "Device Offline",
+        description:
+          "The device did not respond. Ensure it is powered on and connected.",
+        color: "text-danger",
+      };
+    }
+
+    if (hasFault) {
+      return {
+        badge: "▲",
+        label: "Motor Timeout",
+        description:
+          "Movement stopped because the limit switch was not reached - check for physical obstructions.",
+        color: "text-danger",
+      };
+    }
+
+    if (isMoving) {
+      const isDeploying = pulleyPosition !== "drying-zone";
+      return {
+        badge: "◌",
+        label: isDeploying ? "Deploying..." : "Retracting...",
+        description: isDeploying
+          ? "The clothesline is moving to the drying zone and will activate once the limit switch confirms arrival."
+          : "The clothesline is returning to the protected zone and will update once the limit switch confirms arrival.",
+        color: "text-warning",
+      };
+    }
+
+    if (isRainInterrupted && isRaining) {
+      return {
+        badge: "●",
+        label: "Rain Detected",
+        description:
+          "Session is paused and retracted to the protected zone until the rain stops.",
+        color: "text-warning",
+      };
+    }
+
+    if (isRainInterrupted && !isRaining) {
+      return {
+        badge: "●",
+        label: "Rain Cleared",
+        description:
+          "Rain has stopped; waiting for stabilization timer or manual resume.",
+        color: "text-info",
+      };
+    }
+
+    if (isActive) {
+      return {
+        badge: "●",
+        label: "Session Active",
+        description:
+          "Clothesline is deployed in the drying zone and actively drying.",
+        color: "text-success",
+      };
+    }
+
+    if (isPaused) {
+      return {
+        badge: "●",
+        label: "Session Paused",
+        description: "Clothesline is safely retracted in the protected zone.",
+        color: "text-warning",
+      };
+    }
+
+    if (isPending) {
+      return {
+        badge: "●",
+        label: "Session Queued",
+        description:
+          "Scheduled drying session is waiting for its scheduled deployment time.",
+        color: "text-text-muted",
+      };
+    }
+
+    return {
+      badge: "●",
+      label: "Device Ready",
+      description: "Device is online and ready to receive commands.",
+      color: "text-success",
+    };
   })();
 
   const withSubmit = useCallback(async (action) => {
@@ -182,7 +217,7 @@ function ControlPanel({
       </div>
 
       {actionError && (
-        <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
+        <p className="text-danger text-xs border border-danger/20 rounded p-2.5 bg-danger/10 font-medium">
           {actionError}
         </p>
       )}
@@ -195,13 +230,13 @@ function ControlPanel({
         )}
 
         {isOffline && isInactive && (
-          <p className="text-red-400 text-xs italic text-center">
+          <p className="text-danger text-xs italic text-center">
             Device must be online to initialize a drying session.
           </p>
         )}
 
         {isOffline && !isInactive && (
-          <p className="text-red-400 text-xs italic text-center">
+          <p className="text-danger text-xs italic text-center">
             Commands are disabled until the device reconnects.
           </p>
         )}
@@ -212,7 +247,7 @@ function ControlPanel({
               <button
                 id="initialize-device-btn"
                 onClick={handleInitialize}
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasFault}
                 className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 {isSubmitting ? "Initializing..." : "Initialize Device"}
@@ -224,7 +259,7 @@ function ControlPanel({
                   setActionError(null);
                   setIsStartModalOpen(true);
                 }}
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasFault || isRaining}
                 className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
               >
                 Deploy
@@ -238,15 +273,15 @@ function ControlPanel({
             <button
               id="deploy-now-btn"
               onClick={() => withSubmit(onDeploy)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isMoving || hasFault || isRaining}
               className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
-              Deploy Now
+              {isMoving ? "Moving..." : "Deploy Now"}
             </button>
             <button
               id="cancel-pending-btn"
               onClick={() => setIsEndModalOpen(true)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isMoving}
               className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
               Cancel Session
@@ -261,10 +296,10 @@ function ControlPanel({
               setActionError(null);
               setIsPauseModalOpen(true);
             }}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isMoving}
             className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
           >
-            Pause & Retract
+            {isMoving ? "Retracting..." : "Pause & Retract"}
           </button>
         )}
 
@@ -273,10 +308,14 @@ function ControlPanel({
             <button
               id="resume-session-btn"
               onClick={() => withSubmit(onDeploy)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isMoving || hasFault || isRaining}
               className="py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
-              Resume
+              {isMoving
+                ? "Moving..."
+                : isRaining
+                  ? "Rain Active (Locked)"
+                  : "Resume"}
             </button>
             <button
               id="end-session-btn"
@@ -284,7 +323,7 @@ function ControlPanel({
                 setActionError(null);
                 setIsEndModalOpen(true);
               }}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isMoving}
               className="py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
             >
               End Session
@@ -329,9 +368,9 @@ function ControlPanel({
               id="confirm-deploy-btn"
               onClick={handleConfirmStart}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 rounded bg-primary text-text font-medium hover:opacity-90 hover:cursor-pointer text-sm transition disabled:opacity-50"
             >
-              {isSubmitting ? "Deploying..." : "Confirm & Deploy"}
+              {isSubmitting ? "Starting..." : "Start & Deploy"}
             </button>
           </div>
         </div>
@@ -340,15 +379,14 @@ function ControlPanel({
       <Modal
         isOpen={isPauseModalOpen}
         onClose={() => setIsPauseModalOpen(false)}
-        title="Pause & Retract"
+        title="Pause Session"
       >
         <div className="flex flex-col gap-4">
           <p className="text-sm text-text-muted">
-            The clothesline will be retracted to the protected zone and the
-            drying session will be paused. Progress tracking will resume when
-            you redeploy.
+            The clothesline will retract to the protected zone. Drying progress
+            tracking will pause until resumed.
           </p>
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 mt-1">
             <button
               onClick={() => setIsPauseModalOpen(false)}
               className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
@@ -359,9 +397,9 @@ function ControlPanel({
               id="confirm-pause-btn"
               onClick={handleConfirmPause}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 rounded bg-warning text-bg-dark font-medium hover:opacity-90 hover:cursor-pointer text-sm transition disabled:opacity-50"
             >
-              {isSubmitting ? "Retracting..." : "Confirm Pause"}
+              {isSubmitting ? "Pausing..." : "Pause & Retract"}
             </button>
           </div>
         </div>
@@ -370,15 +408,14 @@ function ControlPanel({
       <Modal
         isOpen={isEndModalOpen}
         onClose={() => setIsEndModalOpen(false)}
-        title="Cancel or End Session"
+        title="End Session"
       >
         <div className="flex flex-col gap-4">
           <p className="text-sm text-text-muted">
-            {isPending
-              ? "Are you sure you want to cancel this scheduled session? It will be permanently removed from the pending list."
-              : "Are you sure you want to end this laundry session? The clothesline will remain in the protected zone and progress tracking will be finalized."}
+            Are you sure you want to end this drying session? The session will
+            be finalized and archived.
           </p>
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 mt-1">
             <button
               onClick={() => setIsEndModalOpen(false)}
               className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
@@ -386,18 +423,12 @@ function ControlPanel({
               Cancel
             </button>
             <button
-              id="confirm-end-session-btn"
+              id="confirm-end-btn"
               onClick={handleConfirmEnd}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 rounded bg-danger text-text font-medium hover:opacity-90 hover:cursor-pointer text-sm transition disabled:opacity-50"
             >
-              {isSubmitting
-                ? isPending
-                  ? "Cancelling..."
-                  : "Ending..."
-                : isPending
-                  ? "Confirm Cancel Session"
-                  : "Confirm End Session"}
+              {isSubmitting ? "Ending..." : "End Session"}
             </button>
           </div>
         </div>

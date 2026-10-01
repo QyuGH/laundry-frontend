@@ -153,7 +153,7 @@ function MetricsGrid({
           onClick={() => navigate("/monitoring")}
           className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text hover:cursor-pointer transition-colors duration-150 bg-surface-bg shrink-0"
         >
-          Start Session &gt;
+          Start Drying Session
         </button>
       </div>
 

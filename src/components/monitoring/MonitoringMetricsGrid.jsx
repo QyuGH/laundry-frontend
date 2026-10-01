@@ -2,15 +2,12 @@ import MonitoringMetricCard from "./MonitoringMetricCard";
 import { MotorIcon } from "../icons/MetricIcons";
 import { CloudRain, ThermometerSimple, Drop } from "@phosphor-icons/react";
 
-/**
- * Organizes live device status and sensor telemetry into a 4-card metric grid with dynamic icon colors.
- */
 function MonitoringMetricsGrid({ status, sensors, isLoading }) {
   const isOnline = status?.isOnline;
   const motorStatus = status?.motorStatus;
   const pulleyPosition = status?.pulleyPosition;
+  const fault = status?.fault;
 
-  // --- 1. Pulley Status ---
   let pulleyDisplay = "—";
   let pulleySub = "";
   let pulleyColor = "text-text-muted";
@@ -18,6 +15,10 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
   if (!isLoading) {
     if (!isOnline) {
       pulleyDisplay = "Offline";
+      pulleyColor = "text-danger";
+    } else if (fault && fault !== "NONE") {
+      pulleyDisplay = "Motor Fault";
+      pulleySub = "Limit switch not reached";
       pulleyColor = "text-danger";
     } else if (motorStatus === "moving") {
       pulleyDisplay = "Moving...";
@@ -38,7 +39,6 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
     }
   }
 
-  // --- 2. Rain Sensor (Binary) ---
   const rainDetected = sensors?.rainDetected;
   const rainDisplay =
     isLoading || !sensors ? "—" : rainDetected ? "Rain Detected" : "Clear";
@@ -55,7 +55,6 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
         ? "text-danger"
         : "text-success";
 
-  // --- 3. Temperature ---
   const tempDisplay =
     isLoading || sensors?.temperature === undefined
       ? "—"
@@ -84,7 +83,6 @@ function MonitoringMetricsGrid({ status, sensors, isLoading }) {
     }
   }
 
-  // --- 4. Humidity ---
   const humidityDisplay =
     isLoading || sensors?.humidity === undefined ? "—" : `${sensors.humidity}%`;
 

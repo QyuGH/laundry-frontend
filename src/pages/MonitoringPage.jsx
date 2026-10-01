@@ -16,15 +16,6 @@ import {
   cancelSchedule,
 } from "../services/api";
 
-/**
- * Monitoring page.
- * Orchestrates states (active session, schedules), RTDB telemetry, and API actions.
- * Below the metrics grid, a two-column layout places Drying Progress on the left
- * and Controls + Scheduler stacked on the right. CSS order is used to resequence
- * the mobile single-column stack independently of the desktop grid placement.
- *
- * @returns {JSX.Element}
- */
 function MonitoringPage() {
   const { claims } = useAuth();
   const deviceId = claims?.deviceId ?? null;
@@ -143,6 +134,10 @@ function MonitoringPage() {
           <ControlPanel
             session={session}
             deviceConnection={deviceConnection}
+            motorStatus={rtdbStatus?.motorStatus}
+            fault={rtdbStatus?.fault}
+            rainDetected={sensors?.rainDetected}
+            pulleyPosition={rtdbStatus?.pulleyPosition}
             onStartSession={handleStartSession}
             onDeploy={handleDeploy}
             onRetract={handleRetract}
