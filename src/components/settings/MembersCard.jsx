@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Trash } from "@phosphor-icons/react";
 import { addDeviceMember, removeDeviceMember } from "../../services/api";
 import Modal from "../common/Modal";
 import PasswordInput from "../common/PasswordInput";
@@ -15,18 +16,6 @@ const getInitials = (name) => {
     .slice(0, 2);
 };
 
-/**
- * Device members card.
- * Displays member list with role badges.
- * Owner can add and remove members.
- * Owns Add Member and Remove Member modals.
- *
- * @param {object} props
- * @param {Array} props.members - List of member objects.
- * @param {string} props.role - Current user role: "owner" or "member".
- * @param {function} props.onMemberListChanged - Callback after add/remove.
- * @returns {JSX.Element}
- */
 function MembersCard({ members, role, onMemberListChanged }) {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState(null);
@@ -104,7 +93,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
     <section className="card-shell flex flex-col gap-block">
       <div className="section-header pb-block border-b border-border-muted">
         <div>
-          <h2 className="text-base font-semibold text-text">Device Members</h2>
+          <h2 className="text-sm font-medium text-text">Device Members</h2>
           <p className="text-xs text-text-muted mt-0.5">
             {role === "owner"
               ? "Manage members who have access to this device."
@@ -114,7 +103,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
         {role === "owner" && (
           <button
             onClick={handleOpenAddMemberModal}
-            className="px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition bg-bg shrink-0"
+            className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer shrink-0"
           >
             Add Member
           </button>
@@ -125,14 +114,14 @@ function MembersCard({ members, role, onMemberListChanged }) {
         {members.map((member) => (
           <div
             key={member.userId}
-            className="flex items-center justify-between p-3 border border-border-muted/40 rounded-lg bg-bg-dark/30"
+            className="flex items-center justify-between p-3 border border-border-muted rounded-lg bg-canvas-bg"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-highlight/20 border border-highlight/30 flex items-center justify-center text-highlight font-semibold text-sm shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-semibold text-xs shrink-0">
                 {getInitials(member.name)}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-semibold text-text">
+                <span className="text-xs font-semibold text-text">
                   {member.name}
                 </span>
                 <span className="text-xs text-text-muted">{member.email}</span>
@@ -141,11 +130,11 @@ function MembersCard({ members, role, onMemberListChanged }) {
 
             <div className="flex items-center gap-3">
               {member.role === "owner" ? (
-                <span className="border border-yellow-500/30 bg-yellow-500/5 text-yellow-400 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                <span className="border border-warning/30 bg-warning/10 text-warning text-xs px-2.5 py-0.5 rounded-full font-medium">
                   Owner
                 </span>
               ) : (
-                <span className="border border-border-muted bg-white/5 text-text-muted text-xs px-2.5 py-0.5 rounded-full font-medium">
+                <span className="border border-border-muted bg-surface-bg text-text-muted text-xs px-2.5 py-0.5 rounded-full font-medium">
                   Member
                 </span>
               )}
@@ -153,10 +142,10 @@ function MembersCard({ members, role, onMemberListChanged }) {
               {role === "owner" && member.role === "member" && (
                 <button
                   onClick={() => setMemberToRemove(member)}
-                  className="text-text-muted hover:text-red-400 p-1.5 rounded-md hover:bg-red-500/10 transition-colors"
+                  className="text-text-muted hover:text-danger p-1.5 rounded-md hover:bg-danger/10 transition-colors cursor-pointer"
                   title="Remove Member"
                 >
-                  ✕
+                  <Trash size={16} />
                 </button>
               )}
             </div>
@@ -171,7 +160,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
       >
         <form onSubmit={handleAddMember} className="flex flex-col gap-block">
           <div className="flex flex-col gap-stack">
-            <label className="text-micro uppercase tracking-wider text-text-muted">
+            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
               Member Name
             </label>
             <input
@@ -179,13 +168,13 @@ function MembersCard({ members, role, onMemberListChanged }) {
               value={newMemberName}
               onChange={(e) => setNewMemberName(e.target.value)}
               placeholder="Full Name"
-              className="bg-bg-dark border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+              className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
               required
             />
           </div>
 
           <div className="flex flex-col gap-stack">
-            <label className="text-micro uppercase tracking-wider text-text-muted">
+            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
               Email Address
             </label>
             <input
@@ -193,7 +182,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
               value={newMemberEmail}
               onChange={(e) => setNewMemberEmail(e.target.value)}
               placeholder="email@example.com"
-              className="bg-bg-dark border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+              className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
               required
             />
           </div>
@@ -217,17 +206,17 @@ function MembersCard({ members, role, onMemberListChanged }) {
           />
 
           {error && (
-            <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
+            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
             <button
               type="button"
               onClick={() => setIsMemberModalOpen(false)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border-muted rounded-md text-xs font-semibold text-text hover:bg-bg-light transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
             >
               Cancel
             </button>
@@ -241,7 +230,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
                 newMemberPassword !== newMemberConfirmPassword ||
                 !validatePasswordSecurity(newMemberPassword)
               }
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas-bg bg-surface-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isSaving ? "Registering..." : "Add Member"}
             </button>
@@ -265,23 +254,23 @@ function MembersCard({ members, role, onMemberListChanged }) {
           </p>
 
           {error && (
-            <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
+            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
             <button
               onClick={() => setMemberToRemove(null)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border-muted rounded-md text-xs font-semibold text-text hover:bg-bg-light transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleRemoveMember}
               disabled={isSaving}
-              className="px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-md text-xs font-semibold text-red-400 hover:bg-red-500/20 transition disabled:opacity-50"
+              className="px-4 py-2 bg-danger/10 border border-danger/30 rounded-md text-xs font-semibold text-danger hover:bg-danger/20 transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isSaving ? "Removing..." : "Confirm Removal"}
             </button>

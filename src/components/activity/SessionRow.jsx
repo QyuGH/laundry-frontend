@@ -1,6 +1,5 @@
-/**
- * Helper to format ISO or timestamp object into readable Manila time string.
- */
+import { CaretRight } from "@phosphor-icons/react";
+
 function formatPhtTime(timeData) {
   if (!timeData) return "";
   let dateObj;
@@ -29,9 +28,6 @@ function formatPhtTime(timeData) {
   );
 }
 
-/**
- * Calculates duration string between session start and end times.
- */
 function formatDuration(session) {
   if (!session.createdAt || !session.endedAt) return "—";
   const start = new Date(
@@ -50,9 +46,6 @@ function formatDuration(session) {
   return diffHours > 0 ? `${diffHours} hrs` : "< 1 hr";
 }
 
-/**
- * Renders a single session row item using a 12-column grid.
- */
 function SessionRow({ session, onSelect }) {
   const progress = session.finalDryingProgress
     ? Math.round(session.finalDryingProgress)
@@ -64,53 +57,82 @@ function SessionRow({ session, onSelect }) {
     progress >= 90;
 
   const statusLabel = isCompleted ? "Completed" : "Terminated";
-  const statusBadgeColor = isCompleted
-    ? "text-green-400 border-green-400/20 bg-green-400/10"
-    : "text-red-400 border-red-400/20 bg-red-400/10";
+  const statusDotColor = isCompleted ? "bg-success" : "bg-danger";
+
+  const fabricLabel = session.fabricType
+    ? `${session.fabricType} Fabric`
+    : "Synthetic Fabric";
+
+  const durationLabel = formatDuration(session);
 
   return (
     <div
       onClick={() => onSelect(session)}
-      className="grid grid-cols-12 gap-2 sm:gap-4 items-center py-3.5 px-3 border-b border-border-muted hover:bg-bg-light/30 transition cursor-pointer text-xs"
+      className="group py-stack px-3 border-b border-border-muted hover:bg-canvas-bg/50 transition-colors cursor-pointer"
     >
-      {/* TIMESTAMP */}
-      <div className="col-span-12 sm:col-span-3 flex items-center gap-2 text-text font-medium">
-        <span className="truncate">{formatPhtTime(session.createdAt)}</span>
+      <div className="flex flex-col gap-1.5 sm:hidden">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-text truncate">
+            {formatPhtTime(session.createdAt)}
+          </span>
+          <div className="flex items-center gap-inline">
+            <span
+              className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotColor}`}
+            />
+            <span className="text-xs text-text-muted">{statusLabel}</span>
+            <CaretRight
+              size={14}
+              className="text-text-muted group-hover:text-text transition-colors"
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-text-muted capitalize truncate">
+            {fabricLabel} · {durationLabel}
+          </span>
+          <div className="flex items-center gap-inline">
+            <div className="w-12 h-1 bg-border-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-xs text-text font-medium">{progress}%</span>
+          </div>
+        </div>
       </div>
 
-      {/* FABRIC TYPE */}
-      <div className="col-span-6 sm:col-span-3 flex items-center gap-2 text-text-muted capitalize">
-        <span className="truncate">
-          {session.fabricType
-            ? `${session.fabricType} Fabric`
-            : "Synthetic Fabric"}
-        </span>
-      </div>
-
-      {/* DURATION */}
-      <div className="col-span-6 sm:col-span-2 text-text-muted sm:text-left text-right">
-        {formatDuration(session)}
-      </div>
-
-      {/* PROGRESS BAR */}
-      <div className="col-span-7 sm:col-span-2 flex items-center gap-2">
-        <div className="w-16 bg-bg-light border border-border rounded-full h-1.5 overflow-hidden">
-          <div
-            className="bg-highlight h-full rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
+      <div className="hidden sm:grid grid-cols-12 gap-4 items-center">
+        <div className="col-span-3 text-xs font-medium text-text truncate">
+          {formatPhtTime(session.createdAt)}
+        </div>
+        <div className="col-span-3 text-xs text-text-muted capitalize truncate">
+          {fabricLabel}
+        </div>
+        <div className="col-span-2 text-xs text-text-muted">
+          {durationLabel}
+        </div>
+        <div className="col-span-2 flex items-center gap-2">
+          <div className="w-14 h-1.5 bg-border-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="text-xs text-text font-medium">{progress}%</span>
+        </div>
+        <div className="col-span-2 flex items-center justify-between">
+          <div className="flex items-center gap-inline">
+            <span
+              className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDotColor}`}
+            />
+            <span className="text-xs text-text-muted">{statusLabel}</span>
+          </div>
+          <CaretRight
+            size={14}
+            className="text-text-muted group-hover:text-text transition-colors"
           />
         </div>
-        <span className="text-text font-medium text-[11px]">{progress}%</span>
-      </div>
-
-      {/* STATUS BADGE & CHEVRON */}
-      <div className="col-span-5 sm:col-span-2 flex items-center justify-between sm:justify-start gap-2">
-        <span
-          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-medium ${statusBadgeColor}`}
-        >
-          ● {statusLabel}
-        </span>
-        <span className="text-text-muted text-sm font-semibold">&gt;</span>
       </div>
     </div>
   );

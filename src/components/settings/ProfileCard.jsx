@@ -11,18 +11,6 @@ import PasswordInput from "../common/PasswordInput";
 
 const validatePasswordSecurity = (pwd) => pwd.length >= 8 && /\d/.test(pwd);
 
-/**
- * Personal profile card.
- * Displays name, email, and password rows.
- * Owns the Edit Profile and Change Password modals.
- *
- * @param {object} props
- * @param {object} props.user - Firebase user object.
- * @param {string} props.profileName - Current display name.
- * @param {function} props.onProfileNameChange - Setter for display name after save.
- * @param {function} props.onSuccess - Callback to trigger parent success toast.
- * @returns {JSX.Element}
- */
 function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -106,16 +94,14 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
     <section className="card-shell flex flex-col">
       <div className="section-header pb-block border-b border-border-muted">
         <div>
-          <h2 className="text-base font-semibold text-text">
-            Personal Profile
-          </h2>
+          <h2 className="text-sm font-medium text-text">Personal Profile</h2>
           <p className="text-xs text-text-muted mt-0.5">
             Manage your personal settings details.
           </p>
         </div>
         <button
           onClick={handleOpenProfileModal}
-          className="px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition bg-bg shrink-0"
+          className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer shrink-0"
         >
           Edit Profile
         </button>
@@ -124,7 +110,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
       <div className="flex flex-col">
         <div className="flex items-start justify-between gap-block py-block">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">Name</span>
+            <span className="text-xs font-semibold text-text">Name</span>
             <span className="text-xs text-text-muted">
               Used across notifications.
             </span>
@@ -134,9 +120,11 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
           </span>
         </div>
 
-        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted/30">
+        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">Email Address</span>
+            <span className="text-xs font-semibold text-text">
+              Email Address
+            </span>
             <span className="text-xs text-text-muted">
               Primary login credential.
             </span>
@@ -146,16 +134,16 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
           </span>
         </div>
 
-        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted/30">
+        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">Password</span>
+            <span className="text-xs font-semibold text-text">Password</span>
             <span className="text-xs text-text-muted">
               Manage your account credentials.
             </span>
           </div>
           <button
             onClick={handleOpenPasswordModal}
-            className="px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition bg-bg shrink-0"
+            className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer shrink-0"
           >
             Change Password
           </button>
@@ -169,34 +157,34 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
       >
         <form onSubmit={handleSaveProfile} className="flex flex-col gap-block">
           <div className="flex flex-col gap-stack">
-            <label className="text-micro uppercase tracking-wider text-text-muted">
+            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
               Display Name
             </label>
             <input
               type="text"
               value={editNameInput}
               onChange={(e) => setEditNameInput(e.target.value)}
-              className="bg-bg-dark border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+              className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
               required
             />
           </div>
 
-          <p className="text-micro text-text-muted italic">
+          <p className="text-xs text-text-muted italic">
             Email address cannot be changed from this profile editor.
           </p>
 
           {error && (
-            <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
+            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
             <button
               type="button"
               onClick={() => setIsProfileModalOpen(false)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border-muted rounded-md text-xs font-semibold text-text hover:bg-bg-light transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
             >
               Cancel
             </button>
@@ -207,7 +195,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
                 !editNameInput.trim() ||
                 editNameInput.trim() === profileName
               }
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:text-text hover:bg-canvas-bg bg-surface-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isSaving ? "Saving..." : "Save Changes"}
             </button>
@@ -232,7 +220,7 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
             required
           />
 
-          <div className="flex flex-col gap-block pt-block border-t border-border-muted/30">
+          <div className="flex flex-col gap-block pt-block border-t border-border-muted">
             <PasswordInput
               id="new-password"
               label="New Password"
@@ -250,17 +238,17 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
           </div>
 
           {error && (
-            <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
+            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
             <button
               type="button"
               onClick={() => setIsPasswordModalOpen(false)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border-muted rounded-md text-xs font-semibold text-text hover:bg-bg-light transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
             >
               Cancel
             </button>
@@ -271,12 +259,12 @@ function ProfileCard({ user, profileName, onProfileNameChange, onSuccess }) {
                 !curPassword ||
                 !newPassword ||
                 !confirmPassword ||
-                newPassword !== confirmPassword ||
-                !validatePasswordSecurity(newPassword)
+                !validatePasswordSecurity(newPassword) ||
+                newPassword !== confirmPassword
               }
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas-bg bg-surface-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isSaving ? "Changing..." : "Change Password"}
+              {isSaving ? "Saving..." : "Update Password"}
             </button>
           </div>
         </form>

@@ -82,7 +82,7 @@ function ActivityLogPage() {
   return (
     <div className="section-stack">
       {error && (
-        <p className="text-red-400 text-xs border border-red-400/20 rounded p-3 bg-red-400/10 font-medium">
+        <p className="text-danger text-xs border border-danger/20 rounded-md p-3 bg-danger/10 font-medium">
           {error}
         </p>
       )}

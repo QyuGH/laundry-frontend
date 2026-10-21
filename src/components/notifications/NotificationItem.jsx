@@ -1,29 +1,29 @@
 import {
-  RainIcon,
-  SunIcon,
-  RedeployIcon,
-  CheckIcon,
-  ClockIcon,
-} from "../icons/NotificationIcons";
+  CloudRain,
+  Sun,
+  ArrowsClockwise,
+  CheckCircle,
+  Clock,
+} from "@phosphor-icons/react";
 
-const getEventIcon = (type) => {
+function getEventIcon(type) {
   switch (type) {
     case "rain_detected":
-      return <RainIcon className="w-5 h-5 text-blue-400" />;
+      return <CloudRain size={18} className="text-warning" />;
     case "area_cleared_pending":
-      return <SunIcon className="w-5 h-5 text-amber-400" />;
+      return <Sun size={18} className="text-info" />;
     case "auto_redeployed":
-      return <RedeployIcon className="w-5 h-5 text-green-400" />;
+      return <ArrowsClockwise size={18} className="text-success" />;
     case "session_auto_closed":
-      return <CheckIcon className="w-5 h-5 text-purple-400" />;
+      return <CheckCircle size={18} className="text-success" />;
     case "schedule_executed":
-      return <ClockIcon className="w-5 h-5 text-indigo-400" />;
+      return <Clock size={18} className="text-primary" />;
     default:
-      return <ClockIcon className="w-5 h-5 text-indigo-400" />;
+      return <Clock size={18} className="text-primary" />;
   }
-};
+}
 
-const formatPhtTime = (timeData) => {
+function formatPhtTime(timeData) {
   if (!timeData) return "";
   let dateObj;
   if (
@@ -47,7 +47,7 @@ const formatPhtTime = (timeData) => {
       hour12: true,
     }) + " PHT"
   );
-};
+}
 
 function NotificationItem({ item, onMarkAsRead }) {
   const handleClick = () => {
@@ -59,25 +59,30 @@ function NotificationItem({ item, onMarkAsRead }) {
   return (
     <div
       onClick={handleClick}
-      className={[
-        "p-4 rounded-lg border flex items-start gap-block transition cursor-pointer",
+      className={`card-shell flex items-start gap-3 transition-colors cursor-pointer ${
         item.isRead
-          ? "bg-glass-card/40 border-border-muted/30 text-text-muted"
-          : "bg-glass-card border-border-muted border-l-4 border-l-blue-400 text-text",
-      ].join(" ")}
+          ? "border-border-muted bg-surface-bg/60 text-text-muted hover:bg-canvas-bg/50"
+          : "border-border bg-surface-bg text-text hover:bg-canvas-bg/50"
+      }`}
     >
-      <div className="mt-0.5 shrink-0 p-2 rounded-md bg-bg-dark/50 border border-border-muted/40">
+      <div className="p-2 rounded-md bg-canvas-bg border border-border-muted shrink-0">
         {getEventIcon(item.type)}
       </div>
 
-      <div className="flex flex-col flex-1 gap-0.5 text-xs">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-text">{item.message}</span>
+      <div className="flex flex-col flex-1 gap-1 text-xs">
+        <div className="flex items-start justify-between gap-block">
+          <span
+            className={`font-semibold leading-snug ${
+              item.isRead ? "text-text-muted" : "text-text"
+            }`}
+          >
+            {item.message}
+          </span>
           {!item.isRead && (
-            <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0 ml-2" />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1" />
           )}
         </div>
-        <span className="text-micro text-text-muted/70">
+        <span className="text-xs text-text-muted tracking-wide">
           {formatPhtTime(item.createdAt)}
         </span>
       </div>

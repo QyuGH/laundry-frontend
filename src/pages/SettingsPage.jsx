@@ -95,15 +95,15 @@ function SettingsPage() {
   return (
     <div className="section-stack">
       {successMsg && (
-        <div className="p-3 border border-green-500/20 bg-green-500/10 text-green-400 rounded-md text-xs font-medium">
+        <p className="text-success text-xs border border-success/20 rounded-md p-3 bg-success/10 font-medium">
           {successMsg}
-        </div>
+        </p>
       )}
 
       {error && (
-        <div className="p-3 border border-red-500/20 bg-red-500/10 text-red-400 rounded-md text-xs font-medium">
+        <p className="text-danger text-xs border border-danger/20 rounded-md p-3 bg-danger/10 font-medium">
           {error}
-        </div>
+        </p>
       )}
 
       <ProfileCard

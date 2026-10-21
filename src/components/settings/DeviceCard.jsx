@@ -6,17 +6,6 @@ import {
 } from "../../services/api";
 import Modal from "../common/Modal";
 
-/**
- * Device configuration card.
- * Displays device name and location (human-readable only).
- * Owns the Edit Device Configuration modal with location search.
- *
- * @param {object} props
- * @param {object|null} props.device - Device document.
- * @param {string} props.role - "owner" or "member".
- * @param {function} props.onDeviceSaved - Callback after a successful save.
- * @returns {JSX.Element}
- */
 function DeviceCard({ device, role, onDeviceSaved }) {
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
   const [editDevNameInput, setEditDevNameInput] = useState("");
@@ -78,7 +67,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
     <section className="card-shell flex flex-col">
       <div className="section-header pb-block border-b border-border-muted">
         <div>
-          <h2 className="text-base font-semibold text-text">
+          <h2 className="text-sm font-medium text-text">
             Device Configuration
           </h2>
           <p className="text-xs text-text-muted mt-0.5">
@@ -87,7 +76,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
         </div>
         <button
           onClick={handleOpenDeviceModal}
-          className="px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition bg-bg shrink-0"
+          className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer shrink-0"
         >
           Edit Configuration
         </button>
@@ -96,7 +85,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
       <div className="flex flex-col">
         <div className="flex items-start justify-between gap-block py-block">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">Device Name</span>
+            <span className="text-xs font-semibold text-text">Device Name</span>
             <span className="text-xs text-text-muted">
               Label shown in the app.
             </span>
@@ -106,9 +95,9 @@ function DeviceCard({ device, role, onDeviceSaved }) {
           </span>
         </div>
 
-        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted/30">
+        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">Location</span>
+            <span className="text-xs font-semibold text-text">Location</span>
             <span className="text-xs text-text-muted">
               Used for local weather forecasts.
             </span>
@@ -127,20 +116,20 @@ function DeviceCard({ device, role, onDeviceSaved }) {
         <form onSubmit={handleSaveDevice} className="flex flex-col gap-block">
           {role === "owner" ? (
             <div className="flex flex-col gap-stack">
-              <label className="text-micro uppercase tracking-wider text-text-muted">
+              <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
                 Device Name
               </label>
               <input
                 type="text"
                 value={editDevNameInput}
                 onChange={(e) => setEditDevNameInput(e.target.value)}
-                className="bg-bg-dark border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+                className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
                 required
               />
             </div>
           ) : (
             <div className="flex flex-col gap-0.5">
-              <span className="text-micro uppercase tracking-wider text-text-muted">
+              <span className="text-xs uppercase tracking-widest text-text-muted font-medium">
                 Device Name
               </span>
               <span className="text-xs font-medium text-text">
@@ -149,8 +138,8 @@ function DeviceCard({ device, role, onDeviceSaved }) {
             </div>
           )}
 
-          <div className="flex flex-col gap-stack pt-block border-t border-border-muted/30">
-            <label className="text-micro uppercase tracking-wider text-text-muted">
+          <div className="flex flex-col gap-stack pt-block border-t border-border-muted">
+            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
               Location
             </label>
             <div className="flex gap-2">
@@ -162,13 +151,13 @@ function DeviceCard({ device, role, onDeviceSaved }) {
                   setSelectedLocation(null);
                 }}
                 placeholder="Search for a city or area..."
-                className="bg-bg-dark border border-border-muted rounded-md px-3 py-2 text-text text-xs flex-1 focus:outline-none focus:border-border transition"
+                className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs flex-1 focus:outline-none focus:border-border transition"
               />
               <button
                 type="button"
                 onClick={handleLocationSearch}
                 disabled={isSearching}
-                className="px-3 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition bg-bg disabled:opacity-50"
+                className="px-3 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
               >
                 {isSearching ? "..." : "Search"}
               </button>
@@ -176,7 +165,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
           </div>
 
           {suggestions.length > 0 && (
-            <ul className="max-h-36 overflow-y-auto border border-border-muted rounded-md divide-y divide-border-muted/30 bg-bg-dark">
+            <ul className="max-h-36 overflow-y-auto border border-border-muted rounded-md divide-y divide-border-muted/30 bg-canvas-bg">
               {suggestions.map((item, idx) => (
                 <li
                   key={idx}
@@ -185,7 +174,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
                     setLocQuery(item.displayName);
                     setSuggestions([]);
                   }}
-                  className="px-2.5 py-1.5 text-micro text-text-muted hover:text-text hover:bg-bg-light/40 cursor-pointer transition-colors"
+                  className="px-2.5 py-1.5 text-xs text-text-muted hover:text-text hover:bg-surface-bg cursor-pointer transition-colors"
                 >
                   {item.displayName}
                 </li>
@@ -194,23 +183,23 @@ function DeviceCard({ device, role, onDeviceSaved }) {
           )}
 
           {selectedLocation && (
-            <div className="p-2.5 border border-border-muted rounded-md bg-bg-dark text-micro text-text-muted">
+            <div className="p-2.5 border border-border-muted rounded-md bg-canvas-bg text-xs text-text-muted">
               Selected: {selectedLocation.displayName}
             </div>
           )}
 
           {error && (
-            <p className="text-red-400 text-xs border border-red-400/20 rounded p-2.5 bg-red-400/10 font-medium">
+            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted/30">
+          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
             <button
               type="button"
               onClick={() => setIsDeviceModalOpen(false)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border-muted rounded-md text-xs font-semibold text-text hover:bg-bg-light transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
             >
               Cancel
             </button>
@@ -220,7 +209,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
                 isSaving ||
                 (editDevNameInput.trim() === device?.name && !selectedLocation)
               }
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition disabled:opacity-50"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas-bg bg-surface-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isSaving ? "Saving..." : "Update"}
             </button>

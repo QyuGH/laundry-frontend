@@ -88,9 +88,9 @@ function NotificationsPage() {
 
   return (
     <div className="section-stack">
-      <div className="section-header pb-stack border-b border-border-muted">
-        <div>
-          <p className="text-text-muted text-xs mt-0.5">
+      <div className="section-header">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-text-muted">
             {unreadCount > 0
               ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}.`
               : "All notifications have been read."}
@@ -100,7 +100,7 @@ function NotificationsPage() {
         <button
           onClick={handleMarkAllAsRead}
           disabled={unreadCount === 0}
-          className="px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text hover:bg-bg-light transition bg-bg disabled:opacity-40 shrink-0"
+          className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
         >
           Mark All as Read
         </button>
@@ -114,9 +114,9 @@ function NotificationsPage() {
       )}
 
       {error && (
-        <div className="p-3 border border-red-500/20 bg-red-500/10 text-red-400 rounded-md text-xs font-medium">
+        <p className="text-danger text-xs border border-danger/20 rounded-md p-3 bg-danger/10 font-medium">
           {error}
-        </div>
+        </p>
       )}
 
       <NotificationList

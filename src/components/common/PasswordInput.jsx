@@ -1,18 +1,6 @@
 import { useState } from "react";
-import { EyeIcon, EyeSlashIcon } from "../icons/SettingsIcons";
+import { Eye, EyeSlash } from "@phosphor-icons/react";
 
-/**
- * Reusable password input field with visibility toggle.
- *
- * @param {object} props
- * @param {string} props.id - Input element id for label association.
- * @param {string} props.label - Field label text.
- * @param {string} props.value - Controlled input value.
- * @param {function} props.onChange - Change handler.
- * @param {boolean} [props.required=false]
- * @param {string} [props.placeholder=""]
- * @returns {JSX.Element}
- */
 function PasswordInput({
   id,
   label,
@@ -27,7 +15,7 @@ function PasswordInput({
     <div className="flex flex-col gap-stack">
       <label
         htmlFor={id}
-        className="text-micro uppercase tracking-wider text-text-muted"
+        className="text-xs uppercase tracking-widest text-text-muted font-medium"
       >
         {label}
       </label>
@@ -39,18 +27,14 @@ function PasswordInput({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          className="w-full bg-bg-dark border border-border-muted rounded-md pl-3 pr-10 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+          className="w-full bg-canvas-bg border border-border-muted rounded-md pl-3 pr-10 py-2 text-text text-xs focus:outline-none focus:border-border transition"
         />
         <button
           type="button"
           onClick={() => setShow((prev) => !prev)}
-          className="absolute right-3 text-text-muted hover:text-text focus:outline-none transition"
+          className="absolute right-3 text-text-muted hover:text-text focus:outline-none transition cursor-pointer"
         >
-          {show ? (
-            <EyeSlashIcon className="w-4 h-4" />
-          ) : (
-            <EyeIcon className="w-4 h-4" />
-          )}
+          {show ? <EyeSlash size={16} /> : <Eye size={16} />}
         </button>
       </div>
     </div>
