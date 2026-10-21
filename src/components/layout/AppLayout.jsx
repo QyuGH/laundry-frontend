@@ -11,7 +11,7 @@ import {
   Broadcast,
   ClockCounterClockwise,
   Bell,
-  Gear,
+  User,
 } from "@phosphor-icons/react";
 
 const NAV_ITEMS = [
@@ -19,23 +19,19 @@ const NAV_ITEMS = [
   { label: "Monitoring", path: "/monitoring", icon: Broadcast },
   { label: "Activity Log", path: "/logs", icon: ClockCounterClockwise },
   { label: "Notifications", path: "/notifications", icon: Bell },
-  { label: "Account", path: "/settings", icon: Gear },
+  { label: "Account", path: "/settings", icon: User },
 ];
 
 const BOTTOM_NAV_ITEMS = [
   { label: "Home", path: "/", icon: House },
-  { label: "Activity Log", path: "/logs", icon: ClockCounterClockwise },
   { label: "Monitoring", path: "/monitoring", icon: Broadcast },
+  { label: "Activity Log", path: "/logs", icon: ClockCounterClockwise },
   { label: "Notifications", path: "/notifications", icon: Bell },
-  { label: "Account", path: "/settings", icon: Gear },
+  { label: "Account", path: "/settings", icon: User },
 ];
 
 /**
  * Root layout wrapper for all authenticated pages.
- * Registers the Firebase Messaging service worker, synchronizes notification
- * count via RTDB trigger signals, and passes unreadCount down to navigation.
- *
- * @returns {JSX.Element}
  */
 function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -43,7 +39,6 @@ function AppLayout() {
 
   const { claims, user } = useAuth();
   const deviceId = claims?.deviceId ?? null;
-
   const location = useLocation();
 
   const handleMenuToggle = () => setIsCollapsed((prev) => !prev);
@@ -54,7 +49,6 @@ function AppLayout() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-
     navigator.serviceWorker
       .register("/firebase-messaging-sw.js")
       .catch(() => {});
@@ -78,7 +72,7 @@ function AppLayout() {
   }, [fetchUnreadNotifications, triggerStamp, location.pathname]);
 
   return (
-    <div className="flex h-screen h-[100dvh] bg-canvas-bg text-text overflow-hidden transition-colors duration-150">
+    <div className="flex h-screen h-[100dvh] bg-canvas text-text font-body overflow-hidden transition-colors duration-150">
       <Sidebar
         isCollapsed={isCollapsed}
         navItems={NAV_ITEMS}
@@ -89,7 +83,7 @@ function AppLayout() {
         <Header onMenuToggle={handleMenuToggle} />
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="page-shell pt-4 pb-26 md:py-4">
+          <div className="page-shell pt-4 pb-28 md:py-6">
             <Outlet
               context={{ onNotificationsUpdated: fetchUnreadNotifications }}
             />

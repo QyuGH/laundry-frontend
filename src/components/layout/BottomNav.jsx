@@ -1,18 +1,12 @@
 import { NavLink } from "react-router-dom";
 
 /**
- * Mobile floating bottom navigation bar.
- * Renders icon navigation links with red unread dot overlay for notifications.
- *
- * @param {object} props
- * @param {Array<object>} props.navItems - Navigation item list.
- * @param {number} [props.unreadCount=0] - Unread notification count.
- * @returns {JSX.Element}
+ * Mobile floating bottom navigation bar using clean token classes.
  */
 function BottomNav({ navItems, unreadCount = 0 }) {
   return (
-    <nav className="md:hidden fixed bottom-5 left-5 right-5 z-10">
-      <div className="mx-auto w-fit rounded-full bg-surface-bg border border-border shadow-lg shadow-black/10 flex items-center px-4 py-2.5 gap-2">
+    <nav className="md:hidden fixed bottom-5 left-4 right-4 z-20">
+      <div className="mx-auto w-fit rounded-pill bg-surface/90 backdrop-blur-md border border-border shadow-card flex items-center px-3 py-2 gap-1.5">
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isNotification = item.path === "/notifications";
@@ -26,17 +20,25 @@ function BottomNav({ navItems, unreadCount = 0 }) {
               aria-label={item.label}
               className={({ isActive }) =>
                 [
-                  "flex items-center justify-center w-11 h-11 relative rounded-full",
-                  "transition-colors duration-150",
+                  "flex items-center justify-center w-11 h-11 relative rounded-full transition-all duration-150",
                   isActive
-                    ? "text-primary bg-canvas-bg"
-                    : "text-text-muted hover:text-text",
+                    ? "text-brand bg-brand-soft font-semibold"
+                    : "text-text-muted hover:text-text hover:bg-canvas",
                 ].join(" ")
               }
             >
-              {IconComponent && <IconComponent className="w-6 h-6" />}
-              {showBadge && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full ring-2 ring-surface-bg" />
+              {({ isActive }) => (
+                <>
+                  {IconComponent && (
+                    <IconComponent
+                      className="w-5 h-5"
+                      weight={isActive ? "bold" : "regular"}
+                    />
+                  )}
+                  {showBadge && (
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-brand rounded-full ring-2 ring-surface" />
+                  )}
+                </>
               )}
             </NavLink>
           );
