@@ -1,13 +1,8 @@
 import { useState } from "react";
 import HourlyForecast from "./HourlyForecast";
 import ForecastDayCard from "./ForecastDayCard";
+import { Clock, Sparkle, ArrowsClockwise } from "@phosphor-icons/react";
 
-/**
- * Formats an ISO date string as a long weekday/month/day label.
- *
- * @param {string} dateStr
- * @returns {string}
- */
 const formatDayLabel = (dateStr) => {
   if (!dateStr) return "";
   const dateObj = new Date(dateStr);
@@ -18,12 +13,6 @@ const formatDayLabel = (dateStr) => {
   });
 };
 
-/**
- * Formats an ISO date string as a short month/day label.
- *
- * @param {string} dateStr
- * @returns {string}
- */
 const formatExpiryLabel = (dateStr) => {
   if (!dateStr) return "";
   const dateObj = new Date(dateStr);
@@ -34,19 +23,7 @@ const formatExpiryLabel = (dateStr) => {
 };
 
 /**
- * Laundry Planner section.
- * Renders the recommendation card and the 4-day breakdowns.
- * Only one day's hourly breakdown can be expanded at a time — opening a
- * new day's breakdown automatically collapses the previously open one.
- *
- * @param {object} props
- * @param {object|null} props.plan - Plan document object.
- * @param {boolean} props.isGenerating - Action generating state.
- * @param {function} props.onGenerate - Trigger function to request a new plan.
- * @param {boolean} props.isExpired
- * @param {boolean} props.showLocationButton
- * @param {function} props.onChangeLocationClick
- * @returns {JSX.Element}
+ * Complete Laundry Planner section covering Empty, Expired, and Generated states.
  */
 function PlannerSection({
   plan,
@@ -57,134 +34,194 @@ function PlannerSection({
   onChangeLocationClick,
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  // Tracks which day index (0-3) has its hourly breakdown open. null = all closed.
   const [activeHourlyIndex, setActiveHourlyIndex] = useState(null);
 
-  /**
-   * Toggles the hourly breakdown for a given day index.
-   * Opening a day automatically closes any currently open day.
-   * @param {number} index
-   */
   const handleHourlyToggle = (index) => {
     setActiveHourlyIndex((prev) => (prev === index ? null : index));
   };
 
-  // Layout for No Plan OR Expired Plan
+  // State: No plan or Expired plan
   if (!plan || isExpired) {
     return (
-      <div className="card-shell flex flex-col gap-block">
-        <div className="section-header pb-2 border-b border-border-muted">
-          <h2 className="text-sm font-medium text-text">Laundry Planner</h2>
-        </div>
-        <div className="flex flex-col items-center text-center gap-block py-4">
-          {isExpired ? (
-            <p className="text-sm text-text-muted max-w-xs">
-              Your last generated plan expired at{" "}
-              {formatExpiryLabel(plan?.expiresAt)}. Generate a new plan to get a
-              newer personalized plan!
-            </p>
-          ) : (
-            <p className="text-sm text-text-muted max-w-xs">
-              Generate an automated laundry day plan using real-time Open-Meteo
-              forecasts.
-            </p>
+      <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
+        {/* Header Row */}
+        <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
+              Weather-Guided Timing
+            </span>
+            <h3 className="text-lg font-bold font-display text-text mt-0.5">
+              Laundry Planner
+            </h3>
+          </div>
+
+          {showLocationButton && (
+            <button
+              onClick={onChangeLocationClick}
+              className="px-4 py-2 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+            >
+              Change Location
+            </button>
           )}
-          <div className="flex gap-inline">
-            {plan && showLocationButton && (
+        </div>
+
+        {/* Centered Empty / Expired Callout */}
+        <div className="flex flex-col items-center text-center py-6 sm:py-8 max-w-md mx-auto gap-4">
+          <div className="w-12 h-12 rounded-full bg-brand-soft text-brand flex items-center justify-center border border-border-brand">
+            <Clock className="w-6 h-6" weight="bold" />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <h4 className="text-lg sm:text-xl font-bold font-display text-text">
+              {isExpired
+                ? "Your drying window has passed"
+                : "Plan your next drying cycle"}
+            </h4>
+            <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
+              {isExpired ? (
+                <>
+                  Your last generated plan expired at{" "}
+                  {formatExpiryLabel(plan?.expiresAt)}. Generate a new plan to
+                  get a newer personalized plan!
+                </>
+              ) : (
+                <>
+                  Generate an automated laundry day plan using real-time
+                  Open-Meteo forecasts.
+                </>
+              )}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 mt-2 flex-wrap justify-center">
+            {showLocationButton && (
               <button
                 onClick={onChangeLocationClick}
-                className="px-4 py-2 border border-border rounded-md text-xs font-medium text-text hover:bg-surface-bg hover:cursor-pointer transition-colors duration-150"
+                className="px-4 py-2.5 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 Change Location
               </button>
             )}
+
             <button
               onClick={onGenerate}
               disabled={isGenerating}
-              className="px-4 py-2 bg-surface-bg border border-border rounded-md text-xs font-medium text-text hover:bg-canvas-bg hover:cursor-pointer transition-colors duration-150 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-brand hover:bg-brand-600 text-white text-xs font-semibold transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive disabled:opacity-50 cursor-pointer"
             >
-              {isGenerating ? "Generating..." : "Generate Plan"}
+              {isGenerating ? (
+                <>
+                  <ArrowsClockwise
+                    className="w-4 h-4 animate-spin"
+                    weight="bold"
+                  />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkle className="w-4 h-4" weight="fill" />
+                  <span>Generate Plan</span>
+                </>
+              )}
             </button>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   const bestDay = plan.days[plan.bestDayIndex];
 
   return (
-    <div className="card-shell flex flex-col gap-block">
-      {/* Integrated Header Row */}
-      <div className="section-header pb-2 border-b border-border-muted">
-        <h2 className="text-sm font-medium text-text">Laundry Planner</h2>
-        <div className="flex gap-inline">
+    <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
+      {/* Header Row */}
+      <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
+        <div className="flex flex-col">
+          <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
+            Weather-Guided Timing
+          </span>
+          <h3 className="text-lg font-bold font-display text-text mt-0.5">
+            Laundry Planner
+          </h3>
+        </div>
+
+        <div className="flex items-center gap-2">
           {showLocationButton && (
             <button
               onClick={onChangeLocationClick}
-              className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-surface-bg"
+              className="px-3.5 py-1.5 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
             >
               Change Location
             </button>
           )}
+
           <button
             onClick={() => {
               setIsExpanded((prev) => !prev);
-              // Collapse any open hourly breakdown when collapsing the plan.
               if (isExpanded) setActiveHourlyIndex(null);
             }}
-            className="text-xs border border-border px-3 py-1.5 rounded-md text-text-muted hover:text-text transition-colors duration-150 bg-surface-bg"
+            className="px-3.5 py-1.5 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
           >
-            {isExpanded ? "Collapse" : "Expand Plan"}
+            {isExpanded ? "Collapse 4-Day Plan" : "Expand 4-Day Plan"}
           </button>
         </div>
       </div>
 
-      {/* Main Plan Card Content */}
+      {/* Spotlight Best Day Card */}
       <ForecastDayCard
-        label={`RECOMMENDATION (${formatDayLabel(bestDay.date)})`}
+        label={formatDayLabel(bestDay.date)}
         estimatedDryingDuration={bestDay.estimatedDryingDuration}
         bodyText={plan.recommendationText}
         emphasized
       />
 
+      {/* Expanded 4-Day Section */}
       {isExpanded && (
-        <div className="flex flex-col gap-block">
-          {plan.days.map((day, index) => {
-            const isHourlyOpen = activeHourlyIndex === index;
-            const hasHourlyData =
-              Array.isArray(day.hourlyBreakdown) &&
-              day.hourlyBreakdown.length > 0;
+        <div className="flex flex-col gap-4 pt-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-text-muted font-display">
+            Full 4-Day Breakdown
+          </span>
 
-            return (
-              <ForecastDayCard
-                key={index}
-                label={`DAY ${index + 1} (${formatDayLabel(day.date)})`}
-                estimatedDryingDuration={day.estimatedDryingDuration}
-                bodyText={day.verdict}
-              >
-                {hasHourlyData && (
-                  <>
-                    <div className="border-t border-border-muted" />
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() => handleHourlyToggle(index)}
-                        className="text-xs border border-border-muted px-4 py-2 rounded-md text-text-muted hover:text-text transition-colors bg-surface-bg"
-                      >
-                        {isHourlyOpen
-                          ? "Hide Hourly Breakdown"
-                          : "View Hourly Breakdown"}
-                      </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {plan.days.map((day, index) => {
+              const isHourlyOpen = activeHourlyIndex === index;
+              const hasHourlyData =
+                Array.isArray(day.hourlyBreakdown) &&
+                day.hourlyBreakdown.length > 0;
+
+              return (
+                <div key={index} className="flex flex-col">
+                  <ForecastDayCard
+                    label={`Day ${index + 1}: ${formatDayLabel(day.date)}`}
+                    estimatedDryingDuration={day.estimatedDryingDuration}
+                    bodyText={day.verdict}
+                  >
+                    {hasHourlyData && (
+                      <div className="pt-2 border-t border-border mt-auto">
+                        <button
+                          onClick={() => handleHourlyToggle(index)}
+                          className="w-full py-2 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
+                        >
+                          {isHourlyOpen
+                            ? "Hide Hourly Timeline"
+                            : "View Hourly Timeline"}
+                        </button>
+                      </div>
+                    )}
+                  </ForecastDayCard>
+
+                  {/* Hourly Timeline Drawer */}
+                  {isHourlyOpen && (
+                    <div className="p-4 mt-2 rounded-lg border border-border bg-surface-raised">
+                      <HourlyForecast hours={day.hourlyBreakdown} />
                     </div>
-                  </>
-                )}
-                {isHourlyOpen && <HourlyForecast hours={day.hourlyBreakdown} />}
-              </ForecastDayCard>
-            );
-          })}
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

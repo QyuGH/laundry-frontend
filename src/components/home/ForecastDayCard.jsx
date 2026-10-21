@@ -1,23 +1,7 @@
-import { WindIcon } from "@phosphor-icons/react";
+import { Clock, CheckCircle, CalendarBlank } from "@phosphor-icons/react";
 
 /**
- * Shared layout for the Planner's Recommendation and Day breakdown cards:
- * a header label, the estimated drying duration, a divider, and a body
- * paragraph. Optional children render below the paragraph (used for the
- * hourly forecast toggle and breakdown).
- *
- * Border and background intentionally differ by `emphasized` to preserve
- * the existing visual distinction between the primary Recommendation card
- * and the secondary Day breakdown cards — a styling choice, not a
- * structural one.
- *
- * @param {object} props
- * @param {string} props.label - Header label.
- * @param {number} props.estimatedDryingDuration
- * @param {string} props.bodyText - Recommendation text or day verdict.
- * @param {boolean} [props.emphasized=false] - True for the Recommendation card.
- * @param {React.ReactNode} [props.children]
- * @returns {JSX.Element}
+ * Shared card for the recommended day and individual 4-day forecast cards.
  */
 function ForecastDayCard({
   label,
@@ -28,30 +12,46 @@ function ForecastDayCard({
 }) {
   return (
     <div
-      className={`card-shell flex flex-col gap-block ${
+      className={`rounded-lg border p-5 sm:p-6 transition-all flex flex-col gap-4 ${
         emphasized
-          ? "border-border bg-surface-card"
-          : "border-border-muted bg-surface-bg"
+          ? "border-brand-soft bg-surface-raised shadow-card"
+          : "border-border bg-surface hover:border-border-strong"
       }`}
     >
-      <span className="text-base font-semibold tracking-wide text-text">
-        {label}
-      </span>
+      {/* Top Banner / Badge */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          {emphasized ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-pill bg-brand text-white text-[11px] font-bold font-display uppercase tracking-wider shadow-xs">
+              <CheckCircle className="w-3.5 h-3.5" weight="bold" />
+              Recommended Day
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-canvas border border-border text-[11px] font-semibold text-text-muted uppercase tracking-wider font-display">
+              <CalendarBlank className="w-3.5 h-3.5" />
+              Forecast
+            </span>
+          )}
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <span className="text-[10px] text-text-muted uppercase tracking-widest font-bold">
-          Expected Drying Duration
-        </span>
-        <div className="flex items-center gap-inline text-sm font-semibold text-text">
-          <WindIcon className="w-4 h-4 text-text-muted" />
-          <span>{estimatedDryingDuration} Hrs</span>
+        {/* Drying Duration Badge */}
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-brand-soft text-brand border border-border-brand text-xs font-bold">
+          <Clock className="w-4 h-4" weight="bold" />
+          <span>{estimatedDryingDuration} Hrs Drying</span>
         </div>
       </div>
 
-      <div className="border-t border-border-muted" />
+      {/* Date Header */}
+      <h4 className="text-base sm:text-lg font-bold font-display text-text tracking-tight">
+        {label}
+      </h4>
 
-      <p className="text-sm leading-relaxed text-text-muted">{bodyText}</p>
+      {/* Human Guidance Body */}
+      <p className="text-xs sm:text-sm leading-relaxed text-text-muted">
+        {bodyText}
+      </p>
 
+      {/* Hourly timeline or expandable child content */}
       {children}
     </div>
   );

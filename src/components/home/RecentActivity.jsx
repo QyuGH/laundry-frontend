@@ -1,35 +1,38 @@
 import { Link } from "react-router-dom";
 
 const EVENT_LABELS = {
-  session_started: "Session initialized",
-  deploy_triggered: "Pulley deployed manually",
-  retract_triggered: "Pulley retracted manually",
-  rain_detected: "Rain sensor triggered retraction",
-  area_cleared: "Rain cleared, countdown started",
-  auto_redeployment_triggered: "Weather cleared: auto-redeploy executed",
-  auto_close_triggered: "Dry target met: session auto-closed",
-  schedule_created: "Deployment/retraction schedule registered",
-  schedule_cancelled: "Scheduled timer cancelled",
-  schedule_executed: "Scheduled action executed automatically",
+  session_started: "Drying session started",
   session_ended: "Session terminated successfully",
+  session_paused: "Drying paused",
+  session_resumed: "Drying resumed",
+  deploy_triggered: "Clothes rack deployed outdoors",
+  retract_triggered: "Clothes rack retracted indoors",
+  rain_detected: "Rain detected — rack retracted safely",
+  area_cleared: "Rain cleared — safe countdown started",
+  auto_redeployment_triggered: "Weather cleared — clothes redeployed",
+  auto_redeploy_triggered: "Weather cleared — clothes redeployed",
+  auto_close_triggered: "Target dryness reached — session closed",
+  schedule_created: "Drying timer scheduled",
+  schedule_cancelled: "Scheduled timer cancelled",
+  schedule_executed: "Scheduled drying action executed",
+  motor_fault_detected: "Motor warning — check device rack",
+  member_added: "Family member added to device",
+  member_removed: "Member removed from device",
 };
 
-/**
- * Maps a raw event type to its human-readable label.
- *
- * @param {string} eventType
- * @returns {string}
- */
-const getFriendlyEventName = (eventType) =>
-  EVENT_LABELS[eventType] || eventType;
+const getFriendlyEventName = (eventType) => {
+  if (!eventType) return "Activity recorded";
+  if (EVENT_LABELS[eventType]) return EVENT_LABELS[eventType];
+  return eventType
+    .split("_")
+    .map((word, idx) =>
+      idx === 0
+        ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        : word.toLowerCase(),
+    )
+    .join(" ");
+};
 
-/**
- * Parses a Firestore timestamp object or ISO string into a Date.
- * Shared by both the absolute and relative time formatters below.
- *
- * @param {object|string} timeData
- * @returns {Date|null}
- */
 const parseLogTimestamp = (timeData) => {
   if (!timeData) return null;
   if (typeof timeData === "object" && timeData._seconds !== undefined) {
@@ -38,12 +41,6 @@ const parseLogTimestamp = (timeData) => {
   return new Date(timeData);
 };
 
-/**
- * Formats a log timestamp as an absolute PHT date/time string.
- *
- * @param {object|string} timeData
- * @returns {string}
- */
 const formatPhtTime = (timeData) => {
   const dateObj = parseLogTimestamp(timeData);
   if (!dateObj || isNaN(dateObj.getTime())) return "Invalid Date";
@@ -59,12 +56,6 @@ const formatPhtTime = (timeData) => {
   );
 };
 
-/**
- * Formats a log timestamp as a relative "time ago" string.
- *
- * @param {object|string} timeData
- * @returns {string}
- */
 const formatRelativeTime = (timeData) => {
   const dateObj = parseLogTimestamp(timeData);
   if (!dateObj || isNaN(dateObj.getTime())) return "Invalid Date";
@@ -80,36 +71,26 @@ const formatRelativeTime = (timeData) => {
   return `${diffDay}d ago`;
 };
 
-/**
- * Renders a divided list of activity log rows: leading status dot, label
- * and absolute timestamp on the left, relative time on the right.
- * Shared between the mobile-capped and desktop-scrollable variants.
- *
- * @param {object} props
- * @param {Array<object>} props.logs
- * @returns {JSX.Element}
- */
 function ActivityList({ logs }) {
   return (
-    <div className="divide-y divide-border-muted ">
+    <div className="divide-y divide-border">
       {logs.map((log) => (
-        <div
-          key={log.id}
-          className="flex items-start justify-between gap-block py-stack"
-        >
-          <div className="flex items-start gap-inline">
-            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-            <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium text-text">
+        <div key={log.id} className="py-4 flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
+              <span className="text-sm font-bold font-display text-text truncate">
                 {getFriendlyEventName(log.eventType)}
               </span>
-              <span className="text-xs text-text-muted tracking-wide">
-                {formatPhtTime(log.timestamp)}
-              </span>
             </div>
+
+            <span className="text-xs font-medium text-text-muted shrink-0">
+              {formatRelativeTime(log.timestamp)}
+            </span>
           </div>
-          <span className="text-xs text-text-muted shrink-0">
-            {formatRelativeTime(log.timestamp)}
+
+          <span className="text-xs text-text-muted pl-4.5">
+            {formatPhtTime(log.timestamp)}
           </span>
         </div>
       ))}
@@ -117,68 +98,46 @@ function ActivityList({ logs }) {
   );
 }
 
-/**
- * Loading/empty placeholder shared by both Recent Activity variants.
- *
- * @param {object} props
- * @param {boolean} props.isLoading
- * @returns {JSX.Element}
- */
 function EmptyState({ isLoading }) {
   return (
-    <p className="text-text-muted text-xs italic text-center py-4">
-      {isLoading ? "Loading activities..." : "No recent activities."}
+    <p className="text-text-muted text-xs italic text-center py-6">
+      {isLoading ? "Loading activities..." : "No recent activities recorded."}
     </p>
   );
 }
 
-/**
- * Recent Activity section for the Home page.
- * Mobile: capped to the 5 most recent entries, with a link to the full Activity Log.
- * Tablet/desktop: fixed-height card with its own internal scroll for the full list.
- *
- * @param {object} props
- * @param {Array<object>} props.logs - Recent device activity log entries.
- * @param {boolean} props.isLoading - Whether the logs are still being fetched.
- * @returns {JSX.Element}
- */
 function RecentActivity({ logs, isLoading }) {
   const hasLogs = logs.length > 0;
-  const mobileLogs = logs.slice(0, 5);
+  const displayLogs = logs.slice(0, 10);
 
   return (
-    <div className="card-shell flex flex-col gap-block">
-      {/* Integrated Section Header */}
-      <div className="section-header pb-2 border-b border-border-muted">
-        <h2 className="text-sm font-medium text-text">Recent Activity</h2>
+    <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
+        <div className="flex flex-col">
+          <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
+            Latest Device Events
+          </span>
+          <h3 className="text-lg font-bold font-display text-text mt-0.5">
+            Recent Activity
+          </h3>
+        </div>
+
         <Link
           to="/logs"
-          className="text-xs text-text-muted hover:text-text transition-colors duration-150"
+          className="text-xs font-bold text-brand hover:text-brand-strong transition-colors cursor-pointer"
         >
           View all &gt;
         </Link>
       </div>
 
-      {/* Mobile Activity List */}
-      <div className="sm:hidden flex flex-col gap-block">
+      <div>
         {isLoading || !hasLogs ? (
           <EmptyState isLoading={isLoading} />
         ) : (
-          <ActivityList logs={mobileLogs} />
+          <ActivityList logs={displayLogs} />
         )}
       </div>
-
-      {/* Tablet/Desktop Scrollable Activity List */}
-      <div className="hidden sm:flex flex-col h-[380px]">
-        <div className="flex-1 overflow-y-auto pr-4">
-          {isLoading || !hasLogs ? (
-            <EmptyState isLoading={isLoading} />
-          ) : (
-            <ActivityList logs={logs} />
-          )}
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }
 

@@ -7,6 +7,7 @@ import MetricsGrid from "../components/home/MetricsGrid";
 import PlannerSection from "../components/home/PlannerSection";
 import RecentActivity from "../components/home/RecentActivity";
 import LocationModal from "../components/home/LocationModal";
+import ErrorModal from "../components/common/ErrorModal";
 import {
   getPlan,
   generatePlan,
@@ -25,6 +26,11 @@ function HomePage() {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [recentLogs, setRecentLogs] = useState([]);
   const [isLogsLoading, setIsLogsLoading] = useState(true);
+
+  // Error handling state
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorTitle, setErrorTitle] = useState("Operation Failed");
+  const [retryAction, setRetryAction] = useState(null);
 
   const {
     weather,
@@ -54,7 +60,7 @@ function HomePage() {
           }
         }
       } catch (err) {
-        // Quietly fail
+        // Quietly fail initial load
       }
     };
     fetchSavedPlan();
@@ -84,24 +90,34 @@ function HomePage() {
       setPlan(response);
       setIsExpired(false);
     } catch (err) {
-      // Quietly handle
+      setErrorTitle("Plan Generation Failed");
+      setErrorMessage(
+        err.message ||
+          "Failed to generate drying recommendations from forecast. Please check your network or try again.",
+      );
+      setRetryAction(() => handleGeneratePlan);
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleSaveLocation = async (locationData) => {
-    await updateDeviceLocation(locationData);
-    if (weatherRefetch) {
-      await weatherRefetch();
-    }
-    setIsGenerating(true);
     try {
+      await updateDeviceLocation(locationData);
+      if (weatherRefetch) {
+        await weatherRefetch();
+      }
+      setIsGenerating(true);
       const response = await generatePlan();
       setPlan(response);
       setIsExpired(false);
     } catch (err) {
-      // Quietly handle
+      setErrorTitle("Location Update Failed");
+      setErrorMessage(
+        err.message ||
+          "Failed to update device location or recalculate your plan.",
+      );
+      setRetryAction(() => () => handleSaveLocation(locationData));
     } finally {
       setIsGenerating(false);
     }
@@ -133,6 +149,14 @@ function HomePage() {
         isOpen={isLocationOpen}
         onClose={() => setIsLocationOpen(false)}
         onSave={handleSaveLocation}
+      />
+
+      <ErrorModal
+        isOpen={!!errorMessage}
+        onClose={() => setErrorMessage(null)}
+        title={errorTitle}
+        message={errorMessage}
+        onRetry={retryAction}
       />
     </div>
   );
