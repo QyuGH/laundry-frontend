@@ -13,6 +13,7 @@ import {
   retractSession,
   endSession,
   createSchedule,
+  updateSchedule,
   cancelSchedule,
 } from "../services/api";
 
@@ -93,6 +94,10 @@ function MonitoringPage() {
   const handleSetSchedule = async (scheduleData) => {
     if (!session) {
       const res = await startSession(scheduleData);
+      await fetchSessionData();
+      return res;
+    } else if (schedule) {
+      const res = await updateSchedule(schedule.id, scheduleData);
       await fetchSessionData();
       return res;
     } else {

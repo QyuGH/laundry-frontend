@@ -1,5 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
 import Modal from "../common/Modal";
+import {
+  Play,
+  Pause,
+  Power,
+  WarningCircle,
+  CheckCircle,
+} from "@phosphor-icons/react";
 
 const FABRIC_BASELINES = {
   synthetic: 2,
@@ -57,99 +64,83 @@ function ControlPanel({
   const statusBadge = (() => {
     if (isChecking) {
       return {
-        badge: "●",
-        label: "Connecting",
-        description: "Loading device state...",
-        color: "text-text-muted",
+        dotClass: "bg-neutral-400",
+        label: "Connecting Device",
+        description: "Checking hardware telemetry and connection status.",
       };
     }
 
     if (isOffline) {
       return {
-        badge: "●",
+        dotClass: "bg-danger",
         label: "Device Offline",
-        description:
-          "The device did not respond. Ensure it is powered on and connected.",
-        color: "text-danger",
+        description: "Device is disconnected. Ensure it is powered on.",
       };
     }
 
     if (hasFault) {
       return {
-        badge: "▲",
-        label: "Motor Timeout",
-        description:
-          "Movement stopped because the limit switch was not reached - check for physical obstructions.",
-        color: "text-danger",
+        dotClass: "bg-danger",
+        label: "Motor Obstruction Alert",
+        description: "Motor stopped: limit switch not reached. Inspect rack.",
       };
     }
 
     if (isMoving) {
       const isDeploying = pulleyPosition !== "drying-zone";
       return {
-        badge: "◌",
-        label: isDeploying ? "Deploying..." : "Retracting...",
-        description: isDeploying
-          ? "The clothesline is moving to the drying zone and will activate once the limit switch confirms arrival."
-          : "The clothesline is returning to the protected zone and will update once the limit switch confirms arrival.",
-        color: "text-warning",
+        dotClass: "bg-warning animate-pulse",
+        label: isDeploying ? "Deploying Outdoors" : "Retracting Indoors",
+        description: "Clothesline is moving to target position.",
       };
     }
 
     if (isRainInterrupted && isRaining) {
       return {
-        badge: "●",
+        dotClass: "bg-warning",
         label: "Rain Detected",
-        description:
-          "Session is paused and retracted to the protected zone until the rain stops.",
-        color: "text-warning",
+        description: "Clothesline retracted until weather clears.",
       };
     }
 
     if (isRainInterrupted && !isRaining) {
       return {
-        badge: "●",
+        dotClass: "bg-brand",
         label: "Rain Cleared",
-        description:
-          "Rain has stopped; waiting for stabilization timer or manual resume.",
-        color: "text-info",
+        description: "Rain has cleared. Ready to resume drying.",
       };
     }
 
     if (isActive) {
       return {
-        badge: "●",
+        dotClass: "bg-brand",
         label: "Session Active",
         description:
           "Clothesline is deployed in the drying zone and actively drying.",
-        color: "text-success",
       };
     }
 
     if (isPaused) {
       return {
-        badge: "●",
+        dotClass: "bg-warning",
         label: "Session Paused",
-        description: "Clothesline is safely retracted in the protected zone.",
-        color: "text-warning",
+        description:
+          "Clothesline is retracted and the drying session is paused.",
       };
     }
 
     if (isPending) {
       return {
-        badge: "●",
-        label: "Session Queued",
-        description:
-          "Scheduled drying session is waiting for its scheduled deployment time.",
-        color: "text-text-muted",
+        dotClass: "bg-neutral-400",
+        label: "Session Scheduled",
+        description: "Session is waiting for its scheduled start time.",
       };
     }
 
     return {
-      badge: "●",
+      dotClass: "bg-success",
       label: "Device Ready",
-      description: "Device is online and ready to receive commands.",
-      color: "text-success",
+      description: "Clothesline is idle and ready for a drying session.",
     };
   })();
 
@@ -201,46 +192,50 @@ function ControlPanel({
     });
 
   return (
-    <div className="card-shell flex flex-col flex-1 gap-block">
-      <div className="section-header pb-2 border-b border-border-muted">
-        <h2 className="text-sm font-medium text-text">Controls</h2>
+    <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-5 flex-1">
+      <div className="flex flex-col">
+        <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
+          Controls
+        </span>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <div className={`flex items-center gap-2 ${statusBadge.color}`}>
-          <span className="text-base leading-none">{statusBadge.badge}</span>
-          <span className="text-sm font-semibold">{statusBadge.label}</span>
+      {/* Sub-Card: Current Status Notice */}
+      <div className="rounded-lg border border-border bg-canvas/40 p-4.5 sm:p-5 flex flex-col gap-1.5">
+        <div className="flex items-center gap-2.5">
+          <span
+            className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusBadge.dotClass}`}
+          />
+          <span className="text-base font-bold font-display text-text">
+            {statusBadge.label}
+          </span>
         </div>
-        <p className="text-text-muted text-xs leading-relaxed">
+        <p className="text-xs sm:text-sm text-text-muted leading-relaxed pl-5">
           {statusBadge.description}
         </p>
       </div>
 
       {actionError && (
-        <p className="text-danger text-xs border border-danger/20 rounded p-2.5 bg-danger/10 font-medium">
-          {actionError}
-        </p>
+        <div className="flex items-center gap-2 p-3 rounded-md bg-danger-soft text-danger text-xs font-medium">
+          <WarningCircle className="w-4 h-4 shrink-0" weight="bold" />
+          <span>{actionError}</span>
+        </div>
       )}
 
-      <div className="flex flex-col gap-stack">
+      {/* Control Actions Container */}
+      <div className="flex flex-col gap-3 mt-auto pt-2">
         {isChecking && (
-          <p className="text-text-muted text-xs italic text-center">
-            Verifying device connection...
+          <p className="text-text-muted text-xs italic text-center py-2">
+            Verifying connection...
           </p>
         )}
 
-        {isOffline && isInactive && (
-          <p className="text-danger text-xs italic text-center">
-            Device must be online to initialize a drying session.
+        {isOffline && (
+          <p className="text-danger text-xs font-medium text-center py-2">
+            Device must be online to execute commands.
           </p>
         )}
 
-        {isOffline && !isInactive && (
-          <p className="text-danger text-xs italic text-center">
-            Commands are disabled until the device reconnects.
-          </p>
-        )}
-
+        {/* 1. Inactive State: Initialize or Start Session */}
         {isOnline && isInactive && (
           <>
             {!isInitialized ? (
@@ -248,7 +243,7 @@ function ControlPanel({
                 id="initialize-device-btn"
                 onClick={handleInitialize}
                 disabled={isSubmitting || hasFault}
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+                className="w-full py-3 rounded-md text-sm font-semibold border border-border bg-surface text-text hover:bg-canvas transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? "Initializing..." : "Initialize Device"}
               </button>
@@ -260,35 +255,39 @@ function ControlPanel({
                   setIsStartModalOpen(true);
                 }}
                 disabled={isSubmitting || hasFault || isRaining}
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-md bg-brand hover:bg-brand-600 text-white font-semibold text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive disabled:opacity-50 cursor-pointer"
               >
-                Deploy
+                <Play className="w-4 h-4 fill-white" weight="fill" />
+                <span>Start Drying Session</span>
               </button>
             )}
           </>
         )}
 
+        {/* 2. Pending Schedule State */}
         {isOnline && isPending && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             <button
               id="deploy-now-btn"
               onClick={() => withSubmit(onDeploy)}
               disabled={isSubmitting || isMoving || hasFault || isRaining}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-md bg-brand hover:bg-brand-600 text-white font-semibold text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive disabled:opacity-50 cursor-pointer"
             >
-              {isMoving ? "Moving..." : "Deploy Now"}
+              <Play className="w-4 h-4 fill-white" weight="fill" />
+              <span>{isMoving ? "Moving..." : "Deploy Now"}</span>
             </button>
             <button
               id="cancel-pending-btn"
               onClick={() => setIsEndModalOpen(true)}
               disabled={isSubmitting || isMoving}
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+              className="w-full py-2.5 rounded-md text-xs font-semibold border border-border text-text-muted hover:text-danger hover:bg-danger-soft transition-colors disabled:opacity-50 cursor-pointer"
             >
               Cancel Session
             </button>
           </div>
         )}
 
+        {/* 3. Active Session State: Pause & Retract */}
         {isOnline && isActive && (
           <button
             id="pause-retract-btn"
@@ -297,26 +296,32 @@ function ControlPanel({
               setIsPauseModalOpen(true);
             }}
             disabled={isSubmitting || isMoving}
-            className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-md border border-danger text-danger hover:bg-danger-soft text-sm font-semibold transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:opacity-50"
           >
-            {isMoving ? "Retracting..." : "Pause & Retract"}
+            <Pause className="w-4 h-4" weight="bold" />
+            <span>{isMoving ? "Retracting..." : "Pause & Retract"}</span>
           </button>
         )}
 
+        {/* 4. Paused State: Resume & Deploy (Blue) OR End Session */}
         {isOnline && isPausedOrInterrupted && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-2.5">
             <button
               id="resume-session-btn"
               onClick={() => withSubmit(onDeploy)}
               disabled={isSubmitting || isMoving || hasFault || isRaining}
-              className="py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-md bg-brand hover:bg-brand-600 text-white font-semibold text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive disabled:opacity-50 cursor-pointer"
             >
-              {isMoving
-                ? "Moving..."
-                : isRaining
-                  ? "Rain Active (Locked)"
-                  : "Resume"}
+              <Play className="w-4 h-4 fill-white" weight="fill" />
+              <span>
+                {isMoving
+                  ? "Moving..."
+                  : isRaining
+                    ? "Rain Active (Locked)"
+                    : "Resume & Deploy"}
+              </span>
             </button>
+
             <button
               id="end-session-btn"
               onClick={() => {
@@ -324,7 +329,7 @@ function ControlPanel({
                 setIsEndModalOpen(true);
               }}
               disabled={isSubmitting || isMoving}
-              className="py-2.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
+              className="w-full py-2.5 rounded-md text-xs font-semibold border border-border text-text-muted hover:text-danger hover:bg-danger-soft transition-colors disabled:opacity-50 cursor-pointer"
             >
               End Session
             </button>
@@ -332,24 +337,26 @@ function ControlPanel({
         )}
       </div>
 
+      {/* Start Session Modal */}
       <Modal
         isOpen={isStartModalOpen}
         onClose={() => setIsStartModalOpen(false)}
-        title="Start Laundry Session"
+        title="Start Drying Session"
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-muted">
-            The clothesline will be deployed and a drying session will begin
-            tracking. Select the fabric type to continue.
+          <p className="text-sm text-text-muted leading-relaxed">
+            Select the primary fabric type to initialize telemetry and deploy
+            the clothesline outdoors.
           </p>
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wider text-text-muted">
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold uppercase tracking-wider text-brand font-display">
               Fabric Type
             </label>
             <select
               value={fabricType}
               onChange={(e) => setFabricType(e.target.value)}
-              className="w-full p-2 rounded border border-border bg-bg-dark text-text text-sm"
+              className="w-full px-3.5 py-2.5 rounded-md border border-border bg-canvas text-text text-sm font-medium focus:outline-none focus:border-brand transition-colors cursor-pointer"
             >
               <option value="synthetic">Synthetic (Est. 2 hrs)</option>
               <option value="blended">Blended (Est. 3 hrs)</option>
@@ -357,10 +364,11 @@ function ControlPanel({
               <option value="heavy">Heavy / Thick (Est. 6 hrs)</option>
             </select>
           </div>
-          <div className="flex justify-end gap-3 mt-1">
+
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border mt-1">
             <button
               onClick={() => setIsStartModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -368,7 +376,7 @@ function ControlPanel({
               id="confirm-deploy-btn"
               onClick={handleConfirmStart}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded bg-primary text-text font-medium hover:opacity-90 hover:cursor-pointer text-sm transition disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-brand hover:bg-brand-600 text-white font-semibold text-xs transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? "Starting..." : "Start & Deploy"}
             </button>
@@ -376,20 +384,21 @@ function ControlPanel({
         </div>
       </Modal>
 
+      {/* Pause Confirmation Modal */}
       <Modal
         isOpen={isPauseModalOpen}
         onClose={() => setIsPauseModalOpen(false)}
-        title="Pause Session"
+        title="Pause Drying Session"
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-muted">
-            The clothesline will retract to the protected zone. Drying progress
-            tracking will pause until resumed.
+          <p className="text-sm text-text-muted leading-relaxed">
+            Clothesline will retract indoors and session progress will pause
+            until resumed.
           </p>
-          <div className="flex justify-end gap-3 mt-1">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
             <button
               onClick={() => setIsPauseModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -397,7 +406,7 @@ function ControlPanel({
               id="confirm-pause-btn"
               onClick={handleConfirmPause}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded bg-warning text-bg-dark font-medium hover:opacity-90 hover:cursor-pointer text-sm transition disabled:opacity-50"
+              className="px-4 py-2 rounded-md border border-warning text-warning hover:bg-warning-soft font-semibold text-xs transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? "Pausing..." : "Pause & Retract"}
             </button>
@@ -405,20 +414,21 @@ function ControlPanel({
         </div>
       </Modal>
 
+      {/* End Session Confirmation Modal */}
       <Modal
         isOpen={isEndModalOpen}
         onClose={() => setIsEndModalOpen(false)}
-        title="End Session"
+        title="End Drying Session"
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-muted">
-            Are you sure you want to end this drying session? The session will
-            be finalized and archived.
+          <p className="text-sm text-text-muted leading-relaxed">
+            This will finalize and archive the current drying session. The
+            clothesline will return indoors.
           </p>
-          <div className="flex justify-end gap-3 mt-1">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
             <button
               onClick={() => setIsEndModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -426,14 +436,14 @@ function ControlPanel({
               id="confirm-end-btn"
               onClick={handleConfirmEnd}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded bg-danger text-text font-medium hover:opacity-90 hover:cursor-pointer text-sm transition disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-danger hover:bg-danger-600 text-white font-semibold text-xs transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? "Ending..." : "End Session"}
             </button>
           </div>
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 
