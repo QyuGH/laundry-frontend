@@ -5,6 +5,13 @@ import {
   searchLocation,
 } from "../../services/api";
 import Modal from "../common/Modal";
+import {
+  Broadcast,
+  MapPin,
+  ShieldCheck,
+  Gear,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 
 function DeviceCard({ device, role, onDeviceSaved }) {
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
@@ -55,7 +62,7 @@ function DeviceCard({ device, role, onDeviceSaved }) {
         });
       }
       setIsDeviceModalOpen(false);
-      onDeviceSaved("Device configuration saved successfully.");
+      onDeviceSaved("Clothesline settings saved.");
     } catch (err) {
       setError(err.message || "Failed to update device settings.");
     } finally {
@@ -64,46 +71,87 @@ function DeviceCard({ device, role, onDeviceSaved }) {
   };
 
   return (
-    <section className="card-shell flex flex-col">
-      <div className="section-header pb-block border-b border-border-muted">
-        <div>
-          <h2 className="text-sm font-medium text-text">
-            Device Configuration
-          </h2>
+    <section className="rounded-lg border border-border bg-surface p-5 sm:p-6 shadow-card flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
+        <div className="flex flex-col">
+          <span className="text-xs font-bold tracking-wider text-brand uppercase font-display">
+            Hardware
+          </span>
+          <h3 className="text-lg font-bold font-display text-text mt-0.5">
+            Connected Clothesline
+          </h3>
           <p className="text-xs text-text-muted mt-0.5">
-            Settings for your connected motorized clothesline.
+            Location and settings used for automated rain protection.
           </p>
         </div>
+
         <button
           onClick={handleOpenDeviceModal}
-          className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold border border-border text-text bg-surface hover:bg-canvas hover:border-border-strong hover:text-brand hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs shrink-0 cursor-pointer"
         >
-          Edit Configuration
+          <Gear className="w-4 h-4" weight="bold" />
+          <span>Edit Configuration</span>
         </button>
       </div>
 
-      <div className="flex flex-col">
-        <div className="flex items-start justify-between gap-block py-block">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-semibold text-text">Device Name</span>
-            <span className="text-xs text-text-muted">
-              Label shown in the app.
-            </span>
+      <div className="flex flex-col divide-y divide-border">
+        <div className="flex items-center justify-between py-3.5 gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-9 h-9 rounded-md bg-brand-soft text-brand flex items-center justify-center shrink-0">
+              <Broadcast className="w-5 h-5" weight="bold" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand font-display">
+                Clothesline Name
+              </span>
+              <span className="text-sm sm:text-base font-bold font-display text-text mt-0.5 truncate">
+                {device?.name || "Main Clothesline"}
+              </span>
+            </div>
           </div>
-          <span className="text-xs font-medium text-text text-right">
-            {device?.name || "Not configured"}
-          </span>
         </div>
 
-        <div className="flex items-start justify-between gap-block py-block border-t border-border-muted">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-semibold text-text">Location</span>
-            <span className="text-xs text-text-muted">
-              Used for local weather forecasts.
-            </span>
+        <div className="flex items-center justify-between py-3.5 gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-9 h-9 rounded-md bg-brand-soft text-brand flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5" weight="bold" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand font-display">
+                Forecast Location
+              </span>
+              <span className="text-sm sm:text-base font-medium text-text mt-0.5 truncate">
+                {device?.locationName || "Not configured"}
+              </span>
+            </div>
           </div>
-          <span className="text-xs font-medium text-text text-right">
-            {device?.locationName || "No location configured"}
+        </div>
+
+        <div className="flex items-center justify-between py-3.5 gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-9 h-9 rounded-md bg-brand-soft text-brand flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5" weight="bold" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand font-display">
+                Your Access Role
+              </span>
+              <span className="text-sm font-medium text-text-muted mt-0.5">
+                {role === "owner"
+                  ? "Full device administrator"
+                  : "Standard household operator"}
+              </span>
+            </div>
+          </div>
+
+          <span
+            className={`inline-flex items-center px-2.5 py-1 rounded-pill text-xs font-bold font-display uppercase tracking-wider shrink-0 ${
+              role === "owner"
+                ? "bg-brand-soft text-brand"
+                : "bg-canvas border border-border text-text-muted"
+            }`}
+          >
+            {role === "owner" ? "Owner" : "Member"}
           </span>
         </div>
       </div>
@@ -111,107 +159,102 @@ function DeviceCard({ device, role, onDeviceSaved }) {
       <Modal
         isOpen={isDeviceModalOpen}
         onClose={() => !isSaving && setIsDeviceModalOpen(false)}
-        title="Edit Device Configuration"
+        title="Update Clothesline Details"
       >
-        <form onSubmit={handleSaveDevice} className="flex flex-col gap-block">
-          {role === "owner" ? (
-            <div className="flex flex-col gap-stack">
-              <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
-                Device Name
-              </label>
-              <input
-                type="text"
-                value={editDevNameInput}
-                onChange={(e) => setEditDevNameInput(e.target.value)}
-                className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
-                required
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-medium">
-                Device Name
-              </span>
-              <span className="text-xs font-medium text-text">
-                {device?.name} (Read-Only)
-              </span>
-            </div>
-          )}
+        <form onSubmit={handleSaveDevice} className="flex flex-col gap-4">
+          <div className="flex flex-col">
+            <label className="text-xs font-bold uppercase tracking-wider text-brand font-display mb-1.5">
+              Clothesline Name
+            </label>
+            <input
+              type="text"
+              value={editDevNameInput}
+              onChange={(e) => setEditDevNameInput(e.target.value)}
+              disabled={role !== "owner"}
+              className="w-full bg-canvas border border-border rounded-md px-3.5 py-2.5 text-text text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-all disabled:opacity-50"
+              required
+            />
+          </div>
 
-          <div className="flex flex-col gap-stack pt-block border-t border-border-muted">
-            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
-              Location
+          <div className="flex flex-col gap-2 pt-2 border-t border-border">
+            <label className="text-xs font-bold uppercase tracking-wider text-brand font-display">
+              Change Location
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
+                placeholder="Search city or municipality..."
                 value={locQuery}
-                onChange={(e) => {
-                  setLocQuery(e.target.value);
-                  setSelectedLocation(null);
-                }}
-                placeholder="Search for a city or area..."
-                className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs flex-1 focus:outline-none focus:border-border transition"
+                onChange={(e) => setLocQuery(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  (e.preventDefault(), handleLocationSearch())
+                }
+                className="flex-1 bg-canvas border border-border rounded-md px-3.5 py-2 text-text text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-all"
               />
               <button
                 type="button"
                 onClick={handleLocationSearch}
-                disabled={isSearching}
-                className="px-3 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                disabled={isSearching || !locQuery.trim()}
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold bg-brand text-white hover:bg-brand-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {isSearching ? "..." : "Search"}
+                <MagnifyingGlass className="w-4 h-4" weight="bold" />
+                <span>{isSearching ? "Searching..." : "Search"}</span>
               </button>
             </div>
+
+            {suggestions.length > 0 && (
+              <div className="flex flex-col divide-y divide-border border border-border rounded-md bg-canvas max-h-40 overflow-y-auto mt-1">
+                {suggestions.map((loc, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setSelectedLocation(loc);
+                      setLocQuery(loc.displayName);
+                      setSuggestions([]);
+                    }}
+                    className="p-2.5 text-left text-xs text-text hover:bg-surface hover:text-brand transition-colors cursor-pointer"
+                  >
+                    {loc.displayName}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {selectedLocation && (
+              <div className="rounded-md border border-brand/30 bg-brand-soft p-3 mt-1 flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand font-display">
+                  Selected Location
+                </span>
+                <span className="text-xs font-bold font-display text-text">
+                  {selectedLocation.displayName}
+                </span>
+              </div>
+            )}
           </div>
 
-          {suggestions.length > 0 && (
-            <ul className="max-h-36 overflow-y-auto border border-border-muted rounded-md divide-y divide-border-muted/30 bg-canvas-bg">
-              {suggestions.map((item, idx) => (
-                <li
-                  key={idx}
-                  onClick={() => {
-                    setSelectedLocation(item);
-                    setLocQuery(item.displayName);
-                    setSuggestions([]);
-                  }}
-                  className="px-2.5 py-1.5 text-xs text-text-muted hover:text-text hover:bg-surface-bg cursor-pointer transition-colors"
-                >
-                  {item.displayName}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {selectedLocation && (
-            <div className="p-2.5 border border-border-muted rounded-md bg-canvas-bg text-xs text-text-muted">
-              Selected: {selectedLocation.displayName}
+          {error && (
+            <div className="rounded-md border border-danger/30 bg-danger-soft p-3 text-xs font-semibold text-danger">
+              {error}
             </div>
           )}
 
-          {error && (
-            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
-              {error}
-            </p>
-          )}
-
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-border mt-2">
             <button
               type="button"
               onClick={() => setIsDeviceModalOpen(false)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold border border-border text-text bg-surface hover:bg-canvas hover:border-border-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={
-                isSaving ||
-                (editDevNameInput.trim() === device?.name && !selectedLocation)
-              }
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas-bg bg-surface-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={isSaving}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold bg-brand text-white hover:bg-brand-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isSaving ? "Saving..." : "Update"}
+              {isSaving ? "Saving..." : "Save Configuration"}
             </button>
           </div>
         </form>

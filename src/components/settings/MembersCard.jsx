@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash } from "@phosphor-icons/react";
+import { Trash, UserPlus } from "@phosphor-icons/react";
 import { addDeviceMember, removeDeviceMember } from "../../services/api";
 import Modal from "../common/Modal";
 import PasswordInput from "../common/PasswordInput";
@@ -7,7 +7,7 @@ import PasswordInput from "../common/PasswordInput";
 const validatePasswordSecurity = (pwd) => pwd.length >= 8 && /\d/.test(pwd);
 
 const getInitials = (name) => {
-  if (!name) return "";
+  if (!name) return "U";
   return name
     .split(" ")
     .map((n) => n[0])
@@ -47,7 +47,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
 
     if (!validatePasswordSecurity(newMemberPassword)) {
       setError(
-        "Password must be at least 8 characters and contain at least one number.",
+        "Password must be at least 8 characters and include at least one number.",
       );
       return;
     }
@@ -66,7 +66,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
         password: newMemberPassword,
       });
       setIsMemberModalOpen(false);
-      onMemberListChanged("New member registered successfully.");
+      onMemberListChanged("Household member added.");
     } catch (err) {
       setError(err.message || "Failed to add member.");
     } finally {
@@ -81,7 +81,7 @@ function MembersCard({ members, role, onMemberListChanged }) {
     try {
       await removeDeviceMember(memberToRemove.userId);
       setMemberToRemove(null);
-      onMemberListChanged("Member unlinked successfully.");
+      onMemberListChanged("Member access removed.");
     } catch (err) {
       setError(err.message || "Failed to remove member.");
     } finally {
@@ -90,62 +90,70 @@ function MembersCard({ members, role, onMemberListChanged }) {
   };
 
   return (
-    <section className="card-shell flex flex-col gap-block">
-      <div className="section-header pb-block border-b border-border-muted">
-        <div>
-          <h2 className="text-sm font-medium text-text">Device Members</h2>
+    <section className="rounded-lg border border-border bg-surface p-5 sm:p-6 shadow-card flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
+        <div className="flex flex-col">
+          <span className="text-xs font-bold tracking-wider text-brand uppercase font-display">
+            Household Access
+          </span>
+          <h3 className="text-lg font-bold font-display text-text mt-0.5">
+            Shared Members
+          </h3>
           <p className="text-xs text-text-muted mt-0.5">
-            {role === "owner"
-              ? "Manage members who have access to this device."
-              : "View members who share access to this device."}
+            Family and household members who can operate this clothesline.
           </p>
         </div>
+
         {role === "owner" && (
           <button
             onClick={handleOpenAddMemberModal}
-            className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold bg-brand text-white hover:bg-brand-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs shrink-0 cursor-pointer"
           >
-            Add Member
+            <UserPlus className="w-4 h-4" weight="bold" />
+            <span>Add Member</span>
           </button>
         )}
       </div>
 
-      <div className="flex flex-col gap-stack">
+      <div className="flex flex-col divide-y divide-border">
         {members.map((member) => (
           <div
             key={member.userId}
-            className="flex items-center justify-between p-3 border border-border-muted rounded-lg bg-canvas-bg"
+            className="flex items-center justify-between py-3.5 gap-4"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-semibold text-xs shrink-0">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-9 h-9 rounded-md bg-brand-soft text-brand font-bold font-display text-xs flex items-center justify-center shrink-0">
                 {getInitials(member.name)}
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-text">
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm sm:text-base font-bold font-display text-text truncate">
                   {member.name}
                 </span>
-                <span className="text-xs text-text-muted">{member.email}</span>
+                <span className="text-xs text-text-muted mt-0.5 truncate">
+                  {member.email}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              {member.role === "owner" ? (
-                <span className="border border-warning/30 bg-warning/10 text-warning text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  Owner
-                </span>
-              ) : (
-                <span className="border border-border-muted bg-surface-bg text-text-muted text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  Member
-                </span>
-              )}
+            <div className="flex items-center gap-3 shrink-0">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-pill text-[10px] font-bold font-display uppercase tracking-wider ${
+                  member.role === "owner"
+                    ? "bg-brand-soft text-brand"
+                    : "bg-canvas border border-border text-text-muted"
+                }`}
+              >
+                {member.role === "owner" ? "Owner" : "Member"}
+              </span>
 
-              {role === "owner" && member.role === "member" && (
+              {role === "owner" && member.role !== "owner" && (
                 <button
                   onClick={() => setMemberToRemove(member)}
-                  className="text-text-muted hover:text-danger p-1.5 rounded-md hover:bg-danger/10 transition-colors cursor-pointer"
-                  title="Remove Member"
+                  className="p-1.5 rounded-md text-text-muted hover:text-danger hover:bg-danger-soft transition-colors cursor-pointer"
+                  title="Remove member access"
+                  aria-label="Remove member access"
                 >
-                  <Trash size={16} />
+                  <Trash className="w-4 h-4" weight="bold" />
                 </button>
               )}
             </div>
@@ -156,83 +164,73 @@ function MembersCard({ members, role, onMemberListChanged }) {
       <Modal
         isOpen={isMemberModalOpen}
         onClose={() => !isSaving && setIsMemberModalOpen(false)}
-        title="Add Device Member"
+        title="Add Household Member"
       >
-        <form onSubmit={handleAddMember} className="flex flex-col gap-block">
-          <div className="flex flex-col gap-stack">
-            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
-              Member Name
+        <form onSubmit={handleAddMember} className="flex flex-col gap-4">
+          <div className="flex flex-col">
+            <label className="text-xs font-bold uppercase tracking-wider text-brand font-display mb-1.5">
+              Full Name
             </label>
             <input
               type="text"
               value={newMemberName}
               onChange={(e) => setNewMemberName(e.target.value)}
-              placeholder="Full Name"
-              className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+              className="w-full bg-canvas border border-border rounded-md px-3.5 py-2.5 text-text text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-all"
               required
             />
           </div>
 
-          <div className="flex flex-col gap-stack">
-            <label className="text-xs uppercase tracking-widest text-text-muted font-medium">
+          <div className="flex flex-col">
+            <label className="text-xs font-bold uppercase tracking-wider text-brand font-display mb-1.5">
               Email Address
             </label>
             <input
               type="email"
               value={newMemberEmail}
               onChange={(e) => setNewMemberEmail(e.target.value)}
-              placeholder="email@example.com"
-              className="bg-canvas-bg border border-border-muted rounded-md px-3 py-2 text-text text-xs focus:outline-none focus:border-border transition"
+              className="w-full bg-canvas border border-border rounded-md px-3.5 py-2.5 text-text text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-all"
               required
             />
           </div>
 
-          <PasswordInput
-            id="member-password"
-            label="Password"
-            value={newMemberPassword}
-            onChange={(e) => setNewMemberPassword(e.target.value)}
-            placeholder="Minimum 8 characters with 1 number"
-            required
-          />
-
-          <PasswordInput
-            id="member-confirm-password"
-            label="Confirm Password"
-            value={newMemberConfirmPassword}
-            onChange={(e) => setNewMemberConfirmPassword(e.target.value)}
-            placeholder="Re-enter password"
-            required
-          />
+          <div className="flex flex-col gap-4 pt-2 border-t border-border">
+            <PasswordInput
+              id="new-member-password"
+              label="Password"
+              value={newMemberPassword}
+              onChange={(e) => setNewMemberPassword(e.target.value)}
+              required
+            />
+            <PasswordInput
+              id="confirm-member-password"
+              label="Confirm Password"
+              value={newMemberConfirmPassword}
+              onChange={(e) => setNewMemberConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
 
           {error && (
-            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
+            <div className="rounded-md border border-danger/30 bg-danger-soft p-3 text-xs font-semibold text-danger">
               {error}
-            </p>
+            </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-border mt-2">
             <button
               type="button"
               onClick={() => setIsMemberModalOpen(false)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold border border-border text-text bg-surface hover:bg-canvas hover:border-border-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={
-                isSaving ||
-                !newMemberName ||
-                !newMemberEmail ||
-                !newMemberPassword ||
-                newMemberPassword !== newMemberConfirmPassword ||
-                !validatePasswordSecurity(newMemberPassword)
-              }
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas-bg bg-surface-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={isSaving}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold bg-brand text-white hover:bg-brand-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isSaving ? "Registering..." : "Add Member"}
+              {isSaving ? "Adding..." : "Add Member"}
             </button>
           </div>
         </form>
@@ -241,38 +239,38 @@ function MembersCard({ members, role, onMemberListChanged }) {
       <Modal
         isOpen={!!memberToRemove}
         onClose={() => !isSaving && setMemberToRemove(null)}
-        title="Remove Member"
+        title="Remove Member Access"
       >
-        <div className="flex flex-col gap-block">
-          <p className="text-text-muted text-xs leading-normal">
-            Are you sure you want to remove{" "}
-            <span className="text-text font-semibold">
-              {memberToRemove?.name}
-            </span>
-            ? They will lose device access immediately and will no longer
-            receive system update notifications.
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-text-muted leading-relaxed">
+            Are you sure you want to remove access for{" "}
+            <span className="font-bold text-text">{memberToRemove?.name}</span>?
+            They will immediately lose access to operate or monitor this
+            clothesline.
           </p>
 
           {error && (
-            <p className="text-danger text-xs border border-danger/20 rounded-md p-2.5 bg-danger/10 font-medium">
+            <div className="rounded-md border border-danger/30 bg-danger-soft p-3 text-xs font-semibold text-danger">
               {error}
-            </p>
+            </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-block border-t border-border-muted">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-border mt-2">
             <button
+              type="button"
               onClick={() => setMemberToRemove(null)}
               disabled={isSaving}
-              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold border border-border text-text bg-surface hover:bg-canvas hover:border-border-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer"
             >
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleRemoveMember}
               disabled={isSaving}
-              className="px-4 py-2 bg-danger/10 border border-danger/30 rounded-md text-xs font-semibold text-danger hover:bg-danger/20 transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold bg-danger text-white hover:bg-danger-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isSaving ? "Removing..." : "Confirm Removal"}
+              {isSaving ? "Removing..." : "Remove Member"}
             </button>
           </div>
         </div>
