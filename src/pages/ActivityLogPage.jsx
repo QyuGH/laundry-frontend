@@ -4,7 +4,7 @@ import {
   getSessionLogs,
   getSessionSnapshots,
 } from "../services/api";
-import SessionTable from "../components/activity/SessionTable";
+import SessionList from "../components/activity/SessionList";
 import SessionDetailView from "../components/activity/SessionDetailView";
 
 function ActivityLogPage() {
@@ -82,9 +82,9 @@ function ActivityLogPage() {
   return (
     <div className="section-stack">
       {error && (
-        <p className="text-danger text-xs border border-danger/20 rounded-md p-3 bg-danger/10 font-medium">
+        <div className="rounded-lg border border-danger/30 bg-danger-soft p-4 text-xs font-medium text-danger">
           {error}
-        </p>
+        </div>
       )}
 
       {selectedSession ? (
@@ -96,7 +96,7 @@ function ActivityLogPage() {
           onBack={handleBackToList}
         />
       ) : (
-        <SessionTable
+        <SessionList
           sessions={sessions}
           isLoading={isLoading}
           hasMore={hasMore}
