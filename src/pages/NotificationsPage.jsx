@@ -88,11 +88,17 @@ function NotificationsPage() {
 
   return (
     <div className="section-stack">
-      <div className="section-header">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-text-muted">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div className="flex flex-col max-w-2xl">
+          <span className="text-xs font-bold tracking-widest text-brand uppercase font-display mb-1.5">
+            Device Alerts
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display text-text tracking-tight leading-tight">
+            {unreadCount > 0 ? "New device alerts." : "You're all caught up."}
+          </h2>
+          <p className="text-sm text-text-muted mt-2">
             {unreadCount > 0
-              ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}.`
+              ? `You have ${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}.`
               : "All notifications have been read."}
           </p>
         </div>
@@ -100,7 +106,7 @@ function NotificationsPage() {
         <button
           onClick={handleMarkAllAsRead}
           disabled={unreadCount === 0}
-          className="inline-flex items-center gap-inline px-3 py-1.5 border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text bg-surface-bg hover:bg-canvas-bg transition-colors duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-md text-xs font-semibold border border-border text-text bg-surface hover:bg-canvas hover:border-border-strong hover:text-brand hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:border-border shrink-0"
         >
           Mark All as Read
         </button>
@@ -114,9 +120,9 @@ function NotificationsPage() {
       )}
 
       {error && (
-        <p className="text-danger text-xs border border-danger/20 rounded-md p-3 bg-danger/10 font-medium">
+        <div className="rounded-lg border border-danger/30 bg-danger-soft p-4 text-xs font-medium text-danger">
           {error}
-        </p>
+        </div>
       )}
 
       <NotificationList
@@ -124,6 +130,12 @@ function NotificationsPage() {
         isLoading={isLoading}
         onMarkAsRead={handleMarkAsRead}
       />
+
+      {notifications.length > 0 && (
+        <p className="text-center text-xs text-text-muted font-medium pt-2">
+          Select a notification to preview its read and unread states.
+        </p>
+      )}
     </div>
   );
 }

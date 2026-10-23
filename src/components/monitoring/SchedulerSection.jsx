@@ -1,19 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Modal from "../common/Modal";
+import {
+  CalendarBlank,
+  CalendarCheck,
+  WarningCircle,
+  Pause,
+  Clock,
+} from "@phosphor-icons/react";
 
-/**
- * Renders the scheduling controller for manual/scheduled deployments and retractions.
- * Prevents text entry using a custom dropdown time picker that targets today only.
- * Disables scheduling options entirely when the session is paused or interrupted.
- *
- * @param {object} props
- * @param {object|null} props.session - The active session document data.
- * @param {object|null} props.schedule - The active schedule subdocument.
- * @param {string} props.deviceConnection - The device connection state string ("checking"|"online"|"offline").
- * @param {function} props.onSetSchedule - Callback to register a new schedule.
- * @param {function} props.onCancelSchedule - Callback to delete the active schedule.
- * @returns {JSX.Element}
- */
 function SchedulerSection({
   session,
   schedule,
@@ -28,6 +22,9 @@ function SchedulerSection({
   const [period, setPeriod] = useState("AM");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  const minuteRef = useRef(null);
+  const hourValueRef = useRef("08");
 
   const isOnline = deviceConnection === "online";
   const isInactive = !session;
@@ -53,14 +50,47 @@ function SchedulerSection({
       hours = hours ? String(hours).padStart(2, "0") : "12";
 
       setHour(hours);
+      hourValueRef.current = hours;
       setMinute(mins);
       setPeriod(ampm);
     } else {
       setHour("08");
+      hourValueRef.current = "08";
       setMinute("00");
       setPeriod("AM");
     }
     setIsScheduleModalOpen(true);
+  };
+
+  const handleHourChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setHour(val);
+    hourValueRef.current = val;
+    if (val.length === 2) {
+      minuteRef.current?.focus();
+      minuteRef.current?.select();
+    }
+  };
+
+  const handleHourBlur = () => {
+    let num = parseInt(hourValueRef.current, 10);
+    if (isNaN(num) || num < 1) num = 12;
+    if (num > 12) num = 12;
+    const padded = String(num).padStart(2, "0");
+    setHour(padded);
+    hourValueRef.current = padded;
+  };
+
+  const handleMinuteChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setMinute(val);
+  };
+
+  const handleMinuteBlur = () => {
+    let num = parseInt(minute, 10);
+    if (isNaN(num) || num < 0) num = 0;
+    if (num > 59) num = 59;
+    setMinute(String(num).padStart(2, "0"));
   };
 
   const handleSave = async () => {
@@ -118,132 +148,149 @@ function SchedulerSection({
     }
   };
 
-  const minutes = Array.from({ length: 12 }, (_, i) =>
-    String(i * 5).padStart(2, "0"),
-  );
+  const statusBlock = (() => {
+    if (!isOnline) {
+      return {
+        Icon: WarningCircle,
+        iconClass: "text-danger",
+        label: "Device Offline",
+        description: "Scheduler unavailable. Ensure the device is powered on.",
+      };
+    }
+    if (isPausedOrInterrupted) {
+      return {
+        Icon: Pause,
+        iconClass: "text-warning",
+        label: "Session Paused",
+        description:
+          "Scheduling is disabled while the session is paused or interrupted by rain.",
+      };
+    }
+    if (isPending && !hasActiveSchedule) {
+      return {
+        Icon: Clock,
+        iconClass: "text-text-muted",
+        label: "Session Pending",
+        description: "Retraction can be scheduled once the session starts.",
+      };
+    }
+    if (hasActiveSchedule) {
+      const time = schedule.deployTime || schedule.retractTime;
+      const formatted = new Date(time).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      return {
+        Icon: CalendarCheck,
+        iconClass: "text-brand",
+        labelClass: "text-brand",
+        label: formatted,
+        description: schedule.deployTime
+          ? "Clothesline deploys automatically at this time."
+          : "Clothesline retracts automatically at this time.",
+      };
+    }
+    return {
+      Icon: CalendarBlank,
+      iconClass: "text-text-muted",
+      label: isInactive ? "No deployment set" : "No retraction set",
+      description: isInactive
+        ? "Automate today's session by setting a deployment time."
+        : "Set a retraction time to automatically bring in your clothes.",
+    };
+  })();
+
+  const { Icon } = statusBlock;
 
   return (
-    <div className="card-shell flex flex-col flex-1 gap-block">
-      <div className="section-header pb-2 border-b border-border-muted">
-        <h2 className="text-sm font-medium text-text">Scheduler</h2>
+    <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-5 flex-1">
+      <div className="flex flex-col">
+        <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
+          Scheduler
+        </span>
       </div>
 
-      <div className="flex flex-col justify-center flex-grow">
+      <div className="rounded-lg border border-border bg-canvas/40 p-4.5 sm:p-5 flex flex-col gap-1.5">
+        <div className="flex items-center gap-2.5">
+          <Icon
+            className={`w-4.5 h-4.5 shrink-0 ${statusBlock.iconClass}`}
+            weight="bold"
+          />
+          <span
+            className={`text-base font-bold font-display ${statusBlock.labelClass ?? "text-text"}`}
+          >
+            {statusBlock.label}
+          </span>
+        </div>
+        <p className="text-xs sm:text-sm text-text-muted leading-relaxed pl-7">
+          {statusBlock.description}
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3 mt-auto pt-2">
         {!isOnline && (
-          <div className="flex flex-col gap-3 text-center">
-            <p className="text-text-muted text-xs leading-relaxed italic">
-              Scheduler is unavailable because the device is offline.
-            </p>
-            <button
-              disabled
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border-muted text-text-muted bg-bg/50 cursor-not-allowed opacity-50"
-            >
-              Device Offline
-            </button>
-          </div>
+          <button
+            disabled
+            className="w-full py-3 rounded-md text-sm font-semibold border border-border-muted text-text-muted cursor-not-allowed opacity-50"
+          >
+            Device Offline
+          </button>
         )}
 
         {isOnline && isPausedOrInterrupted && (
-          <div className="flex flex-col gap-3 text-center">
-            <p className="text-text-muted text-xs leading-relaxed italic">
-              Scheduling is unavailable while the drying session is paused or
-              interrupted by rain.
-            </p>
-            <button
-              disabled
-              className="w-full py-2.5 rounded-md text-sm font-medium border border-border-muted text-text-muted bg-bg/50 cursor-not-allowed opacity-50"
-            >
-              Set Schedule
-            </button>
-          </div>
+          <button
+            disabled
+            className="w-full py-3 rounded-md text-sm font-semibold border border-border-muted text-text-muted cursor-not-allowed opacity-50"
+          >
+            Scheduling Disabled
+          </button>
+        )}
+
+        {isOnline && isPending && !hasActiveSchedule && (
+          <button
+            disabled
+            className="w-full py-3 rounded-md text-sm font-semibold border border-border-muted text-text-muted cursor-not-allowed opacity-50"
+          >
+            Session Pending Start
+          </button>
         )}
 
         {isOnline && !isPausedOrInterrupted && hasActiveSchedule && (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1 text-center">
-              <p className="text-text text-sm font-medium">
-                {schedule.deployTime
-                  ? `Deployment scheduled for ${new Date(
-                      schedule.deployTime,
-                    ).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })} Today`
-                  : `Retraction scheduled for ${new Date(
-                      schedule.retractTime,
-                    ).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })} Today`}
-              </p>
-              {schedule.retractTime && (
-                <p className="text-text-muted text-[10px] italic mt-1 px-4 leading-normal">
-                  Note: At the scheduled time, the clothesline will retract and
-                  end this session.
-                </p>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-3 mt-1">
-              <button
-                id="modify-schedule-btn"
-                onClick={handleOpenScheduleModal}
-                disabled={isSubmitting}
-                className="py-2 rounded-md text-xs font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
-              >
-                Edit Time
-              </button>
-              <button
-                id="cancel-schedule-btn"
-                onClick={() => {
-                  setError(null);
-                  setIsCancelModalOpen(true);
-                }}
-                disabled={isSubmitting}
-                className="py-2 rounded-md text-xs font-medium border border-border text-text-muted hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
-              >
-                Cancel
-              </button>
-            </div>
+          <div className="flex flex-col gap-2.5">
+            <button
+              id="modify-schedule-btn"
+              onClick={handleOpenScheduleModal}
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-md border border-border bg-surface text-text text-sm font-semibold hover:bg-canvas transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 cursor-pointer"
+            >
+              Edit Time
+            </button>
+            <button
+              id="cancel-schedule-btn"
+              onClick={() => {
+                setError(null);
+                setIsCancelModalOpen(true);
+              }}
+              disabled={isSubmitting}
+              className="w-full py-2.5 rounded-md text-xs font-semibold border border-border text-text-muted hover:text-danger hover:bg-danger-soft transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              Cancel Schedule
+            </button>
           </div>
         )}
-
-        {isOnline &&
-          !isPausedOrInterrupted &&
-          !hasActiveSchedule &&
-          isPending && (
-            <div className="flex flex-col gap-3 text-center">
-              <p className="text-text-muted text-xs leading-relaxed italic">
-                A session is pending deployment. Retraction times cannot be
-                scheduled until the session starts.
-              </p>
-              <button
-                disabled
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border-muted text-text-muted bg-bg/50 cursor-not-allowed opacity-50"
-              >
-                Session Pending Start
-              </button>
-            </div>
-          )}
 
         {isOnline &&
           !isPausedOrInterrupted &&
           !hasActiveSchedule &&
           !isPending && (
-            <div className="flex flex-col gap-3 text-center">
-              <p className="text-text-muted text-xs leading-relaxed italic">
-                {isInactive
-                  ? "No active schedule. Set a deployment time to automate your laundry session today."
-                  : "No active schedule. Set a retraction time to automatically bring in your clothes today."}
-              </p>
-              <button
-                id="set-schedule-btn"
-                onClick={handleOpenScheduleModal}
-                disabled={isSubmitting}
-                className="w-full py-2.5 rounded-md text-sm font-medium border border-border text-text hover:bg-bg-light hover:cursor-pointer transition bg-bg disabled:opacity-50"
-              >
-                {isInactive ? "Set Deployment Time" : "Set Retraction Time"}
-              </button>
-            </div>
+            <button
+              id="set-schedule-btn"
+              onClick={handleOpenScheduleModal}
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-md border border-border bg-surface text-text text-sm font-semibold hover:bg-canvas transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 cursor-pointer"
+            >
+              {isInactive ? "Set Deployment Time" : "Set Retraction Time"}
+            </button>
           )}
       </div>
 
@@ -253,64 +300,81 @@ function SchedulerSection({
         title={isInactive ? "Set Deployment Time" : "Set Retraction Time"}
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-text-muted leading-relaxed">
             {isInactive
-              ? "Choose what time you want the clothesline to deploy. The session will assume synthetic fabric tracking."
-              : "Choose what time you want the clothesline to automatically retract and end the session."}
+              ? "Choose a time for the clothesline to deploy automatically today."
+              : "Choose a time for the clothesline to retract and end the session today."}
           </p>
 
-          <div className="flex justify-center items-center gap-2 py-4">
-            <select
-              id="picker-hour"
-              value={hour}
-              onChange={(e) => setHour(e.target.value)}
-              className="p-2 rounded border border-border bg-bg-dark text-text text-lg font-semibold w-16 text-center"
-            >
-              {Array.from({ length: 12 }, (_, i) =>
-                String(i + 1).padStart(2, "0"),
-              ).map((h) => (
-                <option key={h} value={h}>
-                  {h}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-center gap-2">
+              <input
+                id="picker-hour"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={2}
+                value={hour}
+                onChange={handleHourChange}
+                onBlur={handleHourBlur}
+                onFocus={(e) => e.target.select()}
+                className="w-20 py-3 text-center text-2xl font-bold font-display text-text bg-canvas border border-border rounded-md focus:outline-none focus:border-brand transition-colors"
+              />
+              <span className="text-2xl font-bold text-text-muted select-none">
+                :
+              </span>
+              <input
+                id="picker-minute"
+                ref={minuteRef}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={2}
+                value={minute}
+                onChange={handleMinuteChange}
+                onBlur={handleMinuteBlur}
+                onFocus={(e) => e.target.select()}
+                className="w-20 py-3 text-center text-2xl font-bold font-display text-text bg-canvas border border-border rounded-md focus:outline-none focus:border-brand transition-colors"
+              />
+            </div>
 
-            <span className="text-xl font-bold text-text">:</span>
-
-            <select
-              id="picker-minute"
-              value={minute}
-              onChange={(e) => setMinute(e.target.value)}
-              className="p-2 rounded border border-border bg-bg-dark text-text text-lg font-semibold w-16 text-center"
-            >
-              {minutes.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-
-            <select
-              id="picker-period"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="p-2 rounded border border-border bg-bg-dark text-text text-lg font-semibold w-16 text-center ml-2"
-            >
-              <option value="AM">AM</option>
-              <option value="PM">PM</option>
-            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPeriod("AM")}
+                className={`py-2.5 rounded-md text-sm font-semibold transition-colors cursor-pointer ${
+                  period === "AM"
+                    ? "bg-brand text-white shadow-interactive"
+                    : "border border-border text-text-muted hover:bg-canvas"
+                }`}
+              >
+                AM
+              </button>
+              <button
+                type="button"
+                onClick={() => setPeriod("PM")}
+                className={`py-2.5 rounded-md text-sm font-semibold transition-colors cursor-pointer ${
+                  period === "PM"
+                    ? "bg-brand text-white shadow-interactive"
+                    : "border border-border text-text-muted hover:bg-canvas"
+                }`}
+              >
+                PM
+              </button>
+            </div>
           </div>
 
           {error && (
-            <p className="text-red-400 text-xs text-center font-medium border border-red-400/20 rounded p-2 bg-red-400/10">
-              {error}
-            </p>
+            <div className="flex items-center gap-2 p-3 rounded-md bg-danger-soft text-danger text-xs font-medium">
+              <WarningCircle className="w-4 h-4 shrink-0" weight="bold" />
+              <span>{error}</span>
+            </div>
           )}
 
-          <div className="flex justify-end gap-3 mt-1">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border mt-1">
             <button
               onClick={() => setIsScheduleModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text hover:cursor-pointer text-sm transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -318,7 +382,7 @@ function SchedulerSection({
               id="confirm-schedule-btn"
               onClick={handleSave}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light hover:cursor-pointer text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-brand hover:bg-brand-600 text-white font-semibold text-xs transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? "Saving..." : "Save Schedule"}
             </button>
@@ -332,21 +396,22 @@ function SchedulerSection({
         title="Cancel Schedule"
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-muted">
-            Are you sure you want to cancel this schedule? This action cannot be
-            undone.
+          <p className="text-sm text-text-muted leading-relaxed">
+            The scheduled time will be removed. The clothesline won't
+            auto-deploy or retract.
           </p>
 
           {error && (
-            <p className="text-red-400 text-xs text-center font-medium border border-red-400/20 rounded p-2 bg-red-400/10">
-              {error}
-            </p>
+            <div className="flex items-center gap-2 p-3 rounded-md bg-danger-soft text-danger text-xs font-medium">
+              <WarningCircle className="w-4 h-4 shrink-0" weight="bold" />
+              <span>{error}</span>
+            </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
             <button
               onClick={() => setIsCancelModalOpen(false)}
-              className="px-4 py-2 border border-border rounded text-text-muted hover:text-text text-sm transition"
+              className="px-4 py-2 border border-border rounded-md text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
             >
               Go Back
             </button>
@@ -354,14 +419,14 @@ function SchedulerSection({
               id="confirm-cancel-schedule-btn"
               onClick={handleConfirmCancel}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-border rounded text-text hover:bg-bg-light text-sm font-semibold transition disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-danger hover:bg-danger-600 text-white font-semibold text-xs transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-interactive cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? "Cancelling..." : "Confirm Cancel"}
             </button>
           </div>
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 

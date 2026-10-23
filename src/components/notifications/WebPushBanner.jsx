@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { getToken } from "firebase/messaging";
-import { BellRinging } from "@phosphor-icons/react";
+import { Bell } from "@phosphor-icons/react";
 import { messagingPromise } from "../../firebase/firebaseConfig";
 import { registerFcmToken } from "../../services/api";
 
@@ -42,24 +42,25 @@ function WebPushBanner({ onRegistered, onError }) {
   };
 
   return (
-    <div className="card-shell flex flex-col sm:flex-row sm:items-center sm:justify-between gap-block">
-      <div className="flex items-start sm:items-center gap-3">
-        <div className="p-2 rounded-md bg-canvas-bg border border-border-muted text-primary shrink-0">
-          <BellRinging size={20} />
+    <div className="rounded-lg border border-border bg-surface p-5 sm:p-6 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+        <div className="w-10 h-10 rounded-md bg-brand text-white flex items-center justify-center shrink-0 shadow-xs">
+          <Bell className="w-5 h-5" weight="bold" />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-semibold text-text">
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm sm:text-base font-bold font-display text-text">
             Enable Background Web Push
           </span>
-          <span className="text-xs text-text-muted">
+          <span className="text-xs text-text-muted font-medium mt-0.5">
             Receive instant device notifications from rain events.
           </span>
         </div>
       </div>
+
       <button
         onClick={handleEnablePush}
         disabled={isRegistering}
-        className="px-3 py-1.5 bg-surface-bg border border-border rounded-md text-xs font-semibold text-text-muted hover:text-text hover:bg-canvas-bg transition-colors duration-150 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+        className="inline-flex items-center justify-center px-5 py-2.5 rounded-md text-xs font-semibold bg-brand text-white hover:bg-brand-strong hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {isRegistering ? "Enabling..." : "Enable Push"}
       </button>
