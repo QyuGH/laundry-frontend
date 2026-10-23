@@ -69,6 +69,11 @@ export const cancelSchedule = (scheduleId, sessionId) =>
     method: "POST",
     body: JSON.stringify({ scheduleId, sessionId }),
   });
+export const updateSchedule = (scheduleId, scheduleData) =>
+  apiFetch(`/api/schedule/${scheduleId}`, {
+    method: "PUT",
+    body: JSON.stringify(scheduleData),
+  });
 
 // Activity Log Routes
 export const getSessionHistory = (limit = 10, lastSessionId = null) => {
