@@ -22,9 +22,6 @@ const formatExpiryLabel = (dateStr) => {
   });
 };
 
-/**
- * Complete Laundry Planner section covering Empty, Expired, and Generated states.
- */
 function PlannerSection({
   plan,
   isGenerating,
@@ -40,11 +37,9 @@ function PlannerSection({
     setActiveHourlyIndex((prev) => (prev === index ? null : index));
   };
 
-  // State: No plan or Expired plan
   if (!plan || isExpired) {
     return (
       <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
-        {/* Header Row */}
         <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
@@ -65,29 +60,27 @@ function PlannerSection({
           )}
         </div>
 
-        {/* Centered Empty / Expired Callout */}
         <div className="flex flex-col items-center text-center py-6 sm:py-8 max-w-md mx-auto gap-4">
-          <div className="w-12 h-12 rounded-full bg-brand-soft text-brand flex items-center justify-center border border-border-brand">
+          <div className="w-12 h-12 rounded-full bg-brand-soft text-brand flex items-center justify-center">
             <Clock className="w-6 h-6" weight="bold" />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <h4 className="text-lg sm:text-xl font-bold font-display text-text">
               {isExpired
-                ? "Your drying window has passed"
+                ? "Drying window passed"
                 : "Plan your next drying cycle"}
             </h4>
             <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
               {isExpired ? (
                 <>
-                  Your last generated plan expired at{" "}
-                  {formatExpiryLabel(plan?.expiresAt)}. Generate a new plan to
-                  get a newer personalized plan!
+                  Plan expired on {formatExpiryLabel(plan?.expiresAt)}. Generate
+                  a new plan for updated recommendations.
                 </>
               ) : (
                 <>
-                  Generate an automated laundry day plan using real-time
-                  Open-Meteo forecasts.
+                  Generate an automated drying schedule based on live weather
+                  forecasts.
                 </>
               )}
             </p>
@@ -133,7 +126,6 @@ function PlannerSection({
 
   return (
     <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
-      {/* Header Row */}
       <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
         <div className="flex flex-col">
           <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
@@ -166,7 +158,6 @@ function PlannerSection({
         </div>
       </div>
 
-      {/* Spotlight Best Day Card */}
       <ForecastDayCard
         label={formatDayLabel(bestDay.date)}
         estimatedDryingDuration={bestDay.estimatedDryingDuration}
@@ -174,7 +165,6 @@ function PlannerSection({
         emphasized
       />
 
-      {/* Expanded 4-Day Section */}
       {isExpanded && (
         <div className="flex flex-col gap-4 pt-2">
           <span className="text-xs font-bold uppercase tracking-wider text-text-muted font-display">
@@ -209,7 +199,6 @@ function PlannerSection({
                     )}
                   </ForecastDayCard>
 
-                  {/* Hourly Timeline Drawer */}
                   {isHourlyOpen && (
                     <div className="p-4 mt-2 rounded-lg border border-border bg-surface-raised">
                       <HourlyForecast hours={day.hourlyBreakdown} />

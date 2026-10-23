@@ -10,7 +10,7 @@ function HourlyForecast({ hours }) {
           Hourly Weather Timeline (7 AM – 5 PM)
         </span>
         <span className="text-[11px] text-text-muted">
-          Scroll horizontally to view all hours →
+          Scroll horizontally to view all hours
         </span>
       </div>
 
