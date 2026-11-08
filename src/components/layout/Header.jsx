@@ -7,7 +7,7 @@ import Modal from "../common/Modal";
 import { List, Sun, Moon, SignOut } from "@phosphor-icons/react";
 
 const PAGE_TITLES = {
-  "/": "Dashboard",
+  "/": "Home",
   "/monitoring": "Live Telemetry",
   "/logs": "Activity History",
   "/notifications": "Notifications",

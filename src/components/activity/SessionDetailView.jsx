@@ -155,7 +155,7 @@ function SessionDetailView({ session, logs, snapshots, isLoading, onBack }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border bg-canvas rounded-lg p-4 sm:p-5 border border-border mt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-brand-200 bg-brand-50 rounded-lg p-4 sm:p-5 mt-1">
           <div className="flex items-start gap-3.5 pb-4 sm:pb-0 sm:pr-4">
             <div className="w-9 h-9 rounded-md bg-warning-soft text-warning flex items-center justify-center shrink-0">
               <ThermometerSimple className="w-5 h-5" weight="bold" />

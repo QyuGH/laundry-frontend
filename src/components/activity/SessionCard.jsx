@@ -38,17 +38,17 @@ export function formatFabricType(type) {
 }
 
 function formatDuration(session) {
-  if (!session.createdAt || !session.endedAt) return "Under 1 hr";
+  if (!session.createdAt || !session.endedAt) return "Under 1 hour";
   const start = parseLogTimestamp(session.createdAt)?.getTime();
   const end = parseLogTimestamp(session.endedAt)?.getTime();
 
   if (!start || !end || isNaN(start) || isNaN(end) || end <= start) {
-    return "Under 1 hr";
+    return "Under 1 hour";
   }
   const diffMinutes = Math.max(1, Math.round((end - start) / (1000 * 60)));
-  if (diffMinutes < 60) return "Under 1 hr";
+  if (diffMinutes < 60) return "Under 1 hour";
   const diffHours = Math.round(diffMinutes / 60);
-  return diffHours === 1 ? "1 hr" : `${diffHours} hrs`;
+  return diffHours === 1 ? "1 hour" : `${diffHours} hours`;
 }
 
 function SessionCard({ session, onSelect }) {

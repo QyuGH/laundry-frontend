@@ -1,7 +1,14 @@
 import { useState } from "react";
-import HourlyForecast from "./HourlyForecast";
 import ForecastDayCard from "./ForecastDayCard";
-import { Clock, Sparkle, ArrowsClockwise } from "@phosphor-icons/react";
+import {
+  Clock,
+  Sparkle,
+  ArrowsClockwise,
+  CloudRain,
+  Sun,
+  CaretLeft,
+  CaretRight,
+} from "@phosphor-icons/react";
 
 const formatDayLabel = (dateStr) => {
   if (!dateStr) return "";
@@ -22,6 +29,28 @@ const formatExpiryLabel = (dateStr) => {
   });
 };
 
+const formatDryingHours = (hoursCounted, estimatedDryingDuration) => {
+  if (hoursCounted === 0) {
+    return "No drying hours left today";
+  }
+  if (
+    estimatedDryingDuration === null ||
+    estimatedDryingDuration === undefined
+  ) {
+    if (hoursCounted !== undefined && hoursCounted !== null) {
+      return "Longer than the available time";
+    }
+    return null;
+  }
+  if (typeof estimatedDryingDuration === "number") {
+    const rounded = Math.round(estimatedDryingDuration * 10) / 10;
+    const formattedNum =
+      rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+    return `${formattedNum} Hrs Drying`;
+  }
+  return null;
+};
+
 function PlannerSection({
   plan,
   isGenerating,
@@ -30,22 +59,19 @@ function PlannerSection({
   showLocationButton,
   onChangeLocationClick,
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [activeHourlyIndex, setActiveHourlyIndex] = useState(null);
-
-  const handleHourlyToggle = (index) => {
-    setActiveHourlyIndex((prev) => (prev === index ? null : index));
-  };
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
 
   if (!plan || isExpired) {
     return (
-      <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
+      <section className="rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
               Weather-Guided Timing
             </span>
-            <h3 className="text-lg font-bold font-display text-text mt-0.5">
+            <h3 className="text-xl sm:text-2xl font-bold font-display text-text mt-0.5">
               Laundry Planner
             </h3>
           </div>
@@ -122,93 +148,230 @@ function PlannerSection({
     );
   }
 
-  const bestDay = plan.days[plan.bestDayIndex];
+  const days = Array.isArray(plan?.days) ? plan.days : [];
+  const bestDayIndex =
+    typeof plan?.bestDayIndex === "number" &&
+    plan.bestDayIndex >= 0 &&
+    plan.bestDayIndex < days.length
+      ? plan.bestDayIndex
+      : null;
+  const bestDay = bestDayIndex !== null ? days[bestDayIndex] : null;
+
+  const safeActiveIndex = Math.min(
+    Math.max(activeDayIndex, 0),
+    Math.max(days.length - 1, 0),
+  );
+  const activeDay = days[safeActiveIndex] || null;
+
+  const hasVerdictLabel = days.some((d) => Boolean(d?.verdictLabel));
+
+  const bestDayDuration = bestDay
+    ? formatDryingHours(bestDay.hoursCounted, bestDay.estimatedDryingDuration)
+    : null;
+
+  const handleTouchStart = (e) => {
+    setTouchEndX(null);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const distance = touchStartX - touchEndX;
+    const minSwipeDistance = 45;
+    if (distance > minSwipeDistance && safeActiveIndex < days.length - 1) {
+      setActiveDayIndex((prev) => prev + 1);
+    } else if (distance < -minSwipeDistance && safeActiveIndex > 0) {
+      setActiveDayIndex((prev) => prev - 1);
+    }
+  };
 
   return (
-    <section className="rounded-lg border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
+    <section className="rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-card flex flex-col gap-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-5">
         <div className="flex flex-col">
           <span className="text-xs font-bold tracking-widest text-brand uppercase font-display">
             Weather-Guided Timing
           </span>
-          <h3 className="text-lg font-bold font-display text-text mt-0.5">
+          <h3 className="text-xl sm:text-2xl font-bold font-display text-text mt-0.5">
             Laundry Planner
           </h3>
         </div>
 
-        <div className="flex items-center gap-2">
-          {showLocationButton && (
-            <button
-              onClick={onChangeLocationClick}
-              className="px-3.5 py-1.5 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
-            >
-              Change Location
-            </button>
-          )}
-
+        {showLocationButton && (
           <button
-            onClick={() => {
-              setIsExpanded((prev) => !prev);
-              if (isExpanded) setActiveHourlyIndex(null);
-            }}
+            onClick={onChangeLocationClick}
             className="px-3.5 py-1.5 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
           >
-            {isExpanded ? "Collapse 4-Day Plan" : "Expand 4-Day Plan"}
+            Change Location
           </button>
-        </div>
+        )}
       </div>
 
-      <ForecastDayCard
-        label={formatDayLabel(bestDay.date)}
-        estimatedDryingDuration={bestDay.estimatedDryingDuration}
-        bodyText={plan.recommendationText}
-        emphasized
-      />
+      {bestDay && (
+        <div className="rounded-xl border border-brand-soft bg-surface-raised p-5 sm:p-7 shadow-xs flex flex-col gap-0">
+          <div className="flex items-center justify-between flex-wrap gap-3 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Sparkle className="w-5 h-5" weight="fill" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand font-display">
+                  Recommendation
+                </span>
+                <h4 className="text-lg sm:text-xl font-bold font-display text-text">
+                  {formatDayLabel(bestDay.date)}
+                </h4>
+                <span className="text-xs text-text-muted">
+                  Best outdoor option across the four-day forecast
+                </span>
+              </div>
+            </div>
+          </div>
 
-      {isExpanded && (
-        <div className="flex flex-col gap-4 pt-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-text-muted font-display">
-            Full 4-Day Breakdown
-          </span>
+          <div className="border-t border-border pt-4 pb-4">
+            <p className="text-sm sm:text-base leading-relaxed text-text">
+              {plan.recommendationText}
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {plan.days.map((day, index) => {
-              const isHourlyOpen = activeHourlyIndex === index;
-              const hasHourlyData =
-                Array.isArray(day.hourlyBreakdown) &&
-                day.hourlyBreakdown.length > 0;
+          <div className="border-t border-border pt-4 flex flex-col md:flex-row">
+            <div className="flex-1 flex items-start gap-3 py-3 md:py-0 md:pr-5">
+              <Sun
+                className="w-4 h-4 text-brand mt-0.5 shrink-0"
+                weight="bold"
+              />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted font-display">
+                  Expected Drying Duration
+                </span>
+                <span className="text-sm font-bold text-text">
+                  {bestDayDuration || "Available during daylight"}
+                </span>
+              </div>
+            </div>
 
-              return (
-                <div key={index} className="flex flex-col">
-                  <ForecastDayCard
-                    label={`Day ${index + 1}: ${formatDayLabel(day.date)}`}
-                    estimatedDryingDuration={day.estimatedDryingDuration}
-                    bodyText={day.verdict}
-                  >
-                    {hasHourlyData && (
-                      <div className="pt-2 border-t border-border mt-auto">
-                        <button
-                          onClick={() => handleHourlyToggle(index)}
-                          className="w-full py-2 rounded-md border border-border text-xs font-semibold text-text hover:bg-canvas transition-colors cursor-pointer"
-                        >
-                          {isHourlyOpen
-                            ? "Hide Hourly Timeline"
-                            : "View Hourly Timeline"}
-                        </button>
-                      </div>
-                    )}
-                  </ForecastDayCard>
+            <div className="flex-1 flex items-start gap-3 py-3 md:py-0 md:px-5 border-t border-border md:border-t-0 md:border-l">
+              <Clock
+                className="w-4 h-4 text-brand mt-0.5 shrink-0"
+                weight="bold"
+              />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted font-display">
+                  Safest Drying Window
+                </span>
+                <span className="text-sm font-bold text-text">
+                  {bestDay.bestDryingWindow || "Indoor drying recommended"}
+                </span>
+              </div>
+            </div>
 
-                  {isHourlyOpen && (
-                    <div className="p-4 mt-2 rounded-lg border border-border bg-surface-raised">
-                      <HourlyForecast hours={day.hourlyBreakdown} />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            <div className="flex-1 flex items-start gap-3 py-3 md:py-0 md:pl-5 border-t border-border md:border-t-0 md:border-l">
+              <CloudRain
+                className="w-4 h-4 text-brand mt-0.5 shrink-0"
+                weight="bold"
+              />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted font-display">
+                  Lowest Peak Rain Chance
+                </span>
+                <span className="text-sm font-bold text-text">
+                  {bestDay.peakRainProbability !== undefined &&
+                  bestDay.peakRainProbability !== null
+                    ? `${bestDay.peakRainProbability}%`
+                    : "Low Risk"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
+      )}
+
+      {days.length > 0 && (
+        <div className="flex flex-col gap-4 pt-4 border-t border-border">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold uppercase tracking-widest text-brand font-display">
+              Four-Day Outlook
+            </span>
+            <h4 className="text-lg font-bold font-display text-text">
+              Day-by-day forecast
+            </h4>
+            <p className="text-xs text-text-muted">
+              Review the expected conditions before choosing when to dry.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface py-3 px-4 flex items-center justify-between shadow-xs">
+            <button
+              onClick={() => setActiveDayIndex((prev) => Math.max(0, prev - 1))}
+              disabled={safeActiveIndex === 0}
+              aria-label="Previous Day"
+              className="w-9 h-9 rounded-full border border-border bg-surface hover:text-white flex items-center justify-center text-text hover:bg-brand-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+            >
+              <CaretLeft className="w-4 h-4" weight="bold" />
+            </button>
+
+            <div className="flex flex-col items-center text-center gap-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-brand font-display">
+                {`Day ${safeActiveIndex + 1} of ${days.length}`}
+              </span>
+              <span className="text-sm sm:text-base font-bold text-text font-display">
+                {formatDayLabel(activeDay?.date)}
+              </span>
+              <div className="flex items-center gap-1.5 mt-1">
+                {days.map((_, dotIdx) => (
+                  <button
+                    key={dotIdx}
+                    onClick={() => setActiveDayIndex(dotIdx)}
+                    aria-label={`Go to Day ${dotIdx + 1}`}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                      dotIdx === safeActiveIndex
+                        ? "w-6 bg-brand"
+                        : "w-2 bg-border hover:bg-border-strong"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() =>
+                setActiveDayIndex((prev) => Math.min(days.length - 1, prev + 1))
+              }
+              disabled={safeActiveIndex === days.length - 1}
+              aria-label="Next Day"
+              className="w-9 h-9 rounded-full border border-border hover:text-white bg-surface flex items-center justify-center text-text hover:bg-brand-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+            >
+              <CaretRight className="w-4 h-4" weight="bold" />
+            </button>
+          </div>
+
+          {activeDay && (
+            <ForecastDayCard
+              day={activeDay}
+              dayNumber={safeActiveIndex + 1}
+              isBestDay={safeActiveIndex === bestDayIndex}
+              outcome={plan.outcome}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            />
+          )}
+
+          <p className="text-xs text-text-muted text-center pt-1">
+            Swipe or use the arrow buttons to view another day.
+          </p>
+        </div>
+      )}
+
+      {hasVerdictLabel && (
+        <p className="text-xs text-text-muted text-center pt-2 border-t border-border">
+          Drying hours and percentages are estimates for heavy fabrics like
+          jeans.
+        </p>
       )}
     </section>
   );
